@@ -190,7 +190,7 @@
   * `force?` (optional default false) if false, will refuse to push on master or main branches"
   ([source-dir repo-address base-branch-name branch-name commit-msg force?]
    (when (validate-branch-name force? branch-name)
-     (let [tmp-dir (build-files/create-sys-temp-dir)]
+     (let [tmp-dir (build-files/create-temp-dir)]
        (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name branch-name)
          (squash-local-files-and-push tmp-dir
                                       source-dir
@@ -211,12 +211,12 @@
   ([monorepo-address app-repo-address branch-name sub-dir commit-msg force?]
    (build-log/debug-format "Extract the app from repo on branch `%s`" branch-name)
    (when (validate-branch-name force? branch-name)
-     (let [monorepo-tmp-dir (build-files/create-sys-temp-dir)]
+     (let [monorepo-tmp-dir (build-files/create-temp-dir)]
        (build-log/trace-format "Clone monorepo in directory `%s`" monorepo-tmp-dir)
        (when (clone-repo-branch monorepo-tmp-dir
                                 monorepo-address
                                 branch-name)
-         (let [app-tmp-dir (build-files/create-sys-temp-dir)]
+         (let [app-tmp-dir (build-files/create-temp-dir)]
            (when (clone-repo-branch app-tmp-dir
                                     app-repo-address
                                     branch-name)
