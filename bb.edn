@@ -1,0 +1,63 @@
+{:paths ["src/clj"]
+ :deps {metosin/malli {:mvn/version "0.13.0"}}
+ :tasks {:requires [[babashka.process :as p]
+                    [automaton-build-app.tasks.clean :as build-clean]
+                    [automaton-build-app.tasks.publication :as build-publication]
+                    [automaton-build-app.tasks.test :as build-test]
+                    [automaton-build-app.tasks.code-helpers :as build-code-helpers]
+                    [babashka.fs :as fs]]
+
+         :init (do
+                 (defn- cicd?
+                   []
+                   (System/getenv "CI"))
+
+                 (defn wrap-fn
+                   "Run the function and manage
+                    Params:
+                    * `body` body to execute"
+                   [body-fn]
+                   (try
+                     (body-fn)
+                     (catch Exception e
+                       (println (format "Error during execution of `%s`, %s`" (:name (current-task)) (pr-str (ex-message e))))
+                       (if (cicd?)
+                         (println e)
+                         (let [file (fs/create-temp-file {:suffix ".edn"})]
+                           (println (format "See details in `%s`" (.toString (.toAbsolutePath file))))
+                           (spit (fs/file file) (prn-str e))
+                           ""))
+                       (System/exit 1))))
+
+                 (defn ltest []
+                   (build-test/ltest :env-development-test
+                                     :common-test))
+                 (defn lint []
+                   (build-code-helpers/lint (= "-d" (first *command-line-args*))
+                                            "src/clj"
+                                            "test/clj"))
+                 (defn repl []
+                   (build-code-helpers/repl :common-test :env-development-repl))
+
+                 (defn push []
+                   (build-publication/push (first *command-line-args*))))
+
+         clean-hard {:doc "Clean hard"
+                     :task (wrap-fn build-clean/clean-hard)}
+
+         ltest {:doc "Local test"
+                :task (wrap-fn ltest)}
+
+         lint {:doc "Lint (option -d will print details of file linted)"
+               :task (wrap-fn lint)}
+
+         repl {:doc "Repl"
+               :task (wrap-fn repl)}
+
+         push {:doc "Push this repo"
+               :task (wrap-fn push)}
+
+         gha {:doc "Github action command - is launched automatically by github"
+              :task (do
+                      (lint)
+                      (ltest))}}}
