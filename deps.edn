@@ -32,7 +32,6 @@
 ;;TODO Check below
         ;; codox/codox #:mvn{:version "0.10.8"},
         ;; com.github.liquidz/antq {:mvn/version "2.7.1133"}
-
         ;; clj-htmltopdf/clj-htmltopdf #:mvn{:version "0.2.1"}
         ;; hiccup/hiccup #:mvn{:version "2.0.0-RC1"}
      ;;   markdown-clj/markdown-clj #:mvn{:version "1.11.7"}

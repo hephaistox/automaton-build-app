@@ -1,6 +1,7 @@
 (ns automaton-build-app.tasks.test
   "Tests"
   (:require
+   [automaton-build-app.apps.app :as build-app]
    [automaton-build-app.os.commands :as build-cmds]
    [automaton-build-app.tasks.common :as build-tasks-common]))
 
@@ -11,12 +12,13 @@
   Params:
   * `aliases` collection of aliases to use in the tests"
   [& aliases]
-  (-> (build-cmds/execute ["clojure" (apply str "-M"
-                                         aliases)])
-      last
-      build-tasks-common/exit-code))
-
-;;TODO
-;;#_["npm" "install"]
-;; #_["npx" "shadow-cljs" "compile" "ltest"]
-;; #_["npx" "karma" "start" "--single-run"]
+  (let [app-data (build-app/build-app-data "")]
+    (-> (build-cmds/execute ["clojure" (apply str "-M"
+                                              aliases)])
+        last
+        build-tasks-common/exit-code)
+    (when (:shadow-cljs app-data)
+      (->> (build-cmds/execute ["npm" "install"]
+                               ["npx" "shadow-cljs" "compile" "ltest"]
+                               ["npx" "karma" "start" "--single-run"])
+           (map build-tasks-common/exit-code)))))

@@ -1,13 +1,7 @@
 ;; This configuration file contains all configuration common to all environments.
 {:app-name "automaton-core"
  :archi {:dir "docs/archi/"}
- :customer-materials {:dir "docs/customer_materials"
-                      :tmp-html-dir "tmp/pdf/htmls"
-                      :tmp-dir "tmp/pdf"}
+ :customer-materials {:src-dir "docs/customer_materials"}
  :documentation {:codox "docs/codox"
                  :code-stats "docs/code/stats.md"
-                 :code-subdir "docs/code"}
- :log {:spitted-edns "tmp/logs/spitted"}
- :published-apps {:dir "tmp"
-                  :code-subdir "code-pub"}
- :tests {:tmp-dirs "tmp/tests"}}
+                 :code-subdir "docs/code"}}

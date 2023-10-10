@@ -123,23 +123,6 @@
       (is (= (str "tmp" sut/file-separator "foo" sut/file-separator "bar")
              (sut/create-file-path "tmp" "foo" "bar"))))))
 
-;; (deftest change-extension
-;;   (testing "Change the extension"
-;;     (is (= "toto.edn"
-;;            (sut/change-extension "toto.tmp" ".edn")))
-;;     (is (= "toto.edn.edn"
-;;            (sut/change-extension "toto.edn.tmp" ".edn")))
-;;     (is (= "toto.edn"
-;;            (sut/change-extension "toto" ".edn")))))
-
-;; (deftest create-dirs
-;;   (testing "Testing an existing file"
-;;     (is (thrown-with-msg? clojure.lang.ExceptionInfo
-;;                           #"Can't create a directory"
-;;                           (sut/create-dirs "deps.edn"))))
-;;   (testing "Testing a possible directory"
-;;     (is (sut/create-dirs (sut/create-temp-dir)))))
-
 (deftest absolutize
   (testing "Absolute don't change an absolute path"
     (is (= "/foo"
@@ -170,16 +153,6 @@
     (is (= "automaton/automaton-core/foo"
            (sut/file-in-same-dir "automaton/automaton-core/deps-does-not-exist.edn" "foo")))))
 
-;; (deftest file-ized-test
-;;   (testing "- is replaced with _"
-;;     (is (= "foo_bar"
-;;            (sut/file-ized "foo-bar")))))
-
-;; (deftest add-suffix-test
-;;   (testing "Add a suffix to file, between the name and the extension"
-;;     (is (= "core.mustache.clj"
-;;            (sut/add-suffix "core.clj" ".mustache")))))
-
 (deftest extract-path-test
   (testing "A relative file returns nil"
     (is (= "./"
@@ -199,16 +172,6 @@
            (count
             (sut/filter-existing-dir [".clj-kondo" "non-existing-dir-filtered"]))))))
 
-;; (deftest empty-path?
-;;   (testing "Empty path"
-;;     (is (sut/empty-path? (sut/create-temp-dir)))))
-
-(comment
-  (keys
-   (sut/create-files-map "landing"
-                         "**{.clj,.cljs,.cljc,.edn}"))
-  ;
-  )
 (deftest match-extension?-test
   (testing "Check extenstion is matching"
     (is (sut/match-extension? "foo.bar"
