@@ -1,0 +1,7 @@
+{:monorepo {:app-dir "automaton/automaton_build_app"}
+ :publication {:repo-address "git@github.com:hephaistox/automaton-build-app.git"
+               :repo-name "automaton-build-app"
+               :as-lib hephaistox/automaton-build-app
+               :branch "main"}
+ :documentation {:dir "docs"}
+ :app-name "automaton-build-app"}
