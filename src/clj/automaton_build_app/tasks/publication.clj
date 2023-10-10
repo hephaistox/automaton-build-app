@@ -15,5 +15,3 @@
                                           (get-in app-data [:publication :branch])
                                           (build-cfg-mgt/current-branch ".")
                                           commit-msg)))
-
-(push "test")
