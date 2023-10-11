@@ -7,6 +7,10 @@
    [automaton-build-app.utils.string :as build-string]
    [automaton-build-app.os.java-properties :as build-java-properties]))
 
+(def size-command
+  "Size of the command line to be managed, measured on mcbook pro"
+  185)
+
 (defmacro print-message
   "Helper function to print the log message"
   [level & messages]
@@ -23,7 +27,7 @@
                         "--> ")
            suffix# ""]
        (println (build-string/limit-length (str ~@messages)
-                                           255
+                                           size-command
                                            prefix#
                                            suffix#
                                            (constantly nil))))))
