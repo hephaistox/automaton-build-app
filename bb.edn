@@ -70,5 +70,4 @@
                    :task (wrap-fn build-code-helpers/code-doc)}
 
          push {:doc "Push this repo"
-               :task (->>  (partial (build-publication/push (first *command-line-args*)))
-                           wrap-fn)}}}
+               :task (wrap-fn (partial (build-publication/push (first *command-line-args*))))}}}

@@ -14,5 +14,4 @@
                                           (get-in app-data [:publication :repo-address])
                                           (get-in app-data [:publication :branch])
                                           (build-cfg-mgt/current-branch ".")
-                                          commit-msg)
-    (println "huhu")))
+                                          commit-msg)))
