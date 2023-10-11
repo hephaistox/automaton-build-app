@@ -38,12 +38,17 @@
 
 (defn read-param
   ([key-path default-value]
-   (cond (not (vector? key-path)) (do
-                                    (log/warn-format "Key path should be a vector. I found " key-path)
-                                    default-value)
-         :else (let [value (prot/read-conf-param conf-state key-path)]
-                 (log/trace "Read key-path " key-path " = " value)
-                 (or value
-                     default-value))))
+   (if (not (vector? key-path))
+     (do
+       (log/warn-format "Key path should be a vector. I found `%s`, default value `%s` is returned" key-path default-value)
+       default-value)
+     (let [value (prot/read-conf-param conf-state key-path)]
+       (if (nil? value)
+         (do
+           (log/trace-format "Read key-path %s returned nil, defaulted to `%s`" key-path default-value)
+           default-value)
+         (do
+           (log/trace "Read key-path " key-path " = " value)
+           value)))))
   ([key-path]
    (read-param key-path nil)))

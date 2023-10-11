@@ -109,20 +109,21 @@
   * `dir` directory where the repository is stored
   * `msg` message for the commit"
   [dir msg]
-  (when (git-installed?)
-    (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
-                                         ["git" "commit" "-m" msg {:dir dir}]
-                                         ["git" "push" "--set-upstream" "origin" (current-branch dir) {:dir dir}])]
-      (cond (every? #(= 0 (first %))
-                    commit-res)      (do
-                                       (build-log/info "Successfully pushed")
-                                       true)
-            (= [0 1 0] (map first commit-res)) (do
-                                                 (build-log/debug "Nothing to commit, skip the push")
-                                                 false)
-            :else (do
-                    (build-log/error "Unexpected error during commit-and-push : " commit-res)
-                    false)))))
+  (let [msg (or msg "commit")]
+    (when (git-installed?)
+      (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
+                                           ["git" "commit" "-m" msg {:dir dir}]
+                                           ["git" "push" "--set-upstream" "origin" (current-branch dir) {:dir dir}])]
+        (cond (every? #(= 0 (first %))
+                      commit-res)      (do
+                                         (build-log/info "Successfully pushed")
+                                         true)
+              (= [0 1 0] (map first commit-res)) (do
+                                                   (build-log/debug "Nothing to commit, skip the push")
+                                                   false)
+              :else (do
+                      (build-log/error "Unexpected error during commit-and-push : " commit-res)
+                      false))))))
 
 (defn- prepare-cloned-repo-on-branch
   "Clone the repo in diectory `tmp-dir`, the repo at `repo-address` is copied on branch `branch-name`, if it does not exist create a branch based on `base-branch-name`

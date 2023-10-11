@@ -12,3 +12,10 @@
       build-cfg-mgt/clean-hard
       last
       build-tasks-common/exit-code))
+
+(defn clean
+  "Clean cache files for compilers to start from scratch
+  Params:
+  * `dirs` is a list of directory to clean (could be relative to project root or absolute)"
+  [& dirs]
+  (build-files/delete-files dirs))

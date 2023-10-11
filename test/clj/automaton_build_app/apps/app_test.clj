@@ -10,12 +10,6 @@
                    :repo-name "app-stub"
                    :as-lib 'app-stub
                    :branch "main"}
-   :run-env {:test-env {:host-repo-address "test1"
-                        :remote-name "prod-test-env"
-                        :app-id "app id"}
-             :prod-env {:host-repo-address "test1-prod"
-                        :remote-name "prod-test-env"
-                        :app-id "app id2"}}
    :templating {:app-title "app stub "}
 
    :app-name "app-stub"

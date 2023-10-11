@@ -4,9 +4,10 @@
                     [automaton-build-app.tasks.clean :as build-clean]
                     [automaton-build-app.tasks.publication :as build-publication]
                     [automaton-build-app.tasks.test :as build-test]
+                    [automaton-build-app.log :as build-log]
+                    [automaton-build-app.tasks.doc :as build-doc]
                     [automaton-build-app.tasks.code-helpers :as build-code-helpers]
                     [babashka.fs :as fs]]
-
          :init (do
                  (defn- cicd?
                    []
@@ -31,33 +32,43 @@
 
                  (defn ltest []
                    (build-test/ltest :env-development-test
-                                     :common-test))
-                 (defn lint []
+                                     :common-test)
                    (build-code-helpers/lint (= "-d" (first *command-line-args*))
                                             "src/clj"
-                                            "test/clj"))
-                 (defn repl []
-                   (build-code-helpers/repl :common-test :env-development-repl))
+                                            "test/clj")))
 
-                 (defn push []
-                   (build-publication/push (first *command-line-args*))))
+         blog {:doc "Transforms md file to pdf based on edn file"
+               :task (build-doc/blog-task)}
 
-         clean-hard {:doc "Clean hard"
+         clean {:doc "Clean cache files for compiles, and logs"
+                :task (wrap-fn (partial build-clean/clean
+                                        ".cpcache"
+                                        ".clj-kondo/.cache"
+                                        "tmp"))}
+         clean-hard {:doc "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)"
                      :task (wrap-fn build-clean/clean-hard)}
+
+         gha {:doc "Github action command - is launched automatically by github"
+              :task (if (or (System/getenv "CI")
+                            (= "-f"
+                               (first *command-line-args*)))
+                      (ltest)
+                      (build-log/error "This task if for CI, use `bb ltest` instead (or -f to force it to test it locally)"))}
+
+         gha-lconnect {}
+
+         lconnect {:doc "Local connect - repl"
+                   :task (wrap-fn (partial build-code-helpers/lconnect :common-test :env-development-repl))}
 
          ltest {:doc "Local test"
                 :task (wrap-fn ltest)}
 
-         lint {:doc "Lint (option -d will print details of file linted)"
-               :task (wrap-fn lint)}
+         update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
+                      :task (wrap-fn build-code-helpers/update-deps)}
 
-         repl {:doc "Repl"
-               :task (wrap-fn repl)}
+         code-doc {:doc "Create the documentation of the app"
+                   :task (wrap-fn build-code-helpers/code-doc)}
 
          push {:doc "Push this repo"
-               :task (wrap-fn push)}
-
-         gha {:doc "Github action command - is launched automatically by github"
-              :task (do
-                      (lint)
-                      (ltest))}}}
+               :task (->>  (partial (build-publication/push (first *command-line-args*)))
+                           wrap-fn)}}}

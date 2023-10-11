@@ -22,13 +22,21 @@
   They could be regular files or directory, when so the whole subtreee will be removed"
   [file-list]
   (doseq [file file-list]
-    (if (fs/directory? file)
-      (do
-        (build-log/debug "Directory " (absolutize file) " is deleted")
-        (fs/delete-tree file))
-      (do
-        (build-log/debug "File " (absolutize file) " is deleted")
-        (fs/delete-if-exists file)))))
+    (when (fs/exists? file)
+      (if (fs/directory? file)
+        (do
+          (build-log/debug "Directory " (absolutize file) " is deleted")
+          (fs/delete-tree file))
+        (do
+          (build-log/debug "File " (absolutize file) " is deleted")
+          (fs/delete-if-exists file))))))
+
+;;TODO Add tests
+(defn change-extension
+  "Change the extension"
+  [file-name new-extension]
+  (str (fs/strip-ext file-name)
+       new-extension))
 
 (defn- copy-files-or-dir-validate
   "Internal function to validate data for `copy-files-or-dir`"
@@ -40,6 +48,13 @@
                          files))
     (throw (ex-info "The `files` parameter should be a sequence of string or `java.net.URL`"
                     {:files files}))))
+
+(defn modified-since
+  "Return true if anchor is older than one of the file in file-set"
+  [anchor file-set]
+  (let [file-set (filter some? file-set)]
+    (when anchor
+      (seq (fs/modified-since anchor file-set)))))
 
 (defn copy-files-or-dir
   "Copy the files, even if they are directories to the target
@@ -144,16 +159,20 @@
   For instance:
   * `(files/search-files \"\" \"**{.clj,.cljs,.cljc,.edn}\")` search all clj files in pwd directory"
   ([root pattern options]
-   (when-not (directory-exists? root)
-     (throw (ex-info (str root " is expected to be a directory") {:root root
-                                                                  :pattern pattern
-                                                                  :options options})))
-   (into []
+   (if (directory-exists? root)
+     (into []
          (map str
               (fs/glob root pattern (merge {:hidden true
                                             :recursive true
                                             :follow-links true}
-                                           options)))))
+                                           options))))
+     (do
+       (build-log/warn (str root " should be a directory"))
+       (build-log/trace {:root root
+                         :pattern pattern
+                         :options options})
+       []))
+   )
   ([root pattern]
    (search-files root pattern {})))
 
@@ -162,6 +181,7 @@
   (some (fn [extension]
           (str/ends-with? filename extension))
         extensions))
+
 (defn file-in-same-dir
   "Use the relative-name to create in file in the same directory than source-file"
   [source-file relative-name]

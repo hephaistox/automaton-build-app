@@ -2,7 +2,8 @@
   "Manage `build-config.edn` file"
   (:require
    [automaton-build-app.os.edn-utils :as build-edn-utils]
-   [automaton-build-app.os.files :as build-files]))
+   [automaton-build-app.os.files :as build-files]
+   [automaton-build-app.log :as build-log]))
 
 (def build-config-filename
   "build_config.edn")
@@ -51,4 +52,16 @@
   (-> (build-files/create-file-path app-dir
                                     build-config-filename)
       build-edn-utils/read-edn))
-(build-edn-utils/read-edn "/Users/anthonycaumond/Dev/hephaistox/monorepo/clojure/automaton/automaton_build_app/build_config.edn")
+
+(defn read-param
+  "Read a data in the build configuration file"
+  [key-path default-value]
+  (let [value (get-in (read-build-config ".")
+                      key-path)]
+    (if value
+      (do
+        (build-log/trace-format "Read build configuration key %s, found `%s`" key-path value)
+        value)
+      (do
+        (build-log/trace-format "Read build configuration key %s, not found, defaulted to value `%s`" key-path default-value)
+        default-value))))

@@ -15,9 +15,9 @@
   (if (m/validate schema data)
     data
     (do
-      (build-log/warn-format "Data `%s` is not validated: %s"
-                             (pr-str data)
+      (build-log/warn-format "Not validated %s, data was `%s`"
                              (-> schema
                                  (m/explain data)
-                                 (me/humanize)))
+                                 (me/humanize))
+                             (pr-str data))
       nil)))

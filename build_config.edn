@@ -3,5 +3,11 @@
                :repo-name "automaton-build-app"
                :as-lib hephaistox/automaton-build-app
                :branch "main"}
- :documentation {:dir "docs"}
+ :customer-materials {:html-dir "tmp/html"
+                      :dir "customer_materials"
+                      :pdf-dir "tmp/pdf"}
+ :doc {:dir "docs"
+       :code-doc {:dir "docs/code"
+                  :title "Build app automaton"
+                  :description "Autonomous project to build an hephaistox app"}}
  :app-name "automaton-build-app"}

@@ -9,15 +9,6 @@
    [automaton-build-app.os.files :as build-files]
    [automaton-build-app.schema :as build-schema]))
 
-(def env-schema
-  "Schema of an environment"
-  [:map {:closed true}
-   [:host-repo-address :string]
-   [:remote-name :string]
-   [:web-link {:optional true} :string]
-   [:log-link {:optional true} :string]
-   [:app-id :string]])
-
 (def cust-app-schema
   "Customer application specific schema"
   [[:publication {:optional true} [:map {:closed true}
@@ -26,13 +17,15 @@
                                    [:link {:optional true} :string]
                                    [:as-lib {:optional true} :symbol]
                                    [:branch :string]]]
-   [:run-env {:optional true} [:map {:closed true}
-                               [:test-env env-schema]
-                               [:prod-env env-schema]]]
    [:templating {:optional true} [:map {:closed true}
                                   [:app-title :string]]]
-   [:documentation {:optional true} [:map {:closed true}
-                                     [:dir :string]]]])
+   [:customer-materials {:optional true} [:map {:closed true}
+                                          [:html-dir :string]
+                                          [:dir :string]
+                                          [:pdf-dir :string]]]
+   [:doc {:optional true} [:map {:closed true}
+                           [:dir :string]
+                           [:code-doc :map]]]])
 
 (def app-build-config-schema
   "Application schema"
@@ -44,10 +37,11 @@
                  [:cust-app? {:optional true} :boolean]
                  [:everything? {:optional true} :boolean]
                  [:template-app? {:optional true} :boolean]
-
                  [:doc? {:optional true} :boolean]
                  [:frontend? {:optional true} :boolean]
 
+                 ;; This map is not closed, as monorepo features should not be described here
+                 ;; that data are here for convienience
                  [:monorepo
                   [:map [:app-dir :string]]]]
                 cust-app-schema)))

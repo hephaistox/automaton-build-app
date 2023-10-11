@@ -2,8 +2,8 @@
   "For one application publication to its configuration management
   The source is the local files"
   (:require
-   [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]
-   [automaton-build-app.apps.app :as build-app]))
+   [automaton-build-app.apps.app :as build-app]
+   [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]))
 
 (defn push
   "Push the current repository.
