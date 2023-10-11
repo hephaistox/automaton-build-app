@@ -164,8 +164,10 @@
 
   (build-files/copy-files-or-dir [source-dir]
                                  tmp-dir)
-  (commit-and-push tmp-dir
-                   commit-message))
+  (let[res  (commit-and-push tmp-dir
+                             commit-message)]
+    (println" hihi")
+    res))
 
 (defn- validate-branch-name
   "Validate the name of the branch
