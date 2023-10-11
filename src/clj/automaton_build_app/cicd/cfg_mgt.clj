@@ -223,5 +223,6 @@
                                     branch-name)
              (squash-local-files-and-push app-tmp-dir
                                           (build-files/create-dir-path monorepo-tmp-dir sub-dir)
-                                          commit-msg))))))
-   (println "hoho")))
+                                          commit-msg)
+             (println "hoho"))))))
+   ))
