@@ -5,7 +5,7 @@
    [automaton-build-app.apps.app :as build-app]
    [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]))
 
-(defn push
+(defn push-from-local
   "Push the current repository.
   Use with care, the source truth is monorepo commits"
   [commit-msg]
