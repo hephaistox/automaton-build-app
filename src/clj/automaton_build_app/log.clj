@@ -9,7 +9,7 @@
 
 (def size-command
   "Size of the command line to be managed, measured on mcbook pro"
-  234)
+  243)
 
 (defmacro print-message
   "Helper function to print the log message"
