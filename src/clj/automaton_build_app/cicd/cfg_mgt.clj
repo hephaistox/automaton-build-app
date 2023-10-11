@@ -164,10 +164,8 @@
 
   (build-files/copy-files-or-dir [source-dir]
                                  tmp-dir)
-  (let [res  (commit-and-push tmp-dir
-                              commit-message)]
-    (println "hehe")
-    res))
+  (commit-and-push tmp-dir
+                   commit-message))
 
 (defn- validate-branch-name
   "Validate the name of the branch
@@ -197,7 +195,8 @@
        (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name branch-name)
          (squash-local-files-and-push tmp-dir
                                       source-dir
-                                      commit-msg)))))
+                                      commit-msg)
+         (println "kiki")))))
   ([source-dir repo-address base-branch-name branch-name commit-msg]
    (push-local-dir-to-repo source-dir repo-address base-branch-name branch-name commit-msg false)))
 
