@@ -11,17 +11,22 @@
   "Helper function to print the log message"
   [level & messages]
   `(when-not (build-java-properties/get-java-property "hephaistox-in-test")
-     (println (str (.format (java.text.SimpleDateFormat. "HH:mm:ss:SSS")
-                            (java.util.Date.))
-                   " "
-                   ~level
-                   "-"
-                   (-> (ns-name *ns*)
-                       str
-                       (build-string/fix-length 45
-                                                "" " "))
-                   "--> "
-                   ~@messages))))
+     (let [prefix# (str (.format (java.text.SimpleDateFormat. "HH:mm:ss:SSS")
+                                 (java.util.Date.))
+                        " "
+                        ~level
+                        "-"
+                        (-> (ns-name *ns*)
+                            str
+                            (build-string/fix-length 45
+                                                     "" " "))
+                        "--> ")
+           suffix# ""]
+       (println (build-string/limit-length (str ~@messages)
+                                           255
+                                           prefix#
+                                           suffix#
+                                           (constantly nil))))))
 
 (defmacro trace
   [& messages]
