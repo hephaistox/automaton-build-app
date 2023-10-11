@@ -195,8 +195,7 @@
        (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name branch-name)
          (squash-local-files-and-push tmp-dir
                                       source-dir
-                                      commit-msg)
-         (println "kiki")))))
+                                      commit-msg)))))
   ([source-dir repo-address base-branch-name branch-name commit-msg]
    (push-local-dir-to-repo source-dir repo-address base-branch-name branch-name commit-msg false)))
 
@@ -224,6 +223,4 @@
                                     branch-name)
              (squash-local-files-and-push app-tmp-dir
                                           (build-files/create-dir-path monorepo-tmp-dir sub-dir)
-                                          commit-msg)
-             (println "hoho"))))))
-   ))
+                                          commit-msg))))))))
