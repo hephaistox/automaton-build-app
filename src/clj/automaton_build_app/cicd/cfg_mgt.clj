@@ -164,10 +164,8 @@
 
   (build-files/copy-files-or-dir [source-dir]
                                  tmp-dir)
-  (let[res  (commit-and-push tmp-dir
-                             commit-message)]
-    (println" hihi")
-    res))
+  (commit-and-push tmp-dir
+                   commit-message))
 
 (defn- validate-branch-name
   "Validate the name of the branch
@@ -225,4 +223,5 @@
                                     branch-name)
              (squash-local-files-and-push app-tmp-dir
                                           (build-files/create-dir-path monorepo-tmp-dir sub-dir)
-                                          commit-msg))))))))
+                                          commit-msg))))))
+   (println "hoho")))
