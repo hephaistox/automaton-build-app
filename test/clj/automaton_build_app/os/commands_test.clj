@@ -3,19 +3,24 @@
    [automaton-build-app.os.commands :as sut]
    [clojure.test :refer [deftest is testing]]))
 
-(deftest execute-test
-  (testing "Check execute with :out :string is ok"
-    (is (= [[0 "foo\n"]]
-           (sut/execute ["echo" "foo" {:out :string}]))))
-  (testing "Error is caught and next command is tried"
-    (is (= [[-1 "Unexpected error during execution of this command[\"pwd2\" {:out :string}]"]
-            [0 "coucou\n"]]
-           (sut/execute ["pwd2" {:out :string}]
-                        ["echo" "coucou" {:out :string}])))))
+(deftest execute-and-trace-test
+  (testing "Silently executing pwd is sucessfull"
+    (is (sut/execute-and-trace ["pwd"]))
+    (is (sut/execute-and-trace ["pwd"]
+                               ["pwd"])))
+  (testing "failing command are detected"
+    (is (not (sut/execute-and-trace ["pwd"]
+                                    ["this-command-does-not-exist"]
+                                    ["pwd"])))))
 
-(comment
-  (sut/execute ["pwd" {:out :string}])
-  (sut/execute ["pwd2" {:out :string}])
-  ;
-  )
+(deftest execute-silently-test
+  (testing "Silently executing pwd is sucessfull"
+    (is (sut/execute-silently ["pwd"]))
+    (is (sut/execute-silently ["pwd"]
+                              ["pwd"])))
+  (testing "Silently executing a non existing command is failing"
+    (is (not (sut/execute-silently ["this-command-does-not-exist"])))))
 
+(deftest execute-get-string-test
+  (testing "Get string actually return the strings"
+    (is (every? string? (sut/execute-get-string ["pwd"])))))

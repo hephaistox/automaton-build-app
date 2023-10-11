@@ -6,6 +6,7 @@
  :customer-materials {:html-dir "tmp/html"
                       :dir "customer_materials"
                       :pdf-dir "tmp/pdf"}
+ :container-repo {:account "hephaistox"}
  :doc {:dir "docs"
        :code-doc {:dir "docs/code"
                   :title "Build app automaton"

@@ -48,6 +48,13 @@
          clean-hard {:doc "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)"
                      :task (wrap-fn build-clean/clean-hard)}
 
+         code-doc {:doc "Create the documentation of the app"
+                   :task (wrap-fn build-code-helpers/code-doc)}
+
+         compile-to-jar {:doc "Compile that code to a jar"
+                         :task (wrap-fn build-)
+                  }
+
          gha {:doc "Github action command - is launched automatically by github"
               :task (if (or (System/getenv "CI")
                             (= "-f"
@@ -55,7 +62,8 @@
                       (ltest)
                       (build-log/error "This task if for CI, use `bb ltest` instead (or -f to force it to test it locally)"))}
 
-         gha-lconnect {}
+         gha-lconnect {:doc "Connect to a local container running this code"
+                       :task (wrap-fn (partial build-test/gha-lconnect))}
 
          lconnect {:doc "Local connect - repl"
                    :task (wrap-fn (partial build-code-helpers/lconnect :common-test :env-development-repl))}
@@ -63,11 +71,8 @@
          ltest {:doc "Local test"
                 :task (wrap-fn ltest)}
 
-         update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
-                      :task (wrap-fn build-code-helpers/update-deps)}
-
-         code-doc {:doc "Create the documentation of the app"
-                   :task (wrap-fn build-code-helpers/code-doc)}
-
          push {:doc "Push this repo"
-               :task (wrap-fn (partial build-publication/push-from-local (first *command-line-args*)))}}}
+               :task (wrap-fn (partial build-publication/push-from-local (first *command-line-args*)))}
+
+         update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
+                      :task (wrap-fn build-code-helpers/update-deps)}}}

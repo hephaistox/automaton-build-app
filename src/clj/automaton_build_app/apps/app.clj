@@ -19,6 +19,8 @@
                                    [:branch :string]]]
    [:templating {:optional true} [:map {:closed true}
                                   [:app-title :string]]]
+   [:container-repo {:optional true} [:map {:closed true}
+                                     [:account :string]]]
    [:customer-materials {:optional true} [:map {:closed true}
                                           [:html-dir :string]
                                           [:dir :string]

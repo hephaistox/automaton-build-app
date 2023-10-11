@@ -1,6 +1,7 @@
 (ns automaton-build-app.apps.app-test
   (:require
    [automaton-build-app.apps.app :as sut]
+   [automaton-build-app.code-helpers.build-config :as build-build-config]
    [clojure.test :refer [deftest is testing]]))
 
 (def app-stub
@@ -24,10 +25,13 @@
          :shadow-cljs {}))
 
 (deftest validate-test
-  (testing "Valid app"
+  (testing "Valid app stub"
     (is (sut/valid? app-stub)))
   (testing "Non valid app "
-    (is (not (sut/valid? {:weird-property true})))))
+    (is (not (sut/valid? {:weird-property true}))))
+  (testing "Valid app real build-config"
+    (is (-> (build-build-config/read-build-config "")
+            sut/valid?))))
 
 (deftest build-app-test
   (testing "Current project should generate its map"
