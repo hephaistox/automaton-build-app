@@ -1,8 +1,10 @@
 {:monorepo {:app-dir "automaton/automaton_build_app"}
- :publication {:repo-address "git@github.com:hephaistox/automaton-build-app.git"
-               :repo-name "automaton-build-app"
+ :publication {:repo {:address "git@github.com:hephaistox/automaton-build-app.git"
+                      :branch "main"}
                :as-lib hephaistox/automaton-build-app
-               :branch "main"}
+               :major-version "1.2.%s"
+               :jar {:class-dir "target/classes"
+                     :target-filename "target/%s-%s.jar"}}
  :customer-materials {:html-dir "tmp/html"
                       :dir "customer_materials"
                       :pdf-dir "tmp/pdf"}

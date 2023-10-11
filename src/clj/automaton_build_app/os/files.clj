@@ -31,7 +31,6 @@
           (build-log/debug "File " (absolutize file) " is deleted")
           (fs/delete-if-exists file))))))
 
-;;TODO Add tests
 (defn change-extension
   "Change the extension"
   [file-name new-extension]

@@ -21,7 +21,7 @@
         (when-not (string? stream)
           (when (or (.ready rdr)
                     (.isAlive (:proc proc)))
-            (Thread/sleep 40)
+            (Thread/sleep 10)
             (recur)))))))
 
 (defn log-during-execution

@@ -2,6 +2,7 @@
   "Code helpers"
   (:require
    [automaton-build-app.log :as build-log]
+   [automaton-build-app.code-helpers.compiler :as build-helpers-compiler]
    [automaton-build-app.os.commands :as build-cmds]
    [automaton-build-app.tasks.common :as build-tasks-common]))
 
@@ -41,3 +42,8 @@
   (-> (build-cmds/execute ["clojure" "-X" "automaton-build-app.doc.code-doc/build-doc"])
       last
       build-tasks-common/exit-code))
+
+(defn compile-app
+  "Compile the whole app, in production mode"
+  [exclusion-aliases]
+  (build-helpers-compiler/clj-compiler exclusion-aliases))

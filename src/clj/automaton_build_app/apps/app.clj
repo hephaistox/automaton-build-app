@@ -11,23 +11,31 @@
 
 (def cust-app-schema
   "Customer application specific schema"
-  [[:publication {:optional true} [:map {:closed true}
-                                   [:repo-address :string]
-                                   [:repo-name :string]
-                                   [:link {:optional true} :string]
-                                   [:as-lib {:optional true} :symbol]
-                                   [:branch :string]]]
-   [:templating {:optional true} [:map {:closed true}
-                                  [:app-title :string]]]
-   [:container-repo {:optional true} [:map {:closed true}
-                                     [:account :string]]]
+  [[:publication [:map {:closed true}
+                  [:repo [:map {:closed true}
+                          [:address :string]
+                          [:branch :string]]]
+
+                  [:as-lib :symbol]
+                  [:major-version :string]
+
+                  [:jar [:map {:closed true}
+                         [:class-dir :string]
+                         [:target-filename :string]]]]]
    [:customer-materials {:optional true} [:map {:closed true}
                                           [:html-dir :string]
                                           [:dir :string]
                                           [:pdf-dir :string]]]
+
+   [:container-repo {:optional true} [:map {:closed true}
+                                      [:account :string]]]
+
    [:doc {:optional true} [:map {:closed true}
                            [:dir :string]
-                           [:code-doc :map]]]])
+                           [:code-doc :map]]]
+
+   [:templating {:optional true} [:map {:closed true}
+                                  [:app-title :string]]]])
 
 (def app-build-config-schema
   "Application schema"
@@ -63,7 +71,7 @@
   Params:
   * `app-dir` the directory path of the application"
   [app-dir]
-  (build-log/debug-format "Build app data for `%s`" app-dir)
+  (build-log/debug-format "Build app data based on directory `%s`" app-dir)
   (some-> (build-build-config/read-build-config app-dir)
           valid?
           (assoc :app-dir app-dir

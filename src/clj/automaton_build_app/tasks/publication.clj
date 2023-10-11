@@ -11,7 +11,7 @@
   [commit-msg]
   (let [app-data (build-app/build-app-data "")]
     (build-cfg-mgt/push-local-dir-to-repo "."
-                                          (get-in app-data [:publication :repo-address])
-                                          (get-in app-data [:publication :branch])
+                                          (get-in app-data [:publication :repo :address])
+                                          (get-in app-data [:publication :repo :branch])
                                           (build-cfg-mgt/current-branch ".")
                                           commit-msg)))

@@ -34,12 +34,13 @@
      :as _deps-edn} excluded-aliases]
    (let [selected-aliases (apply dissoc aliases
                                  excluded-aliases)
-         alias-paths (mapcat (fn [[_alias-name paths]]
-                               (apply concat
-                                      (vals (select-keys paths [:extra-paths :paths]))))
-                             selected-aliases)]
-     (->> alias-paths
+         paths-in-aliases (mapcat (fn [[_alias-name paths]]
+                                    (apply concat
+                                           (vals (select-keys paths [:extra-paths :paths]))))
+                                  selected-aliases)]
+     (->> paths-in-aliases
           (concat paths)
+          (filter build-files/is-existing-file?)
           sort
           dedupe
           (into []))))

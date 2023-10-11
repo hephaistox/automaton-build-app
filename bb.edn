@@ -1,5 +1,6 @@
 {:paths ["src/clj"]
- :deps {metosin/malli {:mvn/version "0.13.0"}}
+ :deps {metosin/malli {:mvn/version "0.13.0"}
+        io.github.clojure/tools.build {:mvn/version "0.9.6"}}
  :tasks {:requires [[babashka.process :as p]
                     [automaton-build-app.tasks.clean :as build-clean]
                     [automaton-build-app.tasks.publication :as build-publication]
@@ -52,8 +53,7 @@
                    :task (wrap-fn build-code-helpers/code-doc)}
 
          compile-to-jar {:doc "Compile that code to a jar"
-                         :task (wrap-fn build-)
-                  }
+                         :task (wrap-fn (partial build-code-helpers/compile-app #{}))}
 
          gha {:doc "Github action command - is launched automatically by github"
               :task (if (or (System/getenv "CI")
