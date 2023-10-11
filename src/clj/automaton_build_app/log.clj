@@ -9,7 +9,7 @@
 
 (def size-command
   "Size of the command line to be managed, measured on mcbook pro"
-  185)
+  234)
 
 (defmacro print-message
   "Helper function to print the log message"
@@ -31,6 +31,7 @@
                                            prefix#
                                            suffix#
                                            (constantly nil))))))
+(count "aton_build_app -> caumond/feature/core-is-autonomous_2 ! $")
 
 (defmacro trace
   [& messages]
