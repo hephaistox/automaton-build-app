@@ -47,6 +47,16 @@
   ([deps-edn]
    (extract-paths deps-edn #{})))
 
+(defn extract-src-paths
+  "Extracts the `:paths` and `:extra-paths` from a given `deps.edn`, limit to source files (so exclude the resources)
+   e.g. {:run {...}}
+  Params:
+  * `deps-edn` content the deps edn file to search extract path in
+  * `excluded-aliases` is a collection of aliases to exclude"
+  [deps-edn excluded-aliases]
+  (->> (extract-paths deps-edn excluded-aliases)
+       (filter #(re-find #"src" %))))
+
 (defn spit-deps-edn
   "Spit the `content` in `deps.edn` file
   Params:

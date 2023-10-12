@@ -104,16 +104,17 @@
         first)))
 
 (defn commit-and-push
-  "Push the current state in dir to the same branch than the current one in the `dir`
+  "Push to its `origin` what is the working state in `dir` to branch `branch-name`
  Params:
   * `dir` directory where the repository is stored
-  * `msg` message for the commit"
-  [dir msg]
+  * `msg` message for the commit
+  * `branch-name` branch name"
+  [dir msg branch-name]
   (let [msg (or msg "commit")]
     (when (git-installed?)
       (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
                                            ["git" "commit" "-m" msg {:dir dir}]
-                                           ["git" "push" "--set-upstream" "origin" (current-branch dir) {:dir dir}])]
+                                           ["git" "push" "--set-upstream" "origin" branch-name {:dir dir}])]
         (cond (every? #(= 0 (first %))
                       commit-res)      (do
                                          (build-log/info "Successfully pushed")
@@ -165,7 +166,8 @@
   (build-files/copy-files-or-dir [source-dir]
                                  tmp-dir)
   (commit-and-push tmp-dir
-                   commit-message))
+                   commit-message
+                   (current-branch tmp-dir)))
 
 (defn- validate-branch-name
   "Validate the name of the branch
