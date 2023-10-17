@@ -150,11 +150,11 @@
                                          (build-log/info "Successfully pushed")
                                          true)
 
-              (= [0 1 0 1] (map first commit-res)) (do
+              (= [0 1 0 0] (map first commit-res)) (do
                                                      (build-log/debug "Nothing to commit, skip the push")
                                                      false)
 
-              (= [0 0 1 0] (map first commit-res)) (do
+              (= [0 0 0 1] (map first commit-res)) (do
                                                      (build-log/debug "Tag has failed")
                                                      false)
               :else (do
