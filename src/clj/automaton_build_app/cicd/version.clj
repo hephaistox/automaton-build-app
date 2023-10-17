@@ -12,5 +12,7 @@
         {:keys [major-version]} publication]
     (if major-version
       (->> (build-build-api/git-count-revs nil)
+           Integer/parseInt
+           inc
            (format major-version))
       (build-log/warn "Major version is missing"))))
