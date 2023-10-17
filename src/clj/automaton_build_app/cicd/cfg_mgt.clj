@@ -116,17 +116,28 @@
     (when (git-installed?)
       (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
                                            ["git" "commit" "-m" msg {:dir dir}]
-                                           ["git" "push" "--set-upstream" "origin" branch-name {:dir dir}])]
-        (cond (every? #(= 0 (first %))
-                      commit-res)      (do
-                                         (build-log/info "Successfully pushed")
-                                         true)
-              (= [0 1 0] (map first commit-res)) (do
-                                                   (build-log/debug "Nothing to commit, skip the push")
-                                                   false)
-              :else (do
-                      (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res))
-                      false))))))
+                                           ["git" "push" "--set-upstream" "origin" branch-name {:dir dir}])
+
+            cmd-failing (build-cmds/first-cmd-failing commit-res)]
+        (case cmd-failing
+          nil (do
+                (build-log/info "Successfully pushed")
+                true)
+          1 (do
+              (build-log/debug "Nothing to commit, skip the push")
+              false)
+          2 (do
+              (build-log/debug "Push has failed")
+              false)
+          :else (do
+                  (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res))
+                  false))))))
+
+(defn pos [pred coll]
+  (->> coll
+       (map-indexed #(when (pred %2) %1))
+       (remove nil?)
+       (first)))
 
 (defn commit-and-push-and-tag
   "Push to its `origin` what is the working state in `dir` to branch `branch-name`
@@ -145,11 +156,8 @@
                                            ["git" "commit" "-m" msg {:dir dir}]
                                            ["git" "tag" "-f" "-a" version "-m" tag-msg {:dir dir}]
                                            ["git" "push" "--tag" "--set-upstream" "origin" branch-name {:dir dir}])
-            first-failing (some #(when (pos-int? %)
-                                   %)
-                                (map first commit-res))]
-        (println "First failing" first-failing)
-        (case first-failing
+            cmd-failing (build-cmds/first-cmd-failing commit-res)]
+        (case cmd-failing
           nil (do
                 (build-log/info "Successfully pushed")
                 true)
@@ -161,9 +169,11 @@
           2 (do
               (build-log/debug "Tag has failed")
               false)
+
           3 (do
               (build-log/debug "Push has failed")
               false)
+
           :else (do
                   (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res))
                   false))))))

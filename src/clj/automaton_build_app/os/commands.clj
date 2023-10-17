@@ -123,3 +123,14 @@
 (defn execute-get-string
   [& commands]
   (execute* commands false true))
+
+(defn first-cmd-failing
+  "Return the position of the first failing command"
+  [command-res]
+  (->> command-res
+       (map first)
+       (map-indexed (fn [item idx]
+                      [idx item]))
+       (filter (comp pos? first))
+       first
+       second))
