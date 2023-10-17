@@ -142,6 +142,7 @@
     (when (git-installed?)
       (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
                                            ["git" "commit" "-m" msg {:dir dir}]
+                                           ["git" "tag" "-d" version {:dir dir}]
                                            ["git" "tag" "-a" version "-m" tag-msg {:dir dir}]
                                            ["git" "push" "--tag" "--set-upstream" "origin" branch-name {:dir dir}])]
         (println "???:" (map first commit-res))
