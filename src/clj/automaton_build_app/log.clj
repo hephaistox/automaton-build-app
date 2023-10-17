@@ -99,7 +99,7 @@
 
 (defmacro error-exception
   [e]
-  `(print-message "E" (pr-str ~e)))
+  `(print-message "E2" (pr-str (doall ~e))))
 
 (defmacro fatal-exception
   [e]
