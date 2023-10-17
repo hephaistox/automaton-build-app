@@ -1,26 +1,59 @@
 {:paths ["src/clj"]
  :deps {metosin/malli {:mvn/version "0.13.0"}
         io.github.clojure/tools.build {:mvn/version "0.9.6"}}
- :tasks {:requires [[babashka.process :as p]
-                    [automaton-build-app.tasks.clean :as build-clean]
-                    [automaton-build-app.tasks.publication :as build-publication]
-                    [automaton-build-app.tasks.test :as build-test]
-                    [automaton-build-app.log :as build-log]
-                    [automaton-build-app.tasks.doc :as build-doc]
-                    [automaton-build-app.tasks.code-helpers :as build-code-helpers]
+ :tasks {:requires [[automaton-build-app.log :as build-log]
+                    [automaton-build-app.os.commands :as build-cmds]
                     [babashka.fs :as fs]]
          :init (do
-                 (defn- cicd?
-                   []
+                 (defn- cicd? []
                    (System/getenv "CI"))
 
-                 (defn wrap-fn
+                 (defn qualified-name [s]
+                   (apply str
+                          (interpose "/"
+                                     ((juxt namespace name) (symbol s)))))
+
+                 (defn- task-name []
+                   (-> (babashka.tasks/current-task)
+                       :name))
+
+                 (defn run-bb
+                   "Run the `body-fn` on the current bb environment"
+                   [body-fn]
+                   (build-log/trace-format "Run %s task on bb" (task-name))
+                   (let [ns (-> (symbol body-fn)
+                                namespace
+                                symbol)]
+                     (require ns)
+                     ((resolve body-fn) {:command-line-args *command-line-args*})))
+
+                 (defn run-clj
+                   [body-fn]
+                   (build-log/trace-format "Run %s task on clj" (task-name))
+                   (build-cmds/execute-and-trace ["clojure" "-X" (qualified-name body-fn)
+                                                  :command-line-args (format "'%s'"
+                                                                             (pr-str *command-line-args*))]))
+
+                 (defn dispatch
+                   "Execute the body-fn directy in currently running bb env
+                      * `body` body to execute
+                      * `executing-pf` could be :bb or :clj, the task will be executed on one or the other"
+                   [body-fn executing-pf]
+                   (if (= :clj executing-pf)
+                     (run-clj body-fn)
+                     (run-bb body-fn)))
+
+                 (defn execute-task
                    "Run the function and manage
                     Params:
-                    * `body` body to execute"
-                   [body-fn]
+                    * `body` body to execute
+                    * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
+                   [body-fn & executing-pf]
                    (try
-                     (body-fn)
+                     (build-log/info-format "Run %s task" (-> (current-task)
+                                                              :name))
+                     (dispatch body-fn
+                               (first executing-pf))
                      (catch Exception e
                        (println (format "Error during execution of `%s`, %s`" (:name (current-task)) (pr-str (ex-message e))))
                        (if (cicd?)
@@ -29,50 +62,37 @@
                            (println (format "See details in `%s`" (.toString (.toAbsolutePath file))))
                            (spit (fs/file file) (prn-str e))
                            ""))
-                       (System/exit 1))))
-
-                 (defn ltest []
-                   (build-test/ltest :env-development-test
-                                     :common-test)
-                   (build-code-helpers/lint (= "-d" (first *command-line-args*))
-                                            "src/clj"
-                                            "test/clj")))
+                       (System/exit 1)))))
 
          blog {:doc "Transforms md file to pdf based on edn file"
-               :task (build-doc/blog-task)}
+               :task (execute-task 'automaton-build-app.tasks.doc/blog-task :clj)}
 
          clean {:doc "Clean cache files for compiles, and logs"
-                :task (wrap-fn (partial build-clean/clean
-                                        ".cpcache"
-                                        ".clj-kondo/.cache"
-                                        "tmp"))}
+                :task (execute-task 'automaton-build-app.tasks.clean/clean)}
+
          clean-hard {:doc "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)"
-                     :task (wrap-fn build-clean/clean-hard)}
+                     :task (execute-task 'automaton-build-app.tasks.clean/clean-hard)}
 
          code-doc {:doc "Create the documentation of the app"
-                   :task (wrap-fn build-code-helpers/code-doc)}
+                   :task (execute-task 'automaton-build-app.tasks.code-helpers-clj/code-doc :clj)}
 
          compile-to-jar {:doc "Compile that code to a jar"
-                         :task (wrap-fn (partial build-code-helpers/compile-app #{}))}
+                         :task (execute-task 'automaton-build-app.tasks.code-helpers/compile-to-jar :clj)}
 
          gha {:doc "Github action command - is launched automatically by github"
-              :task (if (or (System/getenv "CI")
-                            (= "-f"
-                               (first *command-line-args*)))
-                      (ltest)
-                      (build-log/error "This task if for CI, use `bb ltest` instead (or -f to force it to test it locally)"))}
+              :task (execute-task 'automaton-build-app.tasks.test/gha :clj)}
 
          gha-lconnect {:doc "Connect to a local container running this code"
-                       :task (wrap-fn (partial build-test/gha-lconnect))}
+                       :task (execute-task 'automaton-build-app.tasks.test/gha)}
 
          lconnect {:doc "Local connect - repl"
-                   :task (wrap-fn (partial build-code-helpers/lconnect :common-test :env-development-repl))}
+                   :task (execute-task 'automaton-build-app.tasks.code-helpers/lconnect)}
 
          ltest {:doc "Local test"
-                :task (wrap-fn ltest)}
+                :task (execute-task 'automaton-build.app.test/ltest)}
 
          push {:doc "Push this repo"
-               :task (wrap-fn (partial build-publication/push-from-local (first *command-line-args*)))}
+               :task (execute-task 'automaton-build-app.tasks.publication/push-from-local :clj)}
 
          update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
-                      :task (wrap-fn build-code-helpers/update-deps)}}}
+                      :task (execute-task 'automaton-build-app.tasks.code-helpers-clj/update-deps :clj)}}}

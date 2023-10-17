@@ -28,5 +28,3 @@
                         (filterv some?)
                         (apply merge))]
     (->SimpleConf config-map)))
-
-(load-conf "heph-common-conf")

@@ -1,7 +1,6 @@
 (ns automaton-build-app.doc.blog
   "Blog page creation"
   (:require
-   [automaton-build-app.code-helpers.build-config :as build-build-conf]
    [automaton-build-app.doc.html :as build-html]
    [automaton-build-app.log :as build-log]
    [automaton-build-app.os.edn-utils :as build-edn-utils]
@@ -9,13 +8,6 @@
    [automaton-build-app.os.pdf :as build-pdf]
    [automaton-build-app.web.uri :as build-uri]
    [clojure.string :as str]))
-
-(defn customer-materials-dir
-  "Get the parameter in the configuration file,
-  Defaulted to `customer_materials`"
-  []
-  (build-build-conf/read-param [:customer-materials :dir]
-                               "customer_materials"))
 
 (defn pdf-metadata
   [document-name description keywords]
@@ -88,18 +80,18 @@
                                                               (str filename ".html")))))))
 
 (defn blog-process
-  "Process all customer materials directory as set in the configuration file
-  Params:
-  * `ops` - options coming from clojure alias - not used"
-  [_opts]
-  (let [output-html-dir (build-build-conf/read-param [:customer-materials :html-dir]
-                                                     "tmp/html")
-        output-pdf-dir (build-build-conf/read-param [:customer-materials :pdf-dir]
-                                                    "tmp/pdf")
-        customer-materials-dir (customer-materials-dir)
-        blog-config-files (build-files/search-files customer-materials-dir
+  "Process all customer materials directory as set in the configuration file"
+  [customer-materials-dir output-html-dir output-pdf-dir]
+  (build-log/trace-map "Blog is processing all files in the following dirs"
+                       :customer-materials-dir
+                       customer-materials-dir
+                       :output-html-dir
+                       output-html-dir
+                       :output-pdf-dir
+                       output-pdf-dir)
+  (let [blog-config-files (build-files/search-files customer-materials-dir
                                                     "**.edn")]
-    (build-log/debug-format "Found that build_config files %s" blog-config-files)
+    (build-log/debug-format "Process configuration files %s" blog-config-files)
     (if (empty? blog-config-files)
       (doseq [blog-config-file blog-config-files]
         (build-log/trace "No blog file found")

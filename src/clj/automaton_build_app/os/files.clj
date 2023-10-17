@@ -102,6 +102,21 @@
              (not (fs/directory? filename)))
     filename))
 
+(defn filter-to-existing-files
+  "Check if this the path exist and is not a directory
+  Params:
+  * `filename` the file to check
+  Returns `filename` if it is an existing file, nil otherwise"
+  [filenames]
+  (filter (fn [filename]
+            (if (is-existing-file? filename)
+              filename
+              (do
+                (build-log/warn-format "File `%s` has been skipped"
+                                       filename)
+                false)))
+          filenames))
+
 (defn is-existing-dir?
   "Check if this the path exist and is a directory"
   [path]
@@ -160,26 +175,31 @@
   ([root pattern options]
    (if (directory-exists? root)
      (into []
-         (map str
-              (fs/glob root pattern (merge {:hidden true
-                                            :recursive true
-                                            :follow-links true}
-                                           options))))
+           (map str
+                (fs/glob root pattern (merge {:hidden true
+                                              :recursive true
+                                              :follow-links true}
+                                             options))))
      (do
        (build-log/warn (str root " should be a directory"))
-       (build-log/trace {:root root
-                         :pattern pattern
-                         :options options})
-       []))
-   )
+       (build-log/trace-map "search parameters" :root root
+                            :pattern pattern
+                            :options options)
+       [])))
   ([root pattern]
    (search-files root pattern {})))
 
 (defn match-extension?
+  "Returns true if the filename match the at least one of the extensions
+  Params:
+  * `filename`
+  * `extensions` list of extension represented as a string to be tested"
   [filename & extensions]
-  (some (fn [extension]
-          (str/ends-with? filename extension))
-        extensions))
+  (when-not (str/blank? filename)
+    (some (fn [extension]
+            (str/ends-with? filename
+                            extension))
+          extensions)))
 
 (defn file-in-same-dir
   "Use the relative-name to create in file in the same directory than source-file"
@@ -279,3 +299,17 @@
        dedupe
        sort
        (into [])))
+
+(defn for-each
+  "Apply fn-each on each files in a directory"
+  [dir fn-each]
+  (doseq [file (fs/list-dir dir)]
+    (fn-each (str file))))
+
+(defn create-temp-file
+  "Create a temporary file
+  Params:
+  * `filename` name of the file (optional)"
+  [& filename]
+  (-> (fs/create-temp-file {:suffix (apply str filename)})
+      str))

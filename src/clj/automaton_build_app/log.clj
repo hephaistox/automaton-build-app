@@ -5,6 +5,7 @@
   That log is disabled during test, which is detected with `hephaistox-in-test`"
   (:require
    [automaton-build-app.utils.string :as build-string]
+   [clojure.pprint :as pp]
    [automaton-build-app.os.java-properties :as build-java-properties]))
 
 (def size-command
@@ -31,7 +32,6 @@
                                            prefix#
                                            suffix#
                                            (constantly nil))))))
-(count "aton_build_app -> caumond/feature/core-is-autonomous_2 ! $")
 
 (defmacro trace
   [& messages]
@@ -104,3 +104,23 @@
 (defmacro fatal-exception
   [e]
   `(print-message "F" (pr-str ~e)))
+
+(defmacro trace-vars
+  [msg & variables]
+  `(do
+     (print-message "T" ~msg)
+     (print-message "T" (apply hash-map (interleave
+                                         (map symbol [~@variables])
+                                         (map var-get [~@variables]))))))
+
+(defmacro trace-map
+  [msg & variables]
+  `(do
+     (print-message "T" ~msg)
+     (print-message "T" (pp/pprint (apply hash-map [~@variables])))))
+
+(defmacro trace-data
+  [data & messages]
+  `(do
+     (print-message "T" ~@messages)
+     (print-message "T" (pr-str ~data))))

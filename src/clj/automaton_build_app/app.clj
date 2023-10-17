@@ -1,10 +1,8 @@
-(ns automaton-build-app.apps.app
+(ns automaton-build-app.app
   (:require
    [automaton-build-app.code-helpers.deps-edn :as build-deps-edn]
-   [automaton-build-app.file-repos.text-file-repos :as build-text-file-repos]
-   [automaton-build-app.code-helpers.clj-code :as build-clj-code]
    [automaton-build-app.code-helpers.build-config :as build-build-config]
-   [automaton-build-app.cicd.cljs-compiler :as build-cljs-compiler]
+   [automaton-build-app.code-helpers.frontend-compiler :as build-cljs-compiler]
    [automaton-build-app.log :as build-log]
    [automaton-build-app.os.files :as build-files]
    [automaton-build-app.schema :as build-schema]))
@@ -21,7 +19,15 @@
 
                   [:jar [:map {:closed true}
                          [:class-dir :string]
+                         [:excluded-aliases [:set :keyword]]
                          [:target-filename :string]]]]]
+
+   [:lconnect [:map {:closed true}
+               [:aliases [:vector :keyword]]]]
+
+   [:ltest [:map {:closed true}
+            [:aliases [:vector :keyword]]]]
+
    [:customer-materials {:optional true} [:map {:closed true}
                                           [:html-dir :string]
                                           [:dir :string]
@@ -32,7 +38,20 @@
 
    [:doc {:optional true} [:map {:closed true}
                            [:dir :string]
-                           [:code-doc :map]]]
+                           [:archi [:map {:closed true}
+                                    [:dir :string]]]
+                           [:reports [:map {:closed true}
+                                      [:output-files
+                                       [:map-of :keyword :string]]]]
+                           [:code-stats [:map {:closed true}
+                                         [:output-file :string]]]
+                           [:code-doc [:map {:closed true}
+                                       [:dir :string]
+                                       [:title :string]
+                                       [:description :string]]]]]
+
+   [:clean [:map {:closed true}
+            [:compile-logs-dirs [:vector :string]]]]
 
    [:templating {:optional true} [:map {:closed true}
                                   [:app-title :string]]]])
@@ -53,7 +72,8 @@
                  ;; This map is not closed, as monorepo features should not be described here
                  ;; that data are here for convienience
                  [:monorepo
-                  [:map [:app-dir :string]]]]
+                  [:map {:closed true}
+                   [:app-dir :string]]]]
                 cust-app-schema)))
 
 (defn valid?
@@ -66,17 +86,25 @@
   (build-schema/valid? app-build-config-schema
                        app-build-config))
 
-(defn build-app-data
+(defn- build-app-data*
+  ([app-dir]
+   (build-log/debug-format "Build app data based on directory `%s`" app-dir)
+   (let [app-data(build-build-config/read-build-config app-dir)]
+     (valid? app-data)
+     (assoc app-data
+            :app-dir app-dir
+            :shadow-cljs (build-cljs-compiler/load-shadow-cljs app-dir)
+            :deps-edn (build-deps-edn/load-deps-edn app-dir))))
+  ([]
+   (build-app-data* "")))
+
+(def build-app-data
   "Build the map of the application data
+  Will check the validity of the map regarding the schema, but is here for information only, the app will launch with that config anyway
+  But a message will be logged
   Params:
   * `app-dir` the directory path of the application"
-  [app-dir]
-  (build-log/debug-format "Build app data based on directory `%s`" app-dir)
-  (some-> (build-build-config/read-build-config app-dir)
-          valid?
-          (assoc :app-dir app-dir
-                 :shadow-cljs (build-cljs-compiler/load-shadow-cljs app-dir)
-                 :deps-edn (build-deps-edn/load-deps-edn app-dir))))
+  (memoize build-app-data*))
 
 (defn is-cust-app-but-template?
   "True if `app-name` is matching a name from a customer application but template
@@ -94,17 +122,17 @@
   (and (:cust-app? app)
        (not (:everything? app))))
 
-(defn get-clj-c-src-dirs
+(defn clj-compiler-classpath
   "Return absolutized directories of sources of `app`, only if they already exists !
   Params:
-  * `app` is the app to get dir from"
+  * `app` is the app to get dir from
+  * `limit-to-existing?` if "
   [{:keys [app-dir deps-edn]
-    :as _app}]
-  (->> deps-edn
-       build-deps-edn/extract-paths
-       (apply build-files/sorted-absolutize-dirs app-dir)))
+    :as _app} limit-to-existing?]
+  (let [paths (build-deps-edn/extract-paths deps-edn #{} limit-to-existing?)]
+    (apply build-files/sorted-absolutize-dirs app-dir paths)))
 
-(defn get-cljc-s-src-dirs
+(defn cljs-compiler-classpaths
   "Existing source directories for backend, as strings of absolutized directories"
   [{:keys [app-dir shadow-cljs]
     :as _app}]
@@ -112,21 +140,26 @@
        build-cljs-compiler/extract-paths
        (apply build-files/sorted-absolutize-dirs app-dir)))
 
-(defn get-clj-c-s-src-dirs
-  "Existing source directories for  and back, as strings of absolutized directories
+(defn classpath-dirs
+  "Existing source directories for front and back, as strings of absolutized directories
   Params:
   * `app` is the app to get dir from"
   [app]
-  (->> (concat (get-clj-c-src-dirs app)
-               (get-cljc-s-src-dirs app))
+  (->> (concat (clj-compiler-classpath app true)
+               (cljs-compiler-classpaths app))
        dedupe
        sort
        (into [])))
 
-(defn clj-c-s-files-repo
-  "Creates a code files repository for application app, with all clj, cljc and cljs files in it"
+(defn src-dirs
+  "Existing source directories for front and back, as strings of absolutized directories
+  Exclude resources
+  Params:
+  * `app` is the app to get dir from"
   [app]
-  (->> app
-       get-clj-c-s-src-dirs
-       (mapcat build-clj-code/search-clj-filenames)
-       build-text-file-repos/load-repo))
+  (->> (concat (clj-compiler-classpath app true)
+               (cljs-compiler-classpaths app))
+       dedupe
+       (filter #(re-find #"src" %))
+       sort
+       (into [])))

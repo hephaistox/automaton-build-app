@@ -74,14 +74,17 @@
                              [(vec (butlast command)) (merge default-opts
                                                              last-command-elt)]
                              [command default-opts])
-            opts (merge (dissoc opts
-                                :background?)
-                        (when string?
-                          {:out :string
-                           :err :string}))
+            updated-opts (-> opts
+                             (dissoc :background?)
+                             (merge (when string?
+                                      {:out :string
+                                       :err :string}))
+                             (update :dir #(if (str/blank? %)
+                                             "."
+                                             %)))
             _ (build-log/trace-format "Execute `%s`, with options = `%s`" (str/join " " command) (pr-str opts))
             process (apply p/process
-                           opts
+                           updated-opts
                            command)]
         (when trace?
           (log-during-execution process))

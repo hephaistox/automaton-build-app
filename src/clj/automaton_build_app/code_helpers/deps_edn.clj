@@ -29,9 +29,10 @@
    e.g. {:run {...}}
   Params:
   * `deps-edn` content the deps edn file to search extract path in
-  * `excluded-aliases` is a collection of aliases to exclude"
+  * `excluded-aliases` (Optional, default #{}) is a collection of aliases to exclude
+  * `limit-to-existing?` (Optional, default true) if true remove non existing directories"
   ([{:keys [paths aliases]
-     :as _deps-edn} excluded-aliases]
+     :as _deps-edn} excluded-aliases limit-to-existing?]
    (let [selected-aliases (apply dissoc aliases
                                  excluded-aliases)
          paths-in-aliases (mapcat (fn [[_alias-name paths]]
@@ -40,21 +41,24 @@
                                   selected-aliases)]
      (->> paths-in-aliases
           (concat paths)
-          (filter build-files/is-existing-file?)
+          (filter (fn [file]
+                    (or (not limit-to-existing?)
+                        (build-files/is-existing-dir? file))))
           sort
           dedupe
           (into []))))
   ([deps-edn]
-   (extract-paths deps-edn #{})))
+   (extract-paths deps-edn #{} true)))
 
 (defn extract-src-paths
   "Extracts the `:paths` and `:extra-paths` from a given `deps.edn`, limit to source files (so exclude the resources)
    e.g. {:run {...}}
   Params:
   * `deps-edn` content the deps edn file to search extract path in
-  * `excluded-aliases` is a collection of aliases to exclude"
-  [deps-edn excluded-aliases]
-  (->> (extract-paths deps-edn excluded-aliases)
+  * `excluded-aliases` is a collection of aliases to exclude
+  * `limit-to-existing?` (Optional, default true) if true remove non existing directories"
+  [deps-edn excluded-aliases limit-to-existing?]
+  (->> (extract-paths deps-edn excluded-aliases limit-to-existing?)
        (filter #(re-find #"src" %))))
 
 (defn spit-deps-edn

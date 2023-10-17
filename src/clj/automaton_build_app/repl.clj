@@ -11,8 +11,7 @@
    [nrepl.server :refer [default-handler start-server stop-server]]
    [refactor-nrepl.middleware]))
 
-(def nrepl-port-filename
-  "Name of the `.nrepl-port` file"
+(defonce nrepl-port-filename
   ".nrepl-port")
 
 (defn custom-nrepl-handler

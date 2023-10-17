@@ -1,49 +1,28 @@
 (ns automaton-build-app.tasks.code-helpers
   "Code helpers"
   (:require
+   [automaton-build-app.app :as build-app]
+   [automaton-build-app.code-helpers.compiler :as build-compiler]
    [automaton-build-app.log :as build-log]
-   [automaton-build-app.code-helpers.compiler :as build-helpers-compiler]
-   [automaton-build-app.os.commands :as build-cmds]
-   [automaton-build-app.tasks.common :as build-tasks-common]))
-
-(defn lint
-  "Lint the code
-  Params:
-  * `debug?`
-  * `dirs` list of dirs to lint"
-  [debug? & dirs]
-  (-> (build-cmds/execute (concat ["clj-kondo" "--lint"]
-                                  dirs
-                                  (when debug?
-                                    "--debug")))
-      last
-      build-tasks-common/exit-code))
+   [automaton-build-app.os.commands :as build-cmds]))
 
 (defn lconnect
   "Local connection to the code
   Params:
   * `aliases` list of aliases to gather to start the app"
-  [& aliases]
-  (build-log/info-format "Starting repl with aliases `%s`" (apply str aliases))
-  (-> (build-cmds/execute ["clojure" (apply str "-M" aliases)])
-      last
-      build-tasks-common/exit-code))
+  [& _opts]
+  (let [app-data (build-app/build-app-data "")
+        aliases (get-in app-data
+                        [:lconnect :aliases])]
+    (build-log/info-format "Starting repl with aliases `%s`" (apply str aliases))
+    (build-cmds/execute-and-trace ["clojure" (apply str "-M" aliases)])))
 
-(defn update-deps
-  "Update the dependencies of the project"
-  []
-  (-> (build-cmds/execute ["clojure" "-X" "automaton-build-app.code-helpers.update-deps/do-update"])
-      last
-      build-tasks-common/exit-code))
-
-(defn code-doc
-  "Create the code documentation"
-  []
-  (-> (build-cmds/execute ["clojure" "-X" "automaton-build-app.doc.code-doc/build-doc"])
-      last
-      build-tasks-common/exit-code))
-
-(defn compile-app
+;;TODO Add frontend
+(defn compile-to-jar
   "Compile the whole app, in production mode"
-  [exclusion-aliases]
-  (build-helpers-compiler/clj-compiler exclusion-aliases))
+  [& _opts]
+  (let [{:keys [publication deps-edn]} (build-app/build-app-data "")
+        {:keys [as-lib jar]} publication
+        {:keys [target-filename class-dir]} jar
+        excluded-aliases #{}]
+    (build-compiler/clj-compiler deps-edn target-filename as-lib excluded-aliases class-dir)))
