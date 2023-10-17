@@ -14,8 +14,7 @@
   * `tag-msg` tag message"
   [opts]
   ;;TODO Add formatter
-  (let [_ (prn opts)
-        command-line-args (:command-line-args opts)
+  (let [command-line-args (:command-line-args opts)
         [commit-msg tag-msg] command-line-args]
     (if (some nil?
               [commit-msg tag-msg])
