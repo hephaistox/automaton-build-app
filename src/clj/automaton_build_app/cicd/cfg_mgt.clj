@@ -152,10 +152,10 @@
   (let [msg (or msg "commit")]
     (when (git-installed?)
       (println "")
-     #_ (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
+      (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
                                            ["git" "commit" "-m" msg {:dir dir}]
                                            ["git" "tag" "-f" "-a" version "-m" tag-msg {:dir dir}]
-                                           ["git" "push" "--tag" "--set-upstream" "origin" branch-name {:dir dir}])
+                                           ["git" "push" "--tags" "--set-upstream" "origin" branch-name {:dir dir}])
             cmd-failing (build-cmds/first-cmd-failing commit-res)]
         (case cmd-failing
           nil (do
@@ -221,7 +221,7 @@
   (commit-and-push-and-tag tmp-dir
                            commit-message
                            (current-branch tmp-dir)
-                           (build-version/version-to-push)
+                           build-version/version-to-push
                            tag-msg))
 
 (defn- validate-branch-name
