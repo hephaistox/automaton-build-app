@@ -144,6 +144,7 @@
                                            ["git" "commit" "-m" msg {:dir dir}]
                                            ["git" "tag" "-a" version "-m" tag-msg {:dir dir}]
                                            ["git" "push" "--tag" "--set-upstream" "origin" branch-name {:dir dir}])]
+        (println "???:" (map first commit-res))
         (cond (every? #(= 0 (first %))
                       commit-res)      (do
                                          (build-log/info "Successfully pushed")
