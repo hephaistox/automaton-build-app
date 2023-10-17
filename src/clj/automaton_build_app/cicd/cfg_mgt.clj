@@ -221,7 +221,7 @@
   (commit-and-push-and-tag tmp-dir
                            commit-message
                            (current-branch tmp-dir)
-                           build-version/version-to-push
+                           (build-version/version-to-push)
                            tag-msg))
 
 (defn- validate-branch-name
