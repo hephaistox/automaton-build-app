@@ -36,4 +36,10 @@
            (sut/first-cmd-failing [[0 ""]
                                    [1 ""]
                                    [0 ""]
-                                   [1 ""]])))))
+                                   [1 ""]]))))
+  (testing "Successful command is ok"
+    (is (nil?
+           (sut/first-cmd-failing [[0 ""]
+                                   [0 ""]
+                                   [0 ""]
+                                   [0 ""]])))))

@@ -152,7 +152,7 @@
   (let [msg (or msg "commit")]
     (when (git-installed?)
       (println "")
-      (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
+     #_ (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
                                            ["git" "commit" "-m" msg {:dir dir}]
                                            ["git" "tag" "-f" "-a" version "-m" tag-msg {:dir dir}]
                                            ["git" "push" "--tag" "--set-upstream" "origin" branch-name {:dir dir}])
