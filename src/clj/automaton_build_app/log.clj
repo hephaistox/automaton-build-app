@@ -51,7 +51,7 @@
 
 (defmacro error
   [& messages]
-  `(print-message "E2" (doall ~@messages)))
+  `(print-message "E" ~@messages))
 
 (defmacro fatal
   [& messages]

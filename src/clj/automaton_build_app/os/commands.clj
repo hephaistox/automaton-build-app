@@ -31,7 +31,7 @@
                         proc
                         (:out proc)))
   (log-a-stream (fn [& args]
-                  (build-log/error args))
+                  (build-log/error (doall args)))
                 proc
                 (:err proc)))
 
