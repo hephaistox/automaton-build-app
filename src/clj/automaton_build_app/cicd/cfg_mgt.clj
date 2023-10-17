@@ -140,27 +140,33 @@
   (build-log/info-format "Commit and push in progress")
   (let [msg (or msg "commit")]
     (when (git-installed?)
+      (println "")
       (let [commit-res (build-cmds/execute ["git" "add" "." {:dir dir}]
                                            ["git" "commit" "-m" msg {:dir dir}]
                                            ["git" "tag" "-f" "-a" version "-m" tag-msg {:dir dir}]
-                                           ["git" "push" "--tag" "--set-upstream" "origin" branch-name {:dir dir}])]
-        (println "???:" (map first commit-res))
-        (cond (every? #(= 0 (first %))
-                      commit-res)      (do
-                                         (build-log/info "Successfully pushed")
-                                         true)
+                                           ["git" "push" "--tag" "--set-upstream" "origin" branch-name {:dir dir}])
+            first-failing (some #(when (pos-int? %)
+                                   %)
+                                (map first commit-res))]
+        (println "First failing" first-failing)
+        (case first-failing
+          nil (do
+                (build-log/info "Successfully pushed")
+                true)
 
-              (= 1 (get (map first commit-res)
-                        2)) (do
-                              (build-log/debug "Nothing to commit, skip the push")
-                              false)
+          1 (do
+              (build-log/debug "Nothing to commit, skip the push")
+              false)
 
-              (= [0 0 0 1] (map first commit-res)) (do
-                                                     (build-log/debug "Tag has failed")
-                                                     false)
-              :else (do
-                      (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res))
-                      false))))))
+          2 (do
+              (build-log/debug "Tag has failed")
+              false)
+          3 (do
+              (build-log/debug "Push has failed")
+              false)
+          :else (do
+                  (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res))
+                  false))))))
 
 (defn- prepare-cloned-repo-on-branch
   "Clone the repo in diectory `tmp-dir`, the repo at `repo-address` is copied on branch `branch-name`, if it does not exist create a branch based on `base-branch-name`
