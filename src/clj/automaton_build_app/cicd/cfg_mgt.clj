@@ -125,7 +125,7 @@
                                                    (build-log/debug "Nothing to commit, skip the push")
                                                    false)
               :else (do
-                      (build-log/error "Unexpected error during commit-and-push 2: " (doall commit-res))
+                      (build-log/error "Unexpected error during commit-and-push : " (doall commit-res))
                       false))))))
 
 (defn commit-and-push-and-tag
@@ -152,7 +152,7 @@
                                                    (build-log/debug "Nothing to commit, skip the push")
                                                    false)
               :else (do
-                      (build-log/error "Unexpected error during commit-and-push 3: " commit-res)
+                      (build-log/error "Unexpected error during commit-and-push : " (doall commit-res))
                       false))))))
 
 (defn- prepare-cloned-repo-on-branch
