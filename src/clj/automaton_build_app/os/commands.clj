@@ -82,9 +82,8 @@
                              (update :dir #(if (str/blank? %)
                                              "."
                                              %)))
-            _ (build-log/trace-format "Execute `%s`, with options = `%s`" (str/join " " command) (pr-str opts))
-            process (apply p/process
-                           updated-opts
+            _ (build-log/trace-format "Execute `%s` with options = `%s`"(str/join " " command) (pr-str updated-opts))
+            process (apply p/process updated-opts
                            command)]
         (when trace?
           (log-during-execution process))

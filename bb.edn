@@ -31,8 +31,7 @@
                    [body-fn]
                    (build-log/trace-format "Run %s task on clj" (task-name))
                    (build-cmds/execute-and-trace ["clojure" "-X" (qualified-name body-fn)
-                                                  (format "'{:command-line-args %s}'"
-                                                                             (pr-str (vec *command-line-args*)))]))
+                                                  :command-line-args *command-line-args*]))
 
                  (defn dispatch
                    "Execute the body-fn directy in currently running bb env
