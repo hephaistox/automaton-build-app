@@ -15,9 +15,9 @@
   * `excluded-aliases` aliases which are"
   [deps-edn target-filename as-lib excluded-aliases class-dir major-version]
   (let [basis (build-build-api/create-basis {:project build-deps-edn/deps-edn})
-        version (build-version/version-to-push major-version)
-        jar-file (format target-filename (name as-lib) version)
         app-paths (build-deps-edn/extract-paths deps-edn excluded-aliases true)
+        version (build-version/version-to-push (first app-paths) major-version)
+        jar-file (format target-filename (name as-lib) version)
         app-source-paths
           (build-deps-edn/extract-src-paths deps-edn excluded-aliases true)]
     (build-log/info "Launch clj compilation")

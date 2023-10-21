@@ -6,10 +6,11 @@
 (defn version-to-push
   "Build the string of the version to be pushed (the next one)
   Params:
+  * `dir` directory where to count the git count of commits
   * `major-version`"
-  [major-version]
+  [dir major-version]
   (if major-version
-    (->> (build-build-api/git-count-revs nil)
+    (->> (build-build-api/git-count-revs {:dir dir})
          Integer/parseInt
          inc
          (format major-version))
