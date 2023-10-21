@@ -197,7 +197,7 @@
     (commit-and-push-and-tag tmp-dir
                              commit-message
                              (current-branch tmp-dir)
-                             (build-version/version-to-push tmp-dir
+                             (build-version/version-to-push source-dir
                                                             major-version)
                              tag-msg)))
 

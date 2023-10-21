@@ -7,7 +7,7 @@
 (defn version-to-push
   "Build the string of the version to be pushed (the next one)
   Params:
-  * `dir` directory of the repo to count the version of
+  * `dir` directory of the version to count
   * `major-version`"
   [dir major-version]
   (if major-version
