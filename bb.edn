@@ -5,7 +5,7 @@
                     [automaton-build-app.os.commands :as build-cmds]
                     [babashka.fs :as fs]]
          :init (do
-                 (build-log/set-min-level! :info)
+                 (build-log/set-min-level! :trace)
 
                  (defn- cicd? []
                    (System/getenv "CI"))
