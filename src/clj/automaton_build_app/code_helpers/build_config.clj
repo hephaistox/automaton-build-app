@@ -49,8 +49,9 @@
   Params:
   * `app-dir` root directory of the app where the `build_config.edn` file is expected"
   [app-dir]
-  (-> (build-files/create-file-path app-dir build-config-filename)
-      build-edn-utils/read-edn))
+  (some-> (build-files/create-file-path app-dir build-config-filename)
+          build-files/is-existing-file?
+          build-edn-utils/read-edn))
 
 (defn read-param
   "Read a data in the build configuration file"

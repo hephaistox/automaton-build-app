@@ -6,4 +6,4 @@
 (deftest version-to-push-test
   (testing "Version to push returns a string"
     (is (string?
-         (sut/version-to-push "" "1.3.%d")))))
+         (sut/version-to-push "target" "1.3.%d")))))

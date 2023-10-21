@@ -1,2 +1,8 @@
-;; List of aliases referencing many namespaces Sat Oct 21 01:58:40 CEST 2023
-{}
+;; List of aliases referencing many namespaces Sat Oct 21 23:41:33 CEST 2023
+{"automaton-build-app.os.exit-codes"
+   [[["automaton-build-app.os.exit-codes" "build-exit-codes"]
+     ["/src/clj/automaton_build_app/code_helpers/analyze/utils.clj"]]
+    [["automaton-build-app.os.exit-codes" "build-exit-code"]
+     ["/src/clj/automaton_build_app/tasks/doc_clj.clj"
+      "/src/clj/automaton_build_app/tasks/test.clj"
+      "/src/clj/automaton_build_app/tasks/code_helpers_clj.clj"]]]}

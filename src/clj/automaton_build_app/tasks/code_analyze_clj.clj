@@ -30,7 +30,7 @@
                          "docs/code/comments.edn")
         matches (build-analyze-comments/comment-matches clj-repo)]
     (-> (build-analyze-comments/save-report matches filename)
-        #_build-analyze-comments/assert-empty)))
+        build-analyze-comments/assert-empty)))
 
 (defn- css-report
   [[build-data clj-repo]]
@@ -39,7 +39,7 @@
                          "docs/code/css.edn")
         matches (build-analyze-css/css-matches clj-repo)]
     (-> (build-analyze-css/save-report matches filename)
-        #_build-analyze-css/assert-empty)))
+        build-analyze-css/assert-empty)))
 
 (defn- alias-report
   [[build-data clj-repo]]
@@ -48,7 +48,7 @@
                          "docs/code/alias.edn")
         matches (build-analyze-alias/alias-matches clj-repo)]
     (-> (build-analyze-alias/save-report matches filename)
-        #_build-analyze-alias/assert-empty)))
+        build-analyze-alias/assert-empty)))
 
 (defn- namespace-report
   [[build-data clj-repo]]
@@ -57,7 +57,7 @@
                          "docs/code/namespace.edn")
         matches (build-analyze-namespace/alias-matches clj-repo)]
     (-> (build-analyze-namespace/save-report matches filename)
-        #_build-analyze-namespace/assert-empty)))
+        build-analyze-namespace/assert-empty)))
 
 (defn- shadow-report
   [dir build-data]
@@ -68,8 +68,6 @@
               [:doc :reports :output-files :shadow-size-opt]
               "doc/codes/code-size.edn"))
     (build-log/debug "No frontend found, skip optimization report")))
-
-(def app-dir "")
 
 (defn reports
   "Build all the reports"

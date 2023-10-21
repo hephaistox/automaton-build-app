@@ -46,7 +46,6 @@
       new-version)
     (build-log/warn "Major version is missing")))
 
-(def dir "")
 (defn version-from-git-revs-to-push
   "Build the string of the version to be pushed (the next one)
   Params:

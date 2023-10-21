@@ -61,11 +61,11 @@
   ([app-dir]
    (build-log/debug-format "Build app data based on directory `%s`" app-dir)
    (let [app-data (build-build-config/read-build-config app-dir)]
-     (valid? app-data)
-     (assoc app-data
-       :app-dir app-dir
-       :shadow-cljs (build-frontend-compiler/load-shadow-cljs app-dir)
-       :deps-edn (build-deps-edn/load-deps-edn app-dir))))
+     (when (valid? app-data)
+       (assoc app-data
+         :app-dir app-dir
+         :shadow-cljs (build-frontend-compiler/load-shadow-cljs app-dir)
+         :deps-edn (build-deps-edn/load-deps-edn app-dir)))))
   ([] (build-app-data* "")))
 
 (def build-app-data_
