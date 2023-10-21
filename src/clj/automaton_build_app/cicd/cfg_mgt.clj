@@ -141,7 +141,7 @@
       (let [commit-res (build-cmds/execute-with-exit-code
                          ["git" "add" "." {:dir dir}]
                          ["git" "commit" "-m" msg {:dir dir}]
-                         ["git" "push" "-d" "origin" "v1.0.0"]
+                         ["git" "push" "-d" "origin" version]
                          ["git" "tag" "-f" "-a" version "-m" tag-msg {:dir dir}]
                          ["git" "push" "--tags" "--set-upstream" "origin"
                           branch-name {:dir dir}])
