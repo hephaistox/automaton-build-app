@@ -22,12 +22,16 @@
 
 (defn min-level-kw [] (get log-levels @min-level))
 
+(defn osc8-html [] "\\e]8;;http://example.com\\e\\\\This is a link\\e]8;;\\e")
+
 (defmacro print-message
   "Helper function to print the log message"
   [level & messages]
   `(when-not (build-java-properties/get-java-property "hephaistox-in-test")
      (let [prefix# (str (.format (java.text.SimpleDateFormat. "HH:mm:ss:SSS")
                                  (java.util.Date.))
+                        " "
+                        osc8-html
                         " "
                         ~level
                         "-"
