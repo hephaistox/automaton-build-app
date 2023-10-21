@@ -9,7 +9,7 @@
 
 (def size-command
   "Size of the command line to be managed, measured on mcbook pro"
-  243)
+  2430)
 
 (def ^:private log-levels [:trace :debug :info :warning :error :fatal])
 
