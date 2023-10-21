@@ -234,7 +234,7 @@
                                                 repo-address
                                                 base-branch-name
                                                 branch-name)
-             (build-log/info
+             (build-log/debug
                "Pushing from local directory to repository - repo is ready")
              (squash-local-files-and-push tmp-dir
                                           source-dir
