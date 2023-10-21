@@ -3,10 +3,9 @@
   (:require [automaton-build-app.app :as build-app]
             [automaton-build-app.doc.blog :as build-blog]
             [automaton-build-app.doc.code-doc :as app-code-doc]
+            [automaton-build-app.os.exit-codes :as build-exit-code]
             [automaton-build-app.doc.mermaid :as build-mermaid]
-            [automaton-build-app.log :as build-log]
-            [clojure.tools.deps.graph :as tools-deps-graph]
-            [io.dominic.vizns.core :as vizns]))
+            [automaton-build-app.log :as build-log]))
 
 (defn blog-task
   "Blog task"
@@ -24,18 +23,17 @@
         {:keys [code-doc reports]} doc
         {:keys [title description dir]} code-doc
         app-dirs (-> app-data
-                     build-app/src-dirs)]
-    (build-log/info "Vizualization of ns - deps link")
-    (vizns/-main "single"
-                 "-o" (get-in reports
-                              [:output-files :deps-ns]
-                              "docs/code/deps-ns.svg")
-                 "-f" "svg")
-    (build-log/info "Graph of dependencies")
-    (tools-deps-graph/graph
-      {:output (get-in reports [:output-files :ns] "docs/code/ns.svg")})
-    (build-log/info "Code documetation")
-    (app-code-doc/build-doc "" app-name app-dirs title description dir)))
+                     build-app/src-dirs)
+        res (and (app-code-doc/vizualize-ns reports)
+                 (app-code-doc/vizualize-deps reports)
+                 (app-code-doc/build-doc ""
+                                         app-name
+                                         app-dirs
+                                         title
+                                         description
+                                         dir))]
+    (when-not res (System/exit build-exit-code/catch-all))
+    res))
 
 (defn mermaid
   "Build all mermaid files"

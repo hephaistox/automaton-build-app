@@ -6,7 +6,7 @@
                :jar {:class-dir "target/classes"
                      :excluded-aliases #{}
                      :target-filename "target/%s-%s.jar"}}
- :lconnect {:aliases [:common-test :env-development-repl]}
+ :lconnect {:aliases [:common-test :env-development-repl :build]}
  :ltest {:aliases [:env-development-test :common-test]}
  :customer-materials {:html-dir "tmp/html"
                       :dir "customer_materials"
@@ -17,12 +17,12 @@
        :code-stats {:output-file "docs/code/stats.md"}
        :reports {:output-files {:comments "docs/code/comments.edn"
                                 :alias "docs/code/alias.edn"
+                                :css "docs/code/css.edn"
                                 :deps-ns "docs/code/deps-ns.svg"
-                                :ns "docs/code/ns.png"
-                                :css "docs/code/css.edn"}}
+                                :deps "docs/code/deps.png"
+                                :ns "docs/code/ns.png"}}
        :code-doc {:dir "docs/code"
                   :title "Build app automaton"
                   :description "Autonomous project to build an hephaistox app"}}
- :clean {:compile-logs-dirs [".cpcache" ".clj-kondo/.cache" "tmp"]}
+ :clean {:compile-logs-dirs [".cpcache" ".clj-kondo/.cache" "tmp" ".DS_Store" "target"]}
  :app-name "automaton-build-app"}
-

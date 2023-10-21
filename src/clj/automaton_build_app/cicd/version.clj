@@ -2,23 +2,25 @@
   "Version of the current codebase
 
   Principles:
-  * major version has to be changed in the major-version in `build_config.edn`
-  * the file `version.edn` contains the last pushed version data, and is stored in configuration management, at the root of the project
-  * each `bb push` increases the minor version
-  * changing the major version is done through
-
-  Previous design:
   * tools api from clojure is providing a technique that is counting how many commits you have in a branch, which its:
      * advantages:
         * as it seems more standard way
         * as you need not to store a specific file for that,
      * disadvantages:
-        * files are copied from monorepo to sub projects, count the commit from master branch is consuming time during cloning, as there are already deep history and numerous project. So retrieving only the last commit is fetched, which is uncompatible with this technique"
+        * files are copied from monorepo to sub projects, count the commit from master branch is consuming time during cloning, as there are already deep history and numerous project. So retrieving only the last commit is fetched, which is uncompatible with this technique
+  We have chosen that design since monorepo efficiency is more important, same as minimizing the number of source of truth
+
+  Previous design:
+  * major version has to be changed in the major-version in `build_config.edn`
+  * the file `version.edn` contains the last pushed version data, and is stored in configuration management, at the root of the project
+  * each `bb push` increases the minor version
+  * changing the major version is done through"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.edn-utils :as build-edn-utils]
+            [clojure.tools.build.api :as clj-build-api]
             [automaton-build-app.os.files :as build-files]))
 
-(defn version-to-push
+(defn version-from-edn-to-push
   "Build the string of the version to be pushed (the next one)
   Params:
   * `dir` directory of the version to count
@@ -43,3 +45,20 @@
         "Last generated version, note a failed push consume a number")
       new-version)
     (build-log/warn "Major version is missing")))
+
+(def dir "")
+(defn version-from-git-revs-to-push
+  "Build the string of the version to be pushed (the next one)
+  Params:
+  * `dir` directory of the version to count
+  * `major-version`"
+  [dir major-version]
+  (if major-version
+    (let [minor-version (-> (clj-build-api/git-count-revs {:dir dir})
+                            Integer/parseInt)
+          new-minor-version (inc (or minor-version -1))
+          new-version (format major-version new-minor-version)]
+      new-version)
+    (build-log/warn "Major version is missing")))
+
+(def version-to-push "Router to the chosen strategy" version-from-edn-to-push)

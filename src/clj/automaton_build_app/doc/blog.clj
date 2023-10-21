@@ -90,7 +90,8 @@
     (build-log/debug-format "Process configuration files %s" blog-config-files)
     (if (empty? blog-config-files)
       (doseq [blog-config-file blog-config-files]
-        (build-log/trace "No blog file found")
+        (build-log/trace-format
+          "Process `%s blog configuration file` blog-config-file")
         (let [configuration-data (configuration-data blog-config-file
                                                      output-html-dir
                                                      output-pdf-dir)]

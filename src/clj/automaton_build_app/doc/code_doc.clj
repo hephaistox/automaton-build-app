@@ -3,6 +3,8 @@
   Proxy to codox"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.files :as build-files]
+            [io.dominic.vizns.core :as vizns]
+            [clojure.tools.deps.graph :as tools-deps-graph]
             [codox.main :as codox]))
 
 (defn build-doc
@@ -11,6 +13,7 @@
   * `doc-title` title of the document
   * `doc-description` decscription of the document"
   [app-dir app-name app-dirs doc-title doc-description doc-dir]
+  (build-log/info "Code documentation")
   (build-log/trace-map "Build doc with parameters"
                        :app-dir app-dir
                        :app-name app-name
@@ -29,4 +32,24 @@
                           :source-paths app-dirs,
                           :namespaces [#"clj[s|c]?$"],
                           :output-path dir,
-                          :description doc-description})))
+                          :description doc-description})
+    true))
+
+(defn vizualize-ns
+  "Vizualise all namespaces relations"
+  [reports]
+  (build-log/info "Vizualization of ns - deps link")
+  (vizns/-main "single"
+               "-o" (get-in reports
+                            [:output-files :deps-ns]
+                            "docs/code/deps-ns.svg")
+               "-f" "svg")
+  true)
+
+(defn vizualize-deps
+  "Vizualize the dependencies between deps"
+  [reports]
+  (build-log/info "Graph of dependencies")
+  (tools-deps-graph/graph
+    {:output (get-in reports [:output-files :deps] "docs/code/deps.svg")})
+  true)

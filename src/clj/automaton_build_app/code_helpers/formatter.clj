@@ -28,6 +28,7 @@
   Params:
   * `clj-files-repo` is expected to be an instance of `build-clj-code/CljCodeFilesRepository`"
   [clj-files-repo]
-  (let [clj-files (build-clj-code/filter-by-usage clj-files-repo :reader)]
-    (doseq [file-name (keys clj-files)] (format-file file-name))
-    (build-log/info "Files formatted")))
+  (let [clj-files (build-clj-code/filter-by-usage clj-files-repo :reader)
+        formattings (map format-file (keys clj-files))]
+    (build-log/info "Files formatted")
+    (every? some? formattings)))
