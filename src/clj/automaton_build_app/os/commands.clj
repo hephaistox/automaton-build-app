@@ -20,7 +20,7 @@
       (loop []
         (when-let [line (read-line)] (logger-fn line))
         (when-not (string? stream)
-          (when (.isAlive (:proc proc)) (Thread/sleep 100))
+          (when (.isAlive (:proc proc)) (Thread/sleep 10))
           (when (or (.ready rdr) (.isAlive (:proc proc))) (recur)))))))
 
 (defn- log-during-execution

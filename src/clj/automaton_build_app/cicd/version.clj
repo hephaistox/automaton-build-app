@@ -1,5 +1,19 @@
 (ns automaton-build-app.cicd.version
-  "Version of the current codebase"
+  "Version of the current codebase
+
+  Principles:
+  * major version has to be changed in the major-version in `build_config.edn`
+  * the file `version.edn` contains the last pushed version data, and is stored in configuration management, at the root of the project
+  * each `bb push` increases the minor version
+  * changing the major version is done through
+
+  Previous design:
+  * tools api from clojure is providing a technique that is counting how many commits you have in a branch, which its:
+     * advantages:
+        * as it seems more standard way
+        * as you need not to store a specific file for that,
+     * disadvantages:
+        * files are copied from monorepo to sub projects, count the commit from master branch is consuming time during cloning, as there are already deep history and numerous project. So retrieving only the last commit is fetched, which is uncompatible with this technique"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.edn-utils :as build-edn-utils]
             [automaton-build-app.os.files :as build-files]))

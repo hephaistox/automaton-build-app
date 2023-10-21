@@ -24,7 +24,7 @@
 
            :build {:extra-deps {io.dominic/vizns {:git/url "https://github.com/SevereOverfl0w/vizns.git"
                                                   :sha "69774e8c29e1c1c691f9922d5c5a6d764374ada3"}
-                                io.github.clojure/tools.deps.graph {:git/url "git@github.com:clojure/tools.deps.graph.git"
+                                io.github.clojure/tools.deps.graph {:git/url "https://github.com/clojure/tools.deps.graph.git"
                                                                     :git/sha "df0bc056061306014be72dbe961d3eb6649500cc"}}}
            :env-development-repl {:extra-paths ["env/development/resources"
                                                 "env/development/src/clj"
