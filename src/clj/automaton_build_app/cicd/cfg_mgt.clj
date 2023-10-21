@@ -147,9 +147,9 @@
             cmd-failing (build-cmds/first-cmd-failing commit-res)]
         (case cmd-failing
           nil (do (build-log/info "Successfully pushed") true)
-          1 (do (build-log/debug "Nothing to commit, skip the push") false)
-          2 (do (build-log/debug "Tag has failed") false)
-          3 (do (build-log/debug "Push has failed") false)
+          1 (do (build-log/info "Nothing to commit, skip the push") false)
+          2 (do (build-log/error "Tag has failed") false)
+          3 (do (build-log/error "Push has failed") false)
           :else (do (build-log/error
                       "Unexpected error during commit-and-push : "
                       (into [] commit-res))
