@@ -35,19 +35,19 @@
 
 (deftest first-cmd-failing-test
   (testing "Failing command is found"
-    (is (= 3
-           (sut/first-cmd-failing [[0 ""]
-                                   [0 ""]
-                                   [0 ""]
-                                   [1 ""]])))
-    (is (= 1
-           (sut/first-cmd-failing [[0 ""]
-                                   [1 ""]
-                                   [0 ""]
-                                   [1 ""]]))))
+    (is (= [3 "d"]
+           (sut/first-cmd-failing [[0 "a"]
+                                   [0 "b"]
+                                   [0 "c"]
+                                   [1 "d"]])))
+    (is (= [1 "b"]
+           (sut/first-cmd-failing [[0 "a"]
+                                   [1 "b"]
+                                   [0 "c"]
+                                   [1 "d"]]))))
   (testing "Successful command is ok"
-    (is (nil?
-         (sut/first-cmd-failing [[0 ""]
-                                 [0 ""]
-                                 [0 ""]
-                                 [0 ""]])))))
+    (is (= [nil nil]
+           (sut/first-cmd-failing [[0 ""]
+                                   [0 ""]
+                                   [0 ""]
+                                   [0 ""]])))))

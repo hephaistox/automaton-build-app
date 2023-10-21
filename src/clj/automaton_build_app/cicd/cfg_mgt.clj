@@ -117,7 +117,7 @@
                          ["git" "commit" "-m" msg {:dir dir}]
                          ["git" "push" "--set-upstream" "origin" branch-name
                           {:dir dir}])]
-        (case (build-cmds/first-cmd-failing commit-res)
+        (case (first (build-cmds/first-cmd-failing commit-res))
           nil (do (build-log/info "Successfully pushed") true)
           1 (do (build-log/debug "Nothing to commit, skip the push") false)
           2 (do (build-log/debug "Push has failed") false)
@@ -144,12 +144,13 @@
                          ["git" "tag" "-f" "-a" version "-m" tag-msg {:dir dir}]
                          ["git" "push" "--tags" "--set-upstream" "origin"
                           branch-name {:dir dir}])
-            cmd-failing (build-cmds/first-cmd-failing commit-res)]
+            [cmd-failing message] (build-cmds/first-cmd-failing commit-res)]
         (case cmd-failing
           nil (do (build-log/info "Successfully pushed") true)
-          1 (do (build-log/info "Nothing to commit, skip the push") false)
-          2 (do (build-log/error "Tag has failed") false)
-          3 (do (build-log/error "Push has failed") false)
+          1 (do (build-log/info-format "Nothing to commit, skip the push")
+                false)
+          2 (do (build-log/error-format "Tag has failed - %s" message) false)
+          3 (do (build-log/error-format "Push has failed - %s" message) false)
           :else (do (build-log/error
                       "Unexpected error during commit-and-push : "
                       (into [] commit-res))

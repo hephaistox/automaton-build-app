@@ -102,8 +102,7 @@
   Returns the position of the first failing command"
   [command-res-with-exit-code]
   (->> command-res-with-exit-code
-       (map first)
        (map-indexed (fn [item idx] [idx item]))
-       (filter (comp pos? first))
+       (filter (comp pos? ffirst))
        first
-       second))
+       ((juxt second (comp second first)))))
