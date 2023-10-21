@@ -31,7 +31,7 @@
      (let [prefix# (str (.format (java.text.SimpleDateFormat. "HH:mm:ss:SSS")
                                  (java.util.Date.))
                         " "
-                        osc8-html
+                        (osc8-html)
                         " "
                         ~level
                         "-"
