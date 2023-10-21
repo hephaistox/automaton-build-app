@@ -141,7 +141,6 @@
       (let [commit-res (build-cmds/execute-with-exit-code
                          ["git" "add" "." {:dir dir}]
                          ["git" "commit" "-m" msg {:dir dir}]
-                         ["git" "push" "-d" "origin" version]
                          ["git" "tag" "-f" "-a" version "-m" tag-msg {:dir dir}]
                          ["git" "push" "--tags" "--set-upstream" "origin"
                           branch-name {:dir dir}])
@@ -151,7 +150,12 @@
           1 (do (build-log/info-format "Nothing to commit, skip the push")
                 false)
           2 (do (build-log/error-format "Tag has failed - %s" message) false)
-          3 (do (build-log/error-format "Push has failed - %s" message) false)
+          3 (do
+              (build-log/error-format
+                "Push has failed - %s, you could try to remove the remote tag if this is the issue, and retry:\n`git push -d origin %s`"
+                message
+                version)
+              false)
           :else (do (build-log/error
                       "Unexpected error during commit-and-push : "
                       (into [] commit-res))
