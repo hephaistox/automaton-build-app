@@ -1,7 +1,8 @@
 (ns automaton-build-app.file-repo.raw.impl
   "Implementations an helper functions for raw file repo"
-  (:require
-   [automaton-build-app.os.files :as build-files]))
+  (:require [automaton-build-app.os.files :as build-files]
+            [automaton-build-app.log :as build-log]
+            [clojure.string :as str]))
 
 (defn filter-repo-map
   "Filter a file repo map with the filter-fn
@@ -11,8 +12,7 @@
   * `filter-fn` is a function applied to each element of the repo map"
   [file-repo-map filter-fn]
   (if filter-fn
-    (->> (filter filter-fn
-                 file-repo-map)
+    (->> (filter filter-fn file-repo-map)
          (into {}))
     file-repo-map))
 
@@ -33,11 +33,16 @@
   * `excluded-files` "
   [file-repo-map excluded-files]
   (let [excluded-files (into #{} excluded-files)]
-    (into {}
-          (filter (fn [[filename]]
-                    (not (contains? excluded-files
-                                    (build-files/file-name filename))))
-                  file-repo-map))))
+    (->> file-repo-map
+         (filter (fn [[filename]]
+                   (let [res (some (fn [excluded-file]
+                                     (str/includes? filename excluded-file))
+                                   excluded-files)]
+                     (when res
+                       (build-log/trace-format "File `%s` is removed from repo"
+                                               filename))
+                     (not res))))
+         (into {}))))
 
 (defn repo-map
   "Create the repo map of files, associate absolutized filename to its content

@@ -6,13 +6,11 @@
   * When run is github action container image, we set manually that variable in the `Dockerfile`(clojure/container-images/gha_runner/Dockerfile)
   * Otherwise, that variable is not set and `is-cicd?` returns false")
 
-(def github-env-var
-  "CI")
+(def github-env-var "CI")
 
 (defn is-cicd?*
   "Tells if the local instance runs in CICD"
   []
   (boolean (System/getenv github-env-var)))
 
-(def is-cicd?
-  (memoize is-cicd?*))
+(def is-cicd? (memoize is-cicd?*))

@@ -4,37 +4,37 @@
    [automaton-build-app.file-repo.raw.impl-text :as sut-raw-impl]
    [clojure.test :refer [deftest is testing]]))
 
-(def raw-files-repo
-  (sut/->RawFilesRepository sut-raw-impl/raw-files-repo-map))
+(def raw-file-repo
+  (sut/->RawFileRepo sut-raw-impl/raw-file-repo-map))
 
 (deftest exclude-files
   (testing "Exclusion of no file is ok"
-    (let [res (sut/exclude-files raw-files-repo
+    (let [res (sut/exclude-files raw-file-repo
                                  #{"none"})]
       (is (map? (sut/file-repo-map res)))
-      (is (= (sut/file-repo-map raw-files-repo)
+      (is (= (sut/file-repo-map raw-file-repo)
              (sut/file-repo-map res))))))
 
 (deftest file-repo-map-test
-  (testing "file repo map returns the map"
+  (testing "file repo map actually returns the map"
     (is (map?
-         (sut/file-repo-map raw-files-repo)))))
+         (sut/file-repo-map raw-file-repo)))))
 
 (deftest filter-repo-test
   (testing "Refusing all files is ok"
-    (is (empty? (-> (sut/filter-repo raw-files-repo
+    (is (empty? (-> (sut/filter-repo raw-file-repo
                                      (constantly false))
                     sut/file-repo-map))))
   (testing "Nil filter function means keep nothing"
-    (is (= sut-raw-impl/raw-files-repo-map
+    (is (= sut-raw-impl/raw-file-repo-map
            (sut/file-repo-map
-            (sut/filter-repo raw-files-repo
+            (sut/filter-repo raw-file-repo
                              nil))))))
 
 (deftest filter-by-extension-test
   (testing "limit to clj files"
-    (is (= (select-keys sut-raw-impl/raw-files-repo-map
+    (is (= (select-keys sut-raw-impl/raw-file-repo-map
                         ["foo.clj"])
-           (-> (sut/filter-by-extension raw-files-repo
+           (-> (sut/filter-by-extension raw-file-repo
                                         #{"clj"})
                sut/file-repo-map)))))

@@ -3,7 +3,7 @@
    [automaton-build-app.file-repo.raw.impl :as sut]
    [clojure.test :refer [deftest is testing]]))
 
-(def raw-files-repo-map
+(def raw-file-repo-map
   {"foo.clj"  ["This is"
                " the foo file"
                " hey!"]
@@ -14,7 +14,7 @@
 (deftest filter-repo-map-test
   (testing "Filter is ok"
     (is (= "foo.clj"
-           (-> (sut/filter-repo-map raw-files-repo-map
+           (-> (sut/filter-repo-map raw-file-repo-map
                                     #(= "foo.clj"
                                         (first %)))
                ffirst)))))
@@ -22,14 +22,14 @@
 (deftest filter-by-extension-test
   (testing "Filtering by extension is ok"
     (is (= "foo.clj"
-           (-> (sut/filter-by-extension raw-files-repo-map
+           (-> (sut/filter-by-extension raw-file-repo-map
                                         ["clj"])
                ffirst)))))
 
 (deftest exclude-files-test
   (testing "Exlude all files"
     (is (empty?
-         (sut/exclude-files raw-files-repo-map
+         (sut/exclude-files raw-file-repo-map
                             #{"foo.clj" "bar.cljc" "foo.edn"})))))
 
 (deftest repo-map-test

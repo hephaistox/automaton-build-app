@@ -1,10 +1,9 @@
 (ns automaton-build-app.doc.mermaid
   "To create mermaid images
   Proxy to cli mermaid"
-  (:require
-   [automaton-build-app.log :as build-log]
-   [automaton-build-app.os.commands :as build-cmds]
-   [automaton-build-app.os.files :as build-files]))
+  (:require [automaton-build-app.log :as build-log]
+            [automaton-build-app.os.commands :as build-cmds]
+            [automaton-build-app.os.files :as build-files]))
 
 (defn need-to-update?
   "Does the `file-in` needed to be modified?
@@ -31,8 +30,7 @@
   Params:
   * `archi-dir` Directory where all `.mermaid` extension files are turned into `.svg` files"
   [archi-dir]
-  (build-files/for-each archi-dir
-                        build-a-file))
+  (build-files/for-each archi-dir build-a-file))
 
 (defn build-all-files
   "Scan all apps and build

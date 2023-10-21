@@ -1,50 +1,53 @@
 (ns automaton-build-app.code-helpers.analyze.comments
   "Analyze all comments in the code, forbid that comments so their publication is controlled"
-  (:require
-   [automaton-build-app.file-repo.raw :as build-raw-files-repo]
-   [automaton-build-app.file-repo.text-analyzis :as build-file-repo-text-analyzis]
-   [automaton-build-app.file-repo.text-analyzis.regexp :as build-repo-text-analyzis-regexp]
-   [automaton-build-app.utils.namespace :as build-namespace]))
+  (:require [automaton-build-app.file-repo.text :as build-filerepo-text]
+            [automaton-build-app.file-repo.raw :as build-filerepo-raw]
+            [automaton-build-app.code-helpers.analyze.utils :as
+             build-analyze-utils]
+            [automaton-build-app.utils.namespace :as build-namespace]))
 
-;;These are defined as a workaround, so it won't create false positive when you search them with regexp
-(defonce T
-  (str "T" "O" "D" "O"))
+;;These are defined as a workaround, so it won't create false positive when you
+;;search them with regexp
+(defonce T (str "T" "O" "D" "O"))
 
-(defonce D
-  (str "D" "O" "N" "E"))
+(defonce D (str "D" "O" "N" "E"))
 
-(defonce N
-  (str "N" "O" "T" "E"))
+(defonce N (str "N" "O" "T" "E"))
 
-(defonce F
-  (str "F" "I" "X" "M" "E"))
+(defonce F (str "F" "I" "X" "M" "E"))
 
-(def regexp
+(def comments-pattern
   "Dectect notes in comments"
-  (-> (format ";;\\s*(?:%s|%s|%s|%s)(.*)$"
-              T
-              N
-              D
-              F)
+  (-> (format ";;\\s*(?:%s|%s|%s|%s)(.*)$" T N D F)
       re-pattern))
 
-(defrecord CommentAnalyzer
-           [clj-repo]
-  build-file-repo-text-analyzis/TextRepoAnalysis
+(defn comment-matches
+  "List code lines matching comments
+  Params:
+  * `clj-repo`"
+  [clj-repo]
+  (let [regexp-filerepo-matcher
+          (->> ['automaton-build-app.code-helpers.analyze.comments
+                'automaton-build-app.code-helpers.analyze.comments-test]
+               (map build-namespace/ns-to-file)
+               (into #{}))
+        matches (-> clj-repo
+                    (build-filerepo-raw/exclude-files regexp-filerepo-matcher)
+                    (build-filerepo-text/filecontent-to-match
+                      comments-pattern))]
+    (->> matches
+         (map (fn [[filename [_whole-match comment]]] [comment filename]))
+         vec)))
 
-  (execute-report [_]
-    (let [excluded-files (into #{}
-                             (map build-namespace/ns-to-file
-                                  ['automaton-build-app.code-helpers.analyze.comments
-                                   'automaton-build-app.code-helpers.analyze.comments-test]))
-        report (-> clj-repo
-                   (build-raw-files-repo/exclude-files excluded-files)
-                   (build-repo-text-analyzis-regexp/make-regexp-filerepo-matcher regexp))]
-    (build-file-repo-text-analyzis/map-report report
-                                              (fn [filename [_whole-match comment]]
-                                                [comment filename]))))
-  (save-report [_]
-    )
+(defn save-report
+  [matches filename]
+  (build-analyze-utils/save-report matches
+                                   (format "List of forbidden comments")
+                                   filename
+                                   (fn [[comment filename]]
+                                     (format "%s -> [%s]" comment filename))))
 
-  (is-empty? [_]
-    ))
+(defn assert-empty
+  [matches]
+  (build-analyze-utils/assert-empty matches
+                                    (format "Some forbidden words are found")))

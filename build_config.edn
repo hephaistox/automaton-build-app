@@ -15,7 +15,11 @@
  :doc {:dir "docs"
        :archi {:dir "docs/archi/"}
        :code-stats {:output-file "docs/code/stats.md"}
-       :reports {:output-files {:automaton-build-app.code-helpers.test-toolings/comments "XX"}}
+       :reports {:output-files {:comments "docs/code/comments.edn"
+                                :alias "docs/code/alias.edn"
+                                :deps-ns "docs/code/deps-ns.svg"
+                                :ns "docs/code/ns.png"
+                                :css "docs/code/css.edn"}}
        :code-doc {:dir "docs/code"
                   :title "Build app automaton"
                   :description "Autonomous project to build an hephaistox app"}}

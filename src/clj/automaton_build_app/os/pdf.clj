@@ -1,12 +1,10 @@
 (ns automaton-build-app.os.pdf
   "Manipulate pdf"
-  (:require
-   [automaton-build-app.os.files :as build-files]
-   [automaton-build-app.web.uri :as build-uri]
-   [clj-htmltopdf.core :refer [->pdf]]
-   [clojure.string :as str]))
+  (:require [automaton-build-app.os.files :as build-files]
+            [automaton-build-app.web.uri :as build-uri]
+            [clj-htmltopdf.core :refer [->pdf]]
+            [clojure.string :as str]))
 
-;;TODO Add tests
 (defn- img-src
   "full html img tag src, containing both a key and a value as a string"
   [path]
@@ -22,14 +20,13 @@
    You can read more here: https://github.com/gered/clj-htmltopdf#file-path--url-resolving"
   [resources-dir html-str]
   (str/replace html-str
-              #"src=\"(.*?)\""
-              (fn [[full-match path]]
-                (if (url? path)
-                  full-match
-                  (img-src
-                   (-> (str resources-dir path)
-                       build-files/absolutize
-                       build-uri/from-file-path))))))
+               #"src=\"(.*?)\""
+               (fn [[full-match path]]
+                 (if (url? path)
+                   full-match
+                   (img-src (-> (str resources-dir path)
+                                build-files/absolutize
+                                build-uri/from-file-path))))))
 
 (defn html-str->pdf
   "Converts html string to pdf file.
@@ -39,15 +36,8 @@
    * margin-box -> map containing definitions for headers/footers
                    keys are defined here https://www.w3.org/TR/css-page-3/#margin-boxes
    * styles -> a styles to use when converting html to pdf, values defined here https://github.com/gered/clj-htmltopdf#styles"
-  [{:keys [html-str
-           output-path
-           resources-dir
-           pdf-metadata
-           margin-box
-           styles]}]
+  [{:keys [html-str output-path resources-dir pdf-metadata margin-box styles]}]
   (let [updated-img-html (src->accepted-src resources-dir html-str)]
     (->pdf updated-img-html
            output-path
-           {:doc pdf-metadata
-            :page margin-box
-            :styles styles})))
+           {:doc pdf-metadata, :page margin-box, :styles styles})))

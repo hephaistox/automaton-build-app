@@ -45,7 +45,7 @@
 (deftest build-app-test
   (testing "Current project should generate its map"
     (is (< 0
-           (count (sut/build-app-data ""))))))
+           (count (@sut/build-app-data_ ""))))))
 
 (deftest is-cust-app-but-template?-test
   (testing "Template app and non cust app are refused"

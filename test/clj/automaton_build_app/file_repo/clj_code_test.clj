@@ -5,7 +5,7 @@
    [clojure.test :refer [deftest is testing]]))
 
 (def clj-repo-stub
-  (sut/make-clj-repo ""))
+  (sut/make-clj-repo-from-dirs [""]))
 
 (deftest filter-by-usage-test
   (testing "Filter by usage is ok"
@@ -21,7 +21,7 @@
                count)))))
 
 (comment
-  (prn (-> (sut/filter-by-usage (sut/make-clj-repo "")
+  (prn (-> (sut/filter-by-usage (sut/make-clj-repo-from-dirs [""])
                                 :reader)
            build-file-repo-raw/file-repo-map
            keys))
@@ -32,7 +32,7 @@
   (testing "test repos for edn"
     (is (< 0
            (->
-            (sut/make-clj-repo ""
+            (sut/make-clj-repo-from-dirs [""]
                                :edn)
             build-file-repo-raw/file-repo-map
             keys
@@ -40,7 +40,7 @@
   (testing "test repos for clj"
     (is (< 0
            (->
-            (sut/make-clj-repo ""
+            (sut/make-clj-repo-from-dirs [""]
                                :clj)
             build-file-repo-raw/file-repo-map
             keys
@@ -49,4 +49,11 @@
     (is (< 30
            (count
             (build-file-repo-raw/file-repo-map
-             (sut/make-clj-repo "")))))))
+             (sut/make-clj-repo-from-dirs [""])))))))
+
+(comment
+  (-> (sut/make-clj-repo-from-dirs ["src" "test"] :clj)
+      :_file-repo-map
+      count)
+  ;
+  )
