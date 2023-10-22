@@ -157,9 +157,10 @@
             [cmd-failing message] (build-cmds/first-cmd-failing commit-res)]
         (case cmd-failing
           nil (do (build-log/info-format
-                    "Successfully pushed, branch `%s`, commit `%s`"
-                    (current-branch dir)
-                    (current-commit-sha dir))
+                    "Successfully pushed version `%s` version"
+                    version)
+                  (build-log/info-format "branch `%s`" (current-branch dir))
+                  (build-log/info-format "commit `%s`" (current-commit-sha dir))
                   true)
           1 (do (build-log/info-format "Nothing to commit, skip the push")
                 false)
