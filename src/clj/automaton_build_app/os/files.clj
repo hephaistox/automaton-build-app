@@ -25,8 +25,7 @@
   "If exists, remove the trailing separator in a path, remove unwanted spaces either"
   [path]
   (let [path (str/trim path)]
-    (if (= (str file-separator)
-           (str (last path)))
+    (if (= (str file-separator) (str (last path)))
       (->> (dec (count path))
            (subs path 0)
            remove-trailing-separator)
@@ -43,11 +42,8 @@
             dir (-> dir
                     (str/replace (str file-separator file-separator)
                                  (str file-separator))
-                    (str/replace (str file-separator ".")
-                                 ""))]
-        (if (= old-dir dir)
-          dir
-          (recur dir))))))
+                    (str/replace (str file-separator ".") ""))]
+        (if (= old-dir dir) dir (recur dir))))))
 
 (defn create-file-path
   "Creates a path with the list of parameters.
@@ -55,36 +51,29 @@
   [& dirs]
   (if (empty? dirs)
     (build-log/warn "Invalid create file path with no file set")
-    (->
-     (if (some? dirs)
-       (->> dirs
-            (mapv str)
-            (filter #(not (str/blank? %)))
-            (mapv remove-trailing-separator)
-            (interpose file-separator)
-            (apply str))
-       "./")
-     remove-useless-path-elements
-     str)))
+    (-> (if (some? dirs)
+            (->> dirs
+                 (mapv str)
+                 (filter #(not (str/blank? %)))
+                 (mapv remove-trailing-separator)
+                 (interpose file-separator)
+                 (apply str))
+            "./")
+        remove-useless-path-elements
+        str)))
 
 (defn create-dir-path
   "Creates a path with the list of parameters.
   Removes the empty strings, add needed separators, including the trailing ones"
   [& dirs]
   (let [dir (apply create-file-path dirs)]
-    (if (str/blank? dir)
-      ""
-      (str dir
-           file-separator))))
+    (if (str/blank? dir) "" (str dir file-separator))))
 
 (defn create-absolute-dir-path
   "Creates an absolute path with the list of parameters.
   Removes the empty strings, add needed separators, including the trailing ones"
   [& dirs]
-  (str (apply create-file-path
-              file-separator
-              dirs)
-       file-separator))
+  (str (apply create-file-path file-separator dirs) file-separator))
 
 (defn match-extension?
   "Returns true if the filename match the at least one of the extensions
@@ -100,9 +89,9 @@
   [source-file relative-name]
   (let [source-subdirs (fs/components source-file)
         subdirs (mapv str
-                      (if (fs/directory? source-file)
-                        source-subdirs
-                        (butlast source-subdirs)))
+                  (if (fs/directory? source-file)
+                    source-subdirs
+                    (butlast source-subdirs)))
         new-name (conj subdirs relative-name)]
     (apply create-file-path new-name)))
 
@@ -111,8 +100,7 @@
   Params:
   * `filename`"
   [filename]
-  (= (str file-separator)
-     (str (first filename))))
+  (= (str file-separator) (str (first filename))))
 
 (defn extract-path
   "Extract if the filename is a file, return the path that contains it,
@@ -121,9 +109,7 @@
   (when-not (str/blank? filename)
     (if (fs/directory? filename)
       filename
-      (str (if (is-absolute? filename)
-             file-separator
-             "")
+      (str (if (is-absolute? filename) file-separator "")
            (->> filename
                 fs/components
                 butlast
@@ -145,9 +131,9 @@
   (when-not (and (sequential? files)
                  (every? #(or (string? %) (= java.net.URL (class %))) files))
     (throw
-     (ex-info
-      "The `files` parameter should be a sequence of string or `java.net.URL`"
-      {:files files}))))
+      (ex-info
+        "The `files` parameter should be a sequence of string or `java.net.URL`"
+        {:files files}))))
 
 (defn copy-files-or-dir
   "Copy the files, even if they are directories to the target
@@ -173,8 +159,8 @@
                         {:replace-existing true, :copy-attributes true}))))
        (catch Exception e
          (throw (ex-info
-                 "Unexpected exception during copy"
-                 {:exception e, :files files, :target-dir target-dir})))))
+                  "Unexpected exception during copy"
+                  {:exception e, :files files, :target-dir target-dir})))))
 
 (defn delete-files
   "Deletes the files which are given in the list.
@@ -208,9 +194,7 @@
                            (-> (current-dir)
                                re-pattern)
                            "")]
-      (if (str/blank? res)
-        "."
-        res))))
+      (if (str/blank? res) "." res))))
 
 (defn directory-exists?
   "Check directory existance"
@@ -252,17 +236,20 @@
   [dir]
   (if (is-existing-file? dir)
     (build-log/warn-format
-     "Can't create a directory `%s` as a file already exists with that name"
-     (absolutize dir))
+      "Can't create a directory `%s` as a file already exists with that name"
+      (absolutize dir))
     (if (fs/exists? dir)
-      (build-log/debug-format "Directory creation is skipped as the directory `%s` already exists" dir)
+      (build-log/debug-format
+        "Directory creation is skipped as the directory `%s` already exists"
+        dir)
       (try (fs/create-dirs dir)
            dir
            (catch Exception e
              (build-log/warn-exception
-              (ex-info (format "Directory creation has failed `%s`" (absolutize dir))
-                       {:dir dir}
-                       e)))))))
+               (ex-info (format "Directory creation has failed `%s`"
+                                (absolutize dir))
+                        {:dir dir}
+                        e)))))))
 
 (defn search-files
   "Search files.
@@ -274,10 +261,10 @@
   ([root pattern options]
    (if (directory-exists? root)
      (mapv str
-           (fs/glob root
-                    pattern
-                    (merge {:hidden true, :recursive true, :follow-links true}
-                           options)))
+       (fs/glob root
+                pattern
+                (merge {:hidden true, :recursive true, :follow-links true}
+                       options)))
      (do (build-log/warn-format "Search aborted as `%s` is not a directory"
                                 root)
          (build-log/trace-map "search parameters"
@@ -301,12 +288,11 @@
   [filename content]
   (build-log/trace-format "Writing file `%s`" filename)
   (let [filepath (extract-path filename)]
-    (try
-      (fs/create-dirs filepath)
-      (spit filename content)
-      (catch Exception e
-        (throw (ex-info "Impossible to write the file"
-                        {:target-filename filename, :exception e}))))))
+    (try (fs/create-dirs filepath)
+         (spit filename content)
+         (catch Exception e
+           (throw (ex-info "Impossible to write the file"
+                           {:target-filename filename, :exception e}))))))
 
 (defn create-temp-dir
   "Creates a temorary directory managed by the system
@@ -315,9 +301,9 @@
   Returns the string of the directory path"
   [& sub-dirs]
   (apply create-dir-path
-         (-> (fs/create-temp-dir)
-             str)
-         sub-dirs))
+    (-> (fs/create-temp-dir)
+        str)
+    sub-dirs))
 
 (defn filter-existing-dir
   "Filter only existing dirs
@@ -325,10 +311,10 @@
   * `dirs` sequence of string of directories"
   [dirs]
   (apply vector
-         (mapcat (fn [sub-dir]
-                   (let [sub-dir-rpath (absolutize sub-dir)]
-                     (when (directory-exists? sub-dir-rpath) [sub-dir-rpath])))
-                 dirs)))
+    (mapcat (fn [sub-dir]
+              (let [sub-dir-rpath (absolutize sub-dir)]
+                (when (directory-exists? sub-dir-rpath) [sub-dir-rpath])))
+      dirs)))
 
 (defn filename
   "Return the file name without the path"

@@ -33,7 +33,7 @@
     (is (< 0
            (->
             (sut/make-clj-repo-from-dirs [""]
-                               :edn)
+                                         :edn)
             build-file-repo-raw/file-repo-map
             keys
             count))))
@@ -41,7 +41,7 @@
     (is (< 0
            (->
             (sut/make-clj-repo-from-dirs [""]
-                               :clj)
+                                         :clj)
             build-file-repo-raw/file-repo-map
             keys
             count))))

@@ -31,8 +31,13 @@
   Return the content of the file"
   ([edn-filename content header]
    (try (build-log/trace "Spit edn file:" edn-filename)
-        (build-files/spit-file edn-filename content)
-        (build-code-formatter/format-file edn-filename header)
+        (let [previous-content (build-files/read-file edn-filename)]
+          (if (= previous-content content)
+            (build-log/debug-format
+              "Content of file `%s` is already update, spitting is skipped"
+              edn-filename)
+            (do (build-files/spit-file edn-filename content)
+                (build-code-formatter/format-file edn-filename header))))
         content
         (catch Exception e
           (throw (ex-info "Impossible to update the .edn file"

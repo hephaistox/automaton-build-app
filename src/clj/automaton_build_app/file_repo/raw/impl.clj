@@ -49,8 +49,7 @@
   Params:
   * `filenames` is the collection of files to return, non existing files are skipped"
   [filenames]
-  (->> filenames
-       build-files/filter-to-existing-files
+  (->> (apply build-files/filter-to-existing-files filenames)
        (map (fn [filename]
               (let [abs-filename (build-files/absolutize filename)]
                 [(str abs-filename) (build-files/read-file abs-filename)])))
