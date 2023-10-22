@@ -60,7 +60,7 @@
        (->> dirs
             (map str)
             (filter #(not (str/blank? %)))
-            (map remove-trailing-separator)
+            (mapv remove-trailing-separator)
             (interpose file-separator)
             (apply str))
        "./")
