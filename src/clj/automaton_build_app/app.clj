@@ -17,8 +17,9 @@
      [:jar
       [:map {:closed true} [:class-dir :string]
        [:excluded-aliases [:set :keyword]] [:target-filename :string]]]]]
-   [:lconnect [:map {:closed true} [:aliases [:vector :keyword]]]]
-   [:ltest [:map {:closed true} [:aliases [:vector :keyword]]]]
+   [:lconnect {:optional true}
+    [:map {:closed true} [:aliases [:vector :keyword]]]]
+   [:ltest {:optional true} [:map {:closed true} [:aliases [:vector :keyword]]]]
    [:customer-materials {:optional true}
     [:map {:closed true} [:html-dir :string] [:dir :string] [:pdf-dir :string]]]
    [:container-repo {:optional true} [:map {:closed true} [:account :string]]]
@@ -61,11 +62,13 @@
   ([app-dir]
    (build-log/debug-format "Build app data based on directory `%s`" app-dir)
    (let [app-data (build-build-config/read-build-config app-dir)]
-     (when (valid? app-data)
-       (assoc app-data
-         :app-dir app-dir
-         :shadow-cljs (build-frontend-compiler/load-shadow-cljs app-dir)
-         :deps-edn (build-deps-edn/load-deps-edn app-dir)))))
+     ;;It is made on purpose to still use the build_config.edn even if it
+     ;;is not validated.
+     (valid? app-data)
+     (assoc app-data
+       :app-dir app-dir
+       :shadow-cljs (build-frontend-compiler/load-shadow-cljs app-dir)
+       :deps-edn (build-deps-edn/load-deps-edn app-dir))))
   ([] (build-app-data* "")))
 
 (def build-app-data_

@@ -5,8 +5,9 @@
                     [automaton-build-app.os.commands :as build-cmds]
                     [babashka.fs :as fs]]
          :init (do
-                 (build-log/set-min-level! :trace)
+                 (build-log/set-min-level! :warning)
 
+                 ;;TODO Add cli opts analyze so we could have some better parametrization
                  (defn- cicd? []
                    (System/getenv "CI"))
 
