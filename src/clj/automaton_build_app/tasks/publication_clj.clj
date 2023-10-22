@@ -17,10 +17,10 @@
   [{:keys [min-level], :as opts}]
   (build-log/set-min-level! min-level)
   (let [command-line-args (:command-line-args opts)
-        [commit-msg tag-msg] command-line-args]
-    (if (some nil? [commit-msg tag-msg])
+        [commit-msg] command-line-args]
+    (if (some nil? [commit-msg])
       (println "Usage: bb push [commit message] [tag message]")
-      (do (build-log/debug-format "Push local %s - %s" commit-msg tag-msg)
+      (do (build-log/debug-format "Push local `%s` " commit-msg)
           (let [app-data (@build-app/build-app-data_ "")
                 clj-repo (-> app-data
                              build-app/src-dirs
@@ -33,5 +33,5 @@
               address
               branch
               commit-msg
-              tag-msg
+              commit-msg
               (get-in app-data [:publication :major-version])))))))
