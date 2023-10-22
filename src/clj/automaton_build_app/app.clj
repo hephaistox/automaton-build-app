@@ -13,8 +13,9 @@
   [[:publication
     [:map {:closed true}
      [:repo [:map {:closed true} [:address :string] [:branch :string]]]
-     [:as-lib :symbol] [:major-version :string]
-     [:jar
+     [:as-lib {:optional true} :symbol]
+     [:major-version {:optional true} :string]
+     [:jar {:optional true}
       [:map {:closed true} [:class-dir :string]
        [:excluded-aliases [:set :keyword]] [:target-filename :string]]]]]
    [:lconnect {:optional true}
