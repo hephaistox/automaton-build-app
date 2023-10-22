@@ -58,7 +58,7 @@
     (->
      (if (some? dirs)
        (->> dirs
-            (map str)
+            (mapv str)
             (filter #(not (str/blank? %)))
             (mapv remove-trailing-separator)
             (interpose file-separator)
@@ -127,7 +127,7 @@
            (->> filename
                 fs/components
                 butlast
-                (map str)
+                (mapv str)
                 (apply create-dir-path))))))
 
 ;; ***********************
@@ -273,12 +273,11 @@
   * `(files/search-files \"\" \"**{.clj,.cljs,.cljc,.edn}\")` search all clj files in pwd directory"
   ([root pattern options]
    (if (directory-exists? root)
-     (into []
-           (map str
-                (fs/glob root
-                         pattern
-                         (merge {:hidden true, :recursive true, :follow-links true}
-                                options))))
+     (mapv str
+           (fs/glob root
+                    pattern
+                    (merge {:hidden true, :recursive true, :follow-links true}
+                           options)))
      (do (build-log/warn-format "Search aborted as `%s` is not a directory"
                                 root)
          (build-log/trace-map "search parameters"
