@@ -13,7 +13,7 @@
   [schema data]
   (if (m/validate schema data)
     data
-    (do (build-log/warn-format "Not validated %s, data was `%s`"
+    (do (build-log/warn-format "Not validated %s"
                                (-> schema
                                    (m/explain data)
                                    (me/humanize)))
