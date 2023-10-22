@@ -202,8 +202,8 @@
   * `source-dir` the files that will be copied from
   * `commit-message` the message for the commit,
   * `tag-msg` the message of the tag
-  * `major-version`"
-  [tmp-dir source-dir commit-message tag-msg major-version]
+  * `version`"
+  [tmp-dir source-dir commit-message tag-msg version]
   (when (git-installed?)
     (->> (build-files/search-files tmp-dir "*")
          (filter (fn [file] (not (str/ends-with? file ".git"))))
@@ -212,8 +212,7 @@
     (commit-and-push-and-tag tmp-dir
                              commit-message
                              (current-branch tmp-dir)
-                             (build-version/version-to-push source-dir
-                                                            major-version)
+                             version
                              tag-msg)))
 
 (defn- validate-branch-name
@@ -241,7 +240,8 @@
     force?]
    (when (git-installed?)
      (build-log/info "Pushing from local directory to repository")
-     (let [branch-name (current-branch ".")]
+     (let [branch-name (current-branch ".")
+           version (build-version/version-to-push source-dir major-version)]
        (build-log/trace-map "Push local directories"
                             :source-dir source-dir
                             :repo-address repo-address
@@ -262,7 +262,7 @@
                                           source-dir
                                           commit-msg
                                           tag-msg
-                                          major-version)))))))
+                                          version)))))))
   ([source-dir repo-address base-branch-name commit-msg tag-msg major-version]
    (push-local-dir-to-repo source-dir
                            repo-address
@@ -298,7 +298,8 @@
                            branch-name)
    (when (git-installed?)
      (when (validate-branch-name force? branch-name)
-       (let [monorepo-tmp-dir (build-files/create-temp-dir)]
+       (let [monorepo-tmp-dir (build-files/create-temp-dir)
+             version (build-version/version-to-push sub-dir major-version)]
          (build-log/trace-format "Clone monorepo in directory `%s`"
                                  monorepo-tmp-dir)
          (when (clone-repo-branch monorepo-tmp-dir monorepo-address branch-name)
@@ -309,4 +310,4 @@
                  (build-files/create-dir-path monorepo-tmp-dir sub-dir)
                  commit-msg
                  tag-msg
-                 major-version)))))))))
+                 version)))))))))
