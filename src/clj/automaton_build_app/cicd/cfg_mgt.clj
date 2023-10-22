@@ -145,7 +145,7 @@
   * `version` version to use in the tag
   * `tag-msg` is the message of the tag"
   [dir msg branch-name version tag-msg]
-  (build-log/info-format "Commit and push in progress")
+  (build-log/info-format "Commit and push in progress in dir `%s`" dir)
   (let [msg (or msg "commit")]
     (when (git-installed?)
       (let [commit-res (build-cmds/execute-with-exit-code
