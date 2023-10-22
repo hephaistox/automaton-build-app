@@ -126,6 +126,16 @@
                       (into [] commit-res))
                     false))))))
 
+(defn current-commit-sha
+  "Returns the current commit sha in the directory `dir`
+  It will look at the currently selected branch
+  Params:
+  * `dir` directory where the local repo is stored"
+  [dir]
+  (-> (build-cmds/execute-get-string ["git" "log" "-n" "1" "--pretty=format:%H"
+                                      {:dir dir}])
+      first))
+
 (defn commit-and-push-and-tag
   "Push to its `origin` what is the working state in `dir` to branch `branch-name`
  Params:
@@ -146,7 +156,11 @@
                           branch-name {:dir dir}])
             [cmd-failing message] (build-cmds/first-cmd-failing commit-res)]
         (case cmd-failing
-          nil (do (build-log/info "Successfully pushed") true)
+          nil (do (build-log/info-format
+                    "Successfully pushed, branch `%s`, commit `%s`"
+                    (current-branch dir)
+                    (current-commit-sha dir))
+                  true)
           1 (do (build-log/info-format "Nothing to commit, skip the push")
                 false)
           2 (do (build-log/error-format "Tag has failed - %s" message) false)
