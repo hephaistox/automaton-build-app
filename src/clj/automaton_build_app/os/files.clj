@@ -234,7 +234,7 @@
   (-> (filter (fn [filename]
                 (if (is-existing-file? filename)
                   filename
-                  (do (build-log/warn-format "File `%s` has been skipped" filename)
+                  (do (build-log/warn-format "File `%s` is filtered" filename)
                       false)))
               filenames)
       vec))
