@@ -132,7 +132,7 @@
 (defmacro trace-data
   [data & messages]
   `(when (>= 0 @min-level)
-     (when-not (empty? messages) (print-message "T" ~@messages))
+     (when-not (empty? ~messages) (print-message "T" ~@messages))
      (print-message "T" (pr-str ~data))))
 
 (defmacro warn-data
