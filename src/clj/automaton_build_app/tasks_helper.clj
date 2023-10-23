@@ -2,6 +2,7 @@
   "Helpers function to initiate the bb tasks"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
+            [automaton-build-app.tasks.code-helpers :as build-task-code-helper]
             [babashka.fs :as fs]
             [clojure.pprint :as pp]
             [clojure.tools.cli :refer [parse-opts]]))
@@ -95,6 +96,7 @@
   * `body` body to execute
   * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
   [task-name cli-opts body-fn & executing-pf]
+  (build-task-code-helper/update-bb-deps "")
   (try (build-log/info-format "Run %s task" task-name)
        (dispatch task-name body-fn (first executing-pf) cli-opts)
        (catch Exception e
