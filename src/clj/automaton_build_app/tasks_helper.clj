@@ -28,9 +28,17 @@
                  clojure.lang.IPersistentMap
                  clojure.lang.IDeref))
 
+(def common-cli-opts
+  [["-l" "--log LOG-LEVEL"
+    "Log level, one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"
+    :default :info :parse-fn keyword :validate
+    [(partial contains? #{:trace :debug :fatal :warning :info :error})
+     "Must be one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"]]
+   ["-d" "--details" "Details during logs"] ["-h" "--help" "Help"]])
+
 (defn enter-tasks
   "To be run during the enter of tasks"
-  [common-cli-opts task-specific-cli-opts]
+  [task-specific-cli-opts]
   (let [cli-opts (->> (assemble-opts common-cli-opts
                                      task-specific-cli-opts
                                      (task-name))
