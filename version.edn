@@ -1,3 +1,6 @@
 ;; Last generated version, note a failed push consume a number Mon Oct 23
-;; 13:30:55 CEST 2023
-{:major-version "1.2.%s", :minor-version 32, :version "1.2.32"}
+;; 14:02:37 CEST 2023
+{:commit "d2dcd1092f16e2a8abe9f083e8217ae9e9d7efb2",
+ :major-version "1.2.%s",
+ :minor-version 33,
+ :version "1.2.33"}
