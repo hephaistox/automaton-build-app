@@ -82,10 +82,10 @@
   "Run the `body-fn` on the current full clojure environment"
   [body-fn opts]
   (build-log/trace-format "Run %s task on clj" (task-name))
-  (build-cmds/execute-and-trace ["clojure" "-X:build" (qualified-name body-fn)
-                                 :command-line-args (or *command-line-args* [])
-                                 :cli-opts opts :min-level
-                                 (build-log/min-level-kw) {}]))
+  (build-cmds/execute-and-trace ["clojure" "-X:build:bb-deps"
+                                 (qualified-name body-fn) :command-line-args
+                                 (or *command-line-args* []) :cli-opts opts
+                                 :min-level (build-log/min-level-kw) {}]))
 
 (defn- dispatch
   "Execute the body-fn directy in currently running bb env
