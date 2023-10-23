@@ -231,6 +231,22 @@
       false)
     true))
 
+(defn remote-branches
+  "Return the remote branches for a repo
+  Params:
+  * `repo-url` The url of the repo to download"
+  [repo-url]
+  (let [tmp-dir (build-files/create-temp-dir)]
+    (build-log/trace-format "Create a repo %s to check for remote branches"
+                            tmp-dir)
+    (build-cmds/execute-and-trace ["git" "init" "-q" {:dir tmp-dir}]
+                                  ["git" "remote" "add" "origin" repo-url
+                                   {:dir tmp-dir}])
+    (build-cmds/execute-get-string ["git" "config" "--local" "pager.branch"
+                                    "false" {:dir tmp-dir}]
+                                   ["git" "branch" "-aqr" {:dir tmp-dir}])))
+(remote-branches "git@github.com:hephaistox/monorepo.git")
+
 (defn push-local-dir-to-repo
   "Use that function to push the files in the `source-dir` to the repo
   Params:
