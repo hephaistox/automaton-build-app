@@ -104,17 +104,21 @@
 
 (defn extract-path
   "Extract if the filename is a file, return the path that contains it,
-  otherwise return the path itself"
+  otherwise return the path itself
+  Params:
+  * `filename`"
   [filename]
   (when-not (str/blank? filename)
     (if (fs/directory? filename)
       filename
-      (str (if (is-absolute? filename) file-separator "")
-           (->> filename
-                fs/components
-                butlast
-                (mapv str)
-                (apply create-dir-path))))))
+      (let [filepath (->> filename
+                          fs/components
+                          butlast
+                          (mapv str))]
+        (cond (= [] filepath) ""
+              (is-absolute? filename)
+                (apply create-dir-path file-separator filepath)
+              :else (apply create-dir-path filepath))))))
 
 ;; ***********************
 ;; Change files on disk
@@ -288,7 +292,7 @@
   [filename content]
   (build-log/trace-format "Writing file `%s`" filename)
   (let [filepath (extract-path filename)]
-    (try (fs/create-dirs filepath)
+    (try (when-not (str/blank? filepath) (fs/create-dirs filepath))
          (spit filename content)
          (catch Exception e
            (throw (ex-info "Impossible to write the file"

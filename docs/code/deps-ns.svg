@@ -82,9 +82,9 @@
 <g id="node8" class="node">
 <title>com.github.liquidz/antq</title>
 <g id="a_node8"><a xlink:href="./com.github.liquidz__antq.svg" xlink:title="com.github.liquidz/antq">
-<path fill="green" stroke="black" d="M1761.9,-1751.8C1761.9,-1753.93 1721.36,-1755.66 1671.45,-1755.66 1621.54,-1755.66 1581,-1753.93 1581,-1751.8 1581,-1751.8 1581,-1717.04 1581,-1717.04 1581,-1714.91 1621.54,-1713.18 1671.45,-1713.18 1721.36,-1713.18 1761.9,-1714.91 1761.9,-1717.04 1761.9,-1717.04 1761.9,-1751.8 1761.9,-1751.8"/>
-<path fill="none" stroke="black" d="M1761.9,-1751.8C1761.9,-1749.67 1721.36,-1747.94 1671.45,-1747.94 1621.54,-1747.94 1581,-1749.67 1581,-1751.8"/>
-<text text-anchor="middle" x="1671.45" y="-1729.37" font-family="Times,serif" font-size="14.00">com.github.liquidz/antq</text>
+<path fill="green" stroke="black" d="M1761.9,-1753.64C1761.9,-1755.77 1721.36,-1757.5 1671.45,-1757.5 1621.54,-1757.5 1581,-1755.77 1581,-1753.64 1581,-1753.64 1581,-1718.87 1581,-1718.87 1581,-1716.74 1621.54,-1715.01 1671.45,-1715.01 1721.36,-1715.01 1761.9,-1716.74 1761.9,-1718.87 1761.9,-1718.87 1761.9,-1753.64 1761.9,-1753.64"/>
+<path fill="none" stroke="black" d="M1761.9,-1753.64C1761.9,-1751.51 1721.36,-1749.77 1671.45,-1749.77 1621.54,-1749.77 1581,-1751.51 1581,-1753.64"/>
+<text text-anchor="middle" x="1671.45" y="-1731.21" font-family="Times,serif" font-size="14.00">com.github.liquidz/antq</text>
 </a>
 </g>
 </g>
@@ -213,15 +213,30 @@
 </g>
 </g>
 <!-- automaton&#45;build&#45;app.code&#45;helpers.compiler&#45;&gt;io.github.clojure/tools.build -->
-<g id="edge12" class="edge">
+<g id="edge13" class="edge">
 <title>automaton&#45;build&#45;app.code&#45;helpers.compiler&#45;&gt;io.github.clojure/tools.build</title>
 <path fill="none" stroke="black" d="M736.08,-1869.97C735.96,-1869.82 735.85,-1869.67 735.73,-1869.52"/>
 <polygon fill="black" stroke="black" points="740.29,-1869.72 731.44,-1863.9 734.73,-1873.97 740.29,-1869.72"/>
 </g>
-<!-- automaton&#45;build&#45;app.tasks&#45;helper -->
+<!-- automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps&#45;clj -->
 <g id="node19" class="node">
+<title>automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps&#45;clj</title>
+<g id="a_node19"><a xlink:href="./automaton-build-app.code-helpers.update-deps-clj.svg" xlink:title="automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps&#45;clj">
+<ellipse fill="none" stroke="black" cx="1967.66" cy="-1692" rx="197.73" ry="18"/>
+<text text-anchor="middle" x="1967.66" y="-1686.95" font-family="Times,serif" font-size="14.00">automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps&#45;clj</text>
+</a>
+</g>
+</g>
+<!-- automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps&#45;clj&#45;&gt;com.github.liquidz/antq -->
+<g id="edge11" class="edge">
+<title>automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps&#45;clj&#45;&gt;com.github.liquidz/antq</title>
+<path fill="none" stroke="black" d="M1862.81,-1707.66C1833.87,-1711.99 1802.51,-1716.67 1773.71,-1720.98"/>
+<polygon fill="black" stroke="black" points="1773.26,-1717.51 1763.89,-1722.44 1774.3,-1724.43 1773.26,-1717.51"/>
+</g>
+<!-- automaton&#45;build&#45;app.tasks&#45;helper -->
+<g id="node20" class="node">
 <title>automaton&#45;build&#45;app.tasks&#45;helper</title>
-<g id="a_node19"><a xlink:href="./automaton-build-app.tasks-helper.svg" xlink:title="automaton&#45;build&#45;app.tasks&#45;helper">
+<g id="a_node20"><a xlink:href="./automaton-build-app.tasks-helper.svg" xlink:title="automaton&#45;build&#45;app.tasks&#45;helper">
 <ellipse fill="none" stroke="black" cx="1698.38" cy="-883.52" rx="135.8" ry="18"/>
 <text text-anchor="middle" x="1698.38" y="-878.47" font-family="Times,serif" font-size="14.00">automaton&#45;build&#45;app.tasks&#45;helper</text>
 </a>
@@ -246,9 +261,9 @@
 <polygon fill="black" stroke="black" points="2096.62,-1183.19 2106.73,-1186.33 2100.79,-1177.57 2096.62,-1183.19"/>
 </g>
 <!-- automaton&#45;build&#45;app.utils.namespace -->
-<g id="node20" class="node">
+<g id="node21" class="node">
 <title>automaton&#45;build&#45;app.utils.namespace</title>
-<g id="a_node20"><a xlink:href="./automaton-build-app.utils.namespace.svg" xlink:title="automaton&#45;build&#45;app.utils.namespace">
+<g id="a_node21"><a xlink:href="./automaton-build-app.utils.namespace.svg" xlink:title="automaton&#45;build&#45;app.utils.namespace">
 <ellipse fill="none" stroke="black" cx="1054.39" cy="-695.26" rx="150.64" ry="18"/>
 <text text-anchor="middle" x="1054.39" y="-690.21" font-family="Times,serif" font-size="14.00">automaton&#45;build&#45;app.utils.namespace</text>
 </a>
@@ -259,21 +274,6 @@
 <title>automaton&#45;build&#45;app.utils.namespace&#45;&gt;org.clojure/clojure</title>
 <path fill="none" stroke="black" d="M1055.36,-713.6C1058.83,-779.46 1070.69,-1004.58 1075.16,-1089.46"/>
 <polygon fill="black" stroke="black" points="1071.65,-1089.39 1075.67,-1099.19 1078.64,-1089.02 1071.65,-1089.39"/>
-</g>
-<!-- automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps -->
-<g id="node21" class="node">
-<title>automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps</title>
-<g id="a_node21"><a xlink:href="./automaton-build-app.code-helpers.update-deps.svg" xlink:title="automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps">
-<ellipse fill="none" stroke="black" cx="1955.37" cy="-1692" rx="185.45" ry="18"/>
-<text text-anchor="middle" x="1955.37" y="-1686.95" font-family="Times,serif" font-size="14.00">automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps</text>
-</a>
-</g>
-</g>
-<!-- automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps&#45;&gt;com.github.liquidz/antq -->
-<g id="edge13" class="edge">
-<title>automaton&#45;build&#45;app.code&#45;helpers.update&#45;deps&#45;&gt;com.github.liquidz/antq</title>
-<path fill="none" stroke="black" d="M1852.47,-1707.37C1826.76,-1711.22 1799.19,-1715.33 1773.52,-1719.17"/>
-<polygon fill="black" stroke="black" points="1773.13,-1715.69 1763.75,-1720.63 1774.16,-1722.61 1773.13,-1715.69"/>
 </g>
 <!-- automaton&#45;build&#45;app.file&#45;repo.text&#45;matches -->
 <g id="node22" class="node">
@@ -489,7 +489,7 @@
 </g>
 </g>
 <!-- automaton&#45;build&#45;app.code&#45;helpers.code&#45;stats&#45;&gt;org.clojure/clojure -->
-<g id="edge11" class="edge">
+<g id="edge12" class="edge">
 <title>automaton&#45;build&#45;app.code&#45;helpers.code&#45;stats&#45;&gt;org.clojure/clojure</title>
 <path fill="none" stroke="black" d="M716.93,-1034.83C791.48,-1052.92 909.56,-1081.59 989.99,-1101.11"/>
 <polygon fill="black" stroke="black" points="989.06,-1104.49 999.6,-1103.45 990.71,-1097.69 989.06,-1104.49"/>

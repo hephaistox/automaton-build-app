@@ -6,6 +6,7 @@
         clj-htmltopdf/clj-htmltopdf {:mvn/version "0.2.1"}
         markdown-clj/markdown-clj #:mvn{:version "1.11.7"}
         io.github.clojure/tools.build {:mvn/version "0.9.6"}
+        zprint/zprint {:mvn/version "1.2.8"}
         metosin/malli {:mvn/version "0.13.0"}}
 
  :ns-default automaton-build-app.core

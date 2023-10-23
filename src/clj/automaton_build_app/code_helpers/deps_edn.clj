@@ -1,9 +1,6 @@
 (ns automaton-build-app.code-helpers.deps-edn
   "Proxy for `deps.edn` file"
-  (:require [automaton-build-app.log :as build-log]
-            [automaton-build-app.code-helpers.formatter :as
-             build-code-formatter]
-            [automaton-build-app.os.files :as build-files]
+  (:require [automaton-build-app.os.files :as build-files]
             [automaton-build-app.os.edn-utils :as build-edn-utils]))
 
 (def deps-edn "deps.edn")
@@ -56,20 +53,3 @@
   [deps-edn excluded-aliases limit-to-existing?]
   (->> (extract-paths deps-edn excluded-aliases limit-to-existing?)
        (filter #(re-find #"src" %))))
-
-(defn spit-deps-edn
-  "Spit the `content` in `deps.edn` file
-  Params:
-  * `app-dir` where to spit the deps.edn file'
-  * `content` what to write in the file
-  * `header` (optional) header is automatically preceded with ;;
-  Returns the content of the file"
-  [deps-edn-filename content header]
-  (build-log/trace "Write `" (build-files/absolutize deps-edn-filename) "`")
-  (build-files/create-dirs (build-files/extract-path deps-edn-filename))
-  (let [content (build-edn-utils/spit-edn
-                  deps-edn-filename
-                  content
-                  (or header "Modify application directly, touched at "))]
-    (build-code-formatter/format-file deps-edn-filename)
-    content))

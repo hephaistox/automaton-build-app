@@ -19,19 +19,20 @@
   "Create the code documentation"
   [{:keys [min-level], :as _opts}]
   (build-log/set-min-level! min-level)
-  (let [{:keys [app-name doc], :as app-data} (@build-app/build-app-data_ "")
-        {:keys [code-doc reports]} doc
-        {:keys [title description dir]} code-doc
-        app-dirs (-> app-data
-                     build-app/src-dirs)
+  (let [{:keys [_app-name doc], :as app-data} (@build-app/build-app-data_ "")
+        {:keys [_code-doc reports]} doc
+        ;{:keys [title description dir]} code-doc
+        _app-dirs (-> app-data
+                      build-app/src-dirs)
         res (and (app-code-doc/vizualize-ns reports)
                  (app-code-doc/vizualize-deps reports)
-                 (app-code-doc/build-doc ""
-                                         app-name
-                                         app-dirs
-                                         title
-                                         description
-                                         dir))]
+                 ;; codox fails
+                 #_(app-code-doc/build-doc ""
+                                           app-name
+                                           app-dirs
+                                           title
+                                           description
+                                           dir))]
     (when-not res (System/exit build-exit-code/catch-all))
     res))
 

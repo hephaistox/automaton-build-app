@@ -3,9 +3,9 @@
   Is a basic implementation with print
 
   That log is disabled during test, which is detected with `hephaistox-in-test`"
-  (:require [automaton-build-app.utils.string :as build-string]
-            [clojure.pprint :as pp]
-            [automaton-build-app.os.java-properties :as build-java-properties]))
+  (:require [automaton-build-app.os.java-properties :as build-java-properties]
+            [automaton-build-app.utils.string :as build-string]
+            [clojure.pprint :as pp]))
 
 (def size-command
   "Size of the command line to be managed, measured on mcbook pro"

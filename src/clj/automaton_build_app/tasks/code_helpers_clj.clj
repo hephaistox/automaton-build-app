@@ -4,7 +4,8 @@
             [automaton-build-app.code-helpers.compiler :as build-compiler]
             [automaton-build-app.code-helpers.frontend-compiler :as
              build-frontend-compiler]
-            [automaton-build-app.code-helpers.update-deps :as build-update-deps]
+            [automaton-build-app.code-helpers.update-deps-clj :as
+             build-update-deps-clj]
             [automaton-build-app.os.exit-codes :as build-exit-code]
             [automaton-build-app.log :as build-log]))
 
@@ -12,7 +13,7 @@
   "Update the dependencies of the project"
   [{:keys [min-level], :as _opts}]
   (build-log/set-min-level! min-level)
-  (build-update-deps/do-update ""))
+  (build-update-deps-clj/do-update ""))
 
 (defn compile-to-jar
   "Compile both backend and frontend (if its setup file exists, e.g. `shadow-cljs.edn`)), in production mode"

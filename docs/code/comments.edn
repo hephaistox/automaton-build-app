@@ -1,4 +1,2 @@
 List of forbidden comments
  Should come from a github repo -> [src/clj/automaton_build_app/tasks/test.clj]
- Check what's happening when the branch is new -> [src/clj/automaton_build_app/cicd/cfg_mgt.clj]
- Check all tasks on core, build_app and the two containers -> [src/clj/automaton_build_app/cicd/cfg_mgt.clj]

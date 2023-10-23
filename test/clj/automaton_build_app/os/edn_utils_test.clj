@@ -20,7 +20,6 @@
   (testing "Non existing files are detected "
     (is (nil? (sut/read-edn "not existing file")))))
 
-(def tmp-file (sut/create-tmp-edn "edn-utils-test.edn"))
 (deftest spit-edn-test
   (let [tmp-file (sut/create-tmp-edn "edn-utils-test.edn")]
     (testing "Creates edn file"
