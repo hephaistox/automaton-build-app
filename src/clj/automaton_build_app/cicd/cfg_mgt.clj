@@ -37,8 +37,6 @@
        ["git" "clean" (str "-fqdx" (when interactive? "i")) {:dir root-dir}])))
   ([root-dir] (clean-hard root-dir true)))
 
-;;TODO Check what's happening when the branch is new
-;;TODO Check all tasks on core, build_app and the two containers
 (defn clone-repo-branch
   "Clone one branch of a remote repository to the `target-dir`
   Params:
@@ -276,9 +274,7 @@
              (build-log/debug
                "Pushing from local directory to repository - repo is ready")
              (let [version (build-version/version-to-push source-dir
-                                                          major-version
-                                                          (current-commit-sha
-                                                            tmp-dir))]
+                                                          major-version)]
                (squash-local-files-and-push tmp-dir
                                             source-dir
                                             commit-msg

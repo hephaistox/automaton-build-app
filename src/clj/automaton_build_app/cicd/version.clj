@@ -25,7 +25,7 @@
   Params:
   * `dir` directory of the version to count
   * `major-version`"
-  [dir major-version commit-sha]
+  [dir major-version]
   (if major-version
     (let [version-filename (build-files/create-file-path dir "version.edn")
           version-map (build-edn-utils/read-edn version-filename)
@@ -41,7 +41,6 @@
         version-filename
         {:version new-version,
          :major-version major-version,
-         :commit commit-sha,
          :minor-version new-minor-version}
         "Last generated version, note a failed push consume a number")
       new-version)
@@ -52,7 +51,7 @@
   Params:
   * `dir` directory of the version to count
   * `major-version`"
-  [dir major-version _commit-sha]
+  [dir major-version]
   (if major-version
     (let [minor-version (-> (clj-build-api/git-count-revs {:dir dir})
                             Integer/parseInt)

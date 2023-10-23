@@ -3,17 +3,8 @@
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
             [babashka.fs :as fs]
-            [babashka.tasks]
             [clojure.pprint :as pp]
             [clojure.tools.cli :refer [parse-opts]]))
-
-(defn- task-name
-  "Return the current task name as as string
-  Works only in `:enter` or tasks contents (not in `:init` block)"
-  []
-  (-> (babashka.tasks/current-task)
-      :name
-      str))
 
 (defn- assemble-opts
   "Assemble task specific options and common cli options"
@@ -45,17 +36,17 @@
   "To be run during the enter of tasks
   Params:
   * `task-specific-cli-opts` app specific cli opts, a map associating a task name as a string to the cli options, as understood by tools.cli"
-  [task-specific-cli-opts]
+  [task-name task-specific-cli-opts]
   (let [cli-opts (->> (assemble-opts common-cli-opts
                                      (merge build-app-task-specific-cli-opts
                                             task-specific-cli-opts)
-                                     (task-name))
+                                     task-name)
                       (parse-opts *command-line-args*))]
     (build-log/set-min-level! (get-in cli-opts [:options :log]))
     (build-log/set-details? (get-in cli-opts [:options :details]))
     (build-log/trace "Options data")
     (build-log/trace-data cli-opts)
-    (assoc cli-opts :usage-msg (format "Usage `bb %s`" (task-name)))))
+    (assoc cli-opts :usage-msg (format "Usage `bb %s`" task-name))))
 
 (defn- cicd?
   "Is the current execution is in the content of a CICD runner, like github runner"
@@ -69,8 +60,8 @@
 
 (defn- run-bb
   "Run the `body-fn` on the current bb environment"
-  [body-fn opts]
-  (build-log/trace-format "Run %s task on bb" (task-name))
+  [task-name body-fn opts]
+  (build-log/trace-format "Run %s task on bb" task-name)
   (let [ns (-> (symbol body-fn)
                namespace
                symbol)]
@@ -80,8 +71,8 @@
 
 (defn- run-clj
   "Run the `body-fn` on the current full clojure environment"
-  [body-fn opts]
-  (build-log/trace-format "Run %s task on clj" (task-name))
+  [task-name body-fn opts]
+  (build-log/trace-format "Run %s task on clj" task-name)
   (build-cmds/execute-and-trace ["clojure" "-X:build:bb-deps"
                                  (qualified-name body-fn) :command-line-args
                                  (or *command-line-args* []) :cli-opts opts
@@ -92,10 +83,10 @@
   * `body` body to execute
   * `executing-pf` could be :bb or :clj, the task will be executed on one or the other
   * `cli-opts` parsed command line arguments"
-  [body-fn executing-pf cli-opts]
+  [task-name body-fn executing-pf cli-opts]
   (cond (get-in cli-opts [:options :help]) (println (:summary cli-opts))
-        (= :clj executing-pf) (run-clj body-fn cli-opts)
-        :else (run-bb body-fn cli-opts)))
+        (= :clj executing-pf) (run-clj task-name body-fn cli-opts)
+        :else (run-bb task-name body-fn cli-opts)))
 
 (defn execute-task
   "Run the function and manage
@@ -103,12 +94,12 @@
   * `cli-opts`
   * `body` body to execute
   * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
-  [cli-opts body-fn & executing-pf]
-  (try (build-log/info-format "Run %s task" (task-name))
-       (dispatch body-fn (first executing-pf) cli-opts)
+  [task-name cli-opts body-fn & executing-pf]
+  (try (build-log/info-format "Run %s task" task-name)
+       (dispatch task-name body-fn (first executing-pf) cli-opts)
        (catch Exception e
          (println (format "Error during execution of `%s`, %s`"
-                          (task-name)
+                          task-name
                           (pr-str (ex-message e))))
          (if (cicd?)
            (println e)
