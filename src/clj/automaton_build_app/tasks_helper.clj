@@ -36,11 +36,20 @@
      "Must be one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"]]
    ["-d" "--details" "Details during logs"] ["-h" "--help" "Help"]])
 
+(def build-app-task-specific-cli-opts
+  {"clean" [["-w" "--will-be-an EXAMPLE" "Is an example"]],
+   "push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
+           ["-t" "--tag-message TAG-MESSAGE" "Tag message"]],
+   "gha" [["-f" "--force" "Force execution on local machine"]]})
+
 (defn enter-tasks
-  "To be run during the enter of tasks"
+  "To be run during the enter of tasks
+  Params:
+  * `task-specific-cli-opts` app specific cli opts, a map associating a task name as a string to the cli options, as understood by tools.cli"
   [task-specific-cli-opts]
   (let [cli-opts (->> (assemble-opts common-cli-opts
-                                     task-specific-cli-opts
+                                     (merge build-app-task-specific-cli-opts
+                                            task-specific-cli-opts)
                                      (task-name))
                       (parse-opts *command-line-args*))]
     (build-log/set-min-level! (get-in cli-opts [:options :log]))
