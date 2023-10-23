@@ -239,13 +239,12 @@
   (let [tmp-dir (build-files/create-temp-dir)]
     (build-log/trace-format "Create a repo %s to check for remote branches"
                             tmp-dir)
-    (build-cmds/execute-and-trace ["git" "init" "-q" {:dir tmp-dir}]
-                                  ["git" "remote" "add" "origin" repo-url
-                                   {:dir tmp-dir}])
-    (build-cmds/execute-get-string ["git" "config" "--local" "pager.branch"
-                                    "false" {:dir tmp-dir}]
-                                   ["git" "branch" "-aqr" {:dir tmp-dir}])))
-(remote-branches "git@github.com:hephaistox/monorepo.git")
+    (build-cmds/execute-and-trace
+      ["git" "init" "-q" {:dir tmp-dir}]
+      ["git" "remote" "add" "origin" repo-url {:dir tmp-dir}]
+      ["git" "config" "--local" "pager.branch" "false" {:dir tmp-dir}])
+    (build-cmds/execute-get-string ["git" "branch" "-aqr" {:dir tmp-dir}])))
+
 
 (defn push-local-dir-to-repo
   "Use that function to push the files in the `source-dir` to the repo
@@ -258,6 +257,7 @@
     force?]
    (when (git-installed?)
      (build-log/info "Pushing from local directory to repository")
+     (println "remote branches: " (remote-branches repo-address))
      (let [branch-name (current-branch ".")
            version (build-version/version-to-push source-dir major-version)]
        (build-log/trace-map "Push local directories"
