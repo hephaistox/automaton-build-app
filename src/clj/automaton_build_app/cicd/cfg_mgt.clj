@@ -37,6 +37,8 @@
        ["git" "clean" (str "-fqdx" (when interactive? "i")) {:dir root-dir}])))
   ([root-dir] (clean-hard root-dir true)))
 
+;;TODO Check what's happening when the branch is new
+;;TODO Check all tasks on core, build_app and the two containers
 (defn clone-repo-branch
   "Clone one branch of a remote repository to the `target-dir`
   Params:

@@ -1,73 +1,23 @@
 {:paths ["src/clj"]
  :deps {metosin/malli {:mvn/version "0.13.0"}
+        org.clojure/tools.cli {:mvn/version "1.0.219"}
         io.github.clojure/tools.build {:mvn/version "0.9.6"}}
- :tasks {:requires [[automaton-build-app.log :as build-log]
-                    [automaton-build-app.os.commands :as build-cmds]
-                    [babashka.fs :as fs]]
-         :init (do
-                 (build-log/set-min-level! :info)
-
-                 ;;TODO Add cli opts analyze so we could have some better parametrization
-                 (defn- cicd? []
-                   (System/getenv "CI"))
-
-                 (defn qualified-name [s]
-                   (apply str
-                          (interpose "/"
-                                     ((juxt namespace name) (symbol s)))))
-
-                 (defn- task-name []
-                   (-> (babashka.tasks/current-task)
-                       :name))
-
-                 (defn run-bb
-                   "Run the `body-fn` on the current bb environment"
-                   [body-fn]
-                   (build-log/trace-format "Run %s task on bb" (task-name))
-                   (let [ns (-> (symbol body-fn)
-                                namespace
-                                symbol)]
-                     (require ns)
-                     ((resolve body-fn) {:command-line-args *command-line-args*})))
-
-                 (defn run-clj
-                   [body-fn]
-                   (build-log/trace-format "Run %s task on clj" (task-name))
-                   (build-cmds/execute-and-trace ["clojure" "-X:build" (qualified-name body-fn)
-                                                  :command-line-args (or *command-line-args*
-                                                                         [])
-                                                  :min-level (build-log/min-level-kw)
-                                                  {}]))
-
-                 (defn dispatch
-                   "Execute the body-fn directy in currently running bb env
-                      * `body` body to execute
-                      * `executing-pf` could be :bb or :clj, the task will be executed on one or the other"
-                   [body-fn executing-pf]
-                   (if (= :clj executing-pf)
-                     (run-clj body-fn)
-                     (run-bb body-fn)))
-
-                 (defn execute-task
-                   "Run the function and manage
-                    Params:
-                    * `body` body to execute
-                    * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
-                   [body-fn & executing-pf]
-                   (try
-                     (build-log/info-format "Run %s task" (-> (current-task)
-                                                              :name))
-                     (dispatch body-fn
-                               (first executing-pf))
-                     (catch Exception e
-                       (println (format "Error during execution of `%s`, %s`" (:name (current-task)) (pr-str (ex-message e))))
-                       (if (cicd?)
-                         (println e)
-                         (let [file (fs/create-temp-file {:suffix ".edn"})]
-                           (println (format "See details in `%s`" (.toString (.toAbsolutePath file))))
-                           (spit (fs/file file) (prn-str e))
-                           ""))
-                       (System/exit 1)))))
+ :tasks {:requires [[automaton-build-app.tasks-helper :as build-task-helper]]
+         :init (build-task-helper/init-tasks)
+         :enter (do
+                  (def cli-opts
+                    (build-task-helper/enter-tasks
+                     [["-l" "--log LOG-LEVEL" "Log level, one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"
+                       :default :info
+                       :parse-fn keyword
+                       :validate [(partial contains? #{:trace :debug :info :warning :error :fatal}) "Must be one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"]]
+                      ["-d" "--details" "Details during logs"]
+                      ["-h" "--help" "Help"]]
+                     {"clean" [["-w" "--will-be-an EXAMPLE" "Is an example"]]
+                      "push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
+                            ["-t" "--tag-message TAG-MESSAGE" "Tag message"]]}))
+                  (def execute-task
+                    (partial build-task-helper/execute-task cli-opts)))
 
          blog {:doc "Transforms md file to pdf based on edn file"
                :task (execute-task 'automaton-build-app.tasks.doc-clj/blog-task :clj)}

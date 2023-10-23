@@ -16,22 +16,24 @@
   * `tag-msg` tag message"
   [{:keys [min-level], :as opts}]
   (build-log/set-min-level! min-level)
-  (let [command-line-args (:command-line-args opts)
-        [commit-msg] command-line-args]
-    (if (some nil? [commit-msg])
-      (println "Usage: bb push [commit message] [tag message]")
-      (do (build-log/debug-format "Push local `%s` " commit-msg)
-          (let [app-data (@build-app/build-app-data_ "")
-                clj-repo (-> app-data
-                             build-app/src-dirs
-                             build-clj-code/make-clj-repo-from-dirs)
-                repo (get-in app-data [:publication :repo])
-                {:keys [address branch]} repo]
-            (build-code-formatter/code-files-formatted clj-repo)
-            (build-cfg-mgt/push-local-dir-to-repo
-              "."
-              address
-              branch
-              commit-msg
-              commit-msg
-              (get-in app-data [:publication :major-version])))))))
+  (println "opts are" opts)
+  (println "commit msg" (get-in opts [:cli-opts :options :message]))
+  (if-let [commit-msg (get-in opts [:cli-opts :options :message])]
+    (let [_ (build-log/debug-format "Push local `%s` " commit-msg)
+          app-data (@build-app/build-app-data_ "")
+          clj-repo (-> app-data
+                       build-app/src-dirs
+                       build-clj-code/make-clj-repo-from-dirs)
+          repo (get-in app-data [:publication :repo])
+          {:keys [address branch]} repo]
+      (build-code-formatter/code-files-formatted clj-repo)
+      (build-cfg-mgt/push-local-dir-to-repo
+        "."
+        address
+        branch
+        commit-msg
+        commit-msg
+        (get-in app-data [:publication :major-version])))
+    (let [usage-msg (get-in opts [:cli-opts :usage-msg])]
+      (println usage-msg)
+      (println (get-in opts [:cli-opts :summary])))))

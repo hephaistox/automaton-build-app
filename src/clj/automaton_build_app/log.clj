@@ -9,16 +9,23 @@
 
 (def size-command
   "Size of the command line to be managed, measured on mcbook pro"
-  2430)
+  243)
 
 (def ^:private log-levels [:trace :debug :info :warning :error :fatal])
 
 (def min-level "Minimum level to be displayed during log" (atom -1))
 
+(def details? (atom false))
+
 (defn set-min-level!
   "Set the minimum level"
   [min-level*]
   (reset! min-level (.indexOf log-levels min-level*)))
+
+(defn set-details?
+  "If true, the console will limit to the size"
+  [b]
+  (reset! details? b))
 
 (defn min-level-kw [] (get log-levels @min-level))
 
@@ -37,7 +44,7 @@
                         "--> ")
            suffix# ""]
        (println (build-string/limit-length (str ~@messages)
-                                           size-command
+                                           (if @details? 10000 size-command)
                                            prefix#
                                            suffix#
                                            (constantly nil))))))
