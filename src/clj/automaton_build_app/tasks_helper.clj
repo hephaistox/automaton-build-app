@@ -37,8 +37,7 @@
    ["-d" "--details" "Details during logs"] ["-h" "--help" "Help"]])
 
 (def build-app-task-specific-cli-opts
-  {"clean" [["-w" "--will-be-an EXAMPLE" "Is an example"]],
-   "push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
+  {"push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
            ["-t" "--tag-message TAG-MESSAGE" "Tag message"]],
    "gha" [["-f" "--force" "Force execution on local machine"]]})
 
