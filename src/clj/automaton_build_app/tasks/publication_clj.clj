@@ -16,8 +16,6 @@
   * `tag-msg` tag message"
   [{:keys [min-level], :as opts}]
   (build-log/set-min-level! min-level)
-  (println "opts are" opts)
-  (println "commit msg" (get-in opts [:cli-opts :options :message]))
   (if-let [commit-msg (get-in opts [:cli-opts :options :message])]
     (let [_ (build-log/debug-format "Push local `%s` " commit-msg)
           app-data (@build-app/build-app-data_ "")

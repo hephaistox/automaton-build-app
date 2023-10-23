@@ -139,17 +139,17 @@
 (defmacro trace-data
   [data & messages]
   `(when (>= 0 @min-level)
-     (when-not (empty? ~messages) (print-message "T" ~@messages))
+     (when-not (empty? [~@messages]) (print-message "T" ~@messages))
      (print-message "T" (pr-str ~data))))
 
 (defmacro warn-data
   [data & messages]
   `(when (>= 3 @min-level)
-     (when-not (empty? ~messages) (print-message "W" ~@messages))
+     (when-not (empty? [~@messages]) (print-message "W" ~@messages))
      (print-message "W" (pr-str ~data))))
 
 (defmacro error-data
   [data & messages]
   `(when (>= 4 @min-level)
-     (when-not (empty? ~messages) (print-message "E" ~@messages))
+     (when-not (empty? [~@messages]) (print-message "E" ~@messages))
      (print-message "E" (pr-str ~data))))

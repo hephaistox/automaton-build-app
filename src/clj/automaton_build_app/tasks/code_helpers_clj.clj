@@ -12,7 +12,7 @@
   "Update the dependencies of the project"
   [{:keys [min-level], :as _opts}]
   (build-log/set-min-level! min-level)
-  (build-update-deps/do-update))
+  (build-update-deps/do-update ""))
 
 (defn compile-to-jar
   "Compile both backend and frontend (if its setup file exists, e.g. `shadow-cljs.edn`)), in production mode"

@@ -41,4 +41,7 @@
                                              "-Dlog4j.configurationFile=resources/log_config/appenders.properties,resources/log_config/logging-tests.properties"],
                                   :main-opts ["-m" "cognitect.test-runner"
                                               "-r" ".*-test.*"
-                                              "-d" "test/clj"]}}}
+                                              "-d" "test/clj"]}
+           :bb-deps {:extra-deps {metosin/malli {:mvn/version "0.13.0"}
+                                  org.clojure/tools.cli {:mvn/version "1.0.219"}
+                                  io.github.clojure/tools.build {:mvn/version "0.9.6"}}}}}

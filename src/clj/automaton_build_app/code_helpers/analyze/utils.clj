@@ -29,3 +29,4 @@
   [matches assert-message]
   (when-not (empty? matches) (build-log/warn-data matches assert-message))
   (System/exit build-exit-codes/rules-broken))
+

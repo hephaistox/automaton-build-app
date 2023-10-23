@@ -1,56 +1,64 @@
-{:paths ["src/clj"]
- :deps {metosin/malli {:mvn/version "0.13.0"}
-        org.clojure/tools.cli {:mvn/version "1.0.219"}
-        io.github.clojure/tools.build {:mvn/version "0.9.6"}}
- :tasks {:requires [[automaton-build-app.tasks-helper :as build-task-helper]]
-         :init (build-task-helper/init-tasks)
-         :enter (do
-                  (def cli-opts
-                    (build-task-helper/enter-tasks
-                     [["-l" "--log LOG-LEVEL" "Log level, one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"
-                       :default :info
-                       :parse-fn keyword
-                       :validate [(partial contains? #{:trace :debug :info :warning :error :fatal}) "Must be one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"]]
-                      ["-d" "--details" "Details during logs"]
-                      ["-h" "--help" "Help"]]
-                     {"clean" [["-w" "--will-be-an EXAMPLE" "Is an example"]]
-                      "push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
-                            ["-t" "--tag-message TAG-MESSAGE" "Tag message"]]}))
-                  (def execute-task
-                    (partial build-task-helper/execute-task cli-opts)))
-
-         blog {:doc "Transforms md file to pdf based on edn file"
-               :task (execute-task 'automaton-build-app.tasks.doc-clj/blog-task :clj)}
-
-         clean {:doc "Clean cache files for compiles, and logs"
-                :task (execute-task 'automaton-build-app.tasks.clean/clean)}
-
-         clean-hard {:doc "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)"
-                     :task (execute-task 'automaton-build-app.tasks.clean/clean-hard)}
-
-         code-doc {:doc "Create the documentation of the app"
-                   :task (execute-task 'automaton-build-app.tasks.doc-clj/code-doc :clj)}
-
-         compile-to-jar {:doc "Compile that code to a jar"
-                         :task (execute-task 'automaton-build-app.tasks.code-helpers-clj/compile-to-jar :clj)}
-
-         gha {:doc "Github action command - is launched automatically by github"
-              :task (execute-task 'automaton-build-app.tasks.test-clj/gha :clj)}
-
-         gha-lconnect {:doc "Connect to a local container running this code"
-                       :task (execute-task 'automaton-build-app.tasks.test/gha-lconnect)}
-
-         lconnect {:doc "Local connect - repl"
-                   :task (execute-task 'automaton-build-app.tasks.code-helpers/lconnect)}
-
-         ltest {:doc "Local test"
-                :task (execute-task 'automaton-build-app.tasks.test/ltest)}
-
-         push {:doc "Push this repo"
-               :task (execute-task 'automaton-build-app.tasks.publication-clj/push-from-local :clj)}
-
-         report {:doc "Creates the reports of code analyzis"
-                 :task (execute-task 'automaton-build-app.tasks.code-analyze-clj/reports :clj)}
-
-         update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
-                      :task (execute-task 'automaton-build-app.tasks.code-helpers-clj/update-deps :clj)}}}
+{:deps {io.github.clojure/tools.build #:mvn{:version "0.9.6"},
+        metosin/malli #:mvn{:version "0.13.0"},
+        org.clojure/tools.cli #:mvn{:version "1.0.219"}},
+ :paths ["src/clj"],
+ :tasks
+   {:enter
+      (do
+        (def cli-opts
+          (build-task-helper/enter-tasks
+            [["-l" "--log LOG-LEVEL"
+              "Log level, one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"
+              :default :info :parse-fn keyword :validate
+              [(partial contains? #{:trace :debug :fatal :warning :info :error})
+               "Must be one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"]]
+             ["-d" "--details" "Details during logs"] ["-h" "--help" "Help"]]
+            {"clean" [["-w" "--will-be-an EXAMPLE" "Is an example"]],
+             "push" [["-m" "--message COMMIT-MESSAGE"
+                      "Mandatory: Commit message"]
+                     ["-t" "--tag-message TAG-MESSAGE" "Tag message"]],
+             "gha" [["-f" "--force" "Force execution on local machine"]]}))
+        (def execute-task (partial build-task-helper/execute-task cli-opts))),
+    :init (build-task-helper/init-tasks),
+    :requires [[automaton-build-app.tasks-helper :as build-task-helper]],
+    blog {:doc "Transforms md file to pdf based on edn file",
+          :task (execute-task 'automaton-build-app.tasks.doc-clj/blog-task
+                              :clj)},
+    clean {:doc "Clean cache files for compiles, and logs",
+           :task (execute-task 'automaton-build-app.tasks.clean/clean)},
+    clean-hard
+      {:doc
+         "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)",
+       :task (execute-task 'automaton-build-app.tasks.clean/clean-hard)},
+    code-doc {:doc "Create the documentation of the app",
+              :task (execute-task 'automaton-build-app.tasks.doc-clj/code-doc
+                                  :clj)},
+    compile-to-jar
+      {:doc "Compile that code to a jar",
+       :task (execute-task
+               'automaton-build-app.tasks.code-helpers-clj/compile-to-jar
+               :clj)},
+    gha {:doc "Github action command - is launched automatically by github",
+         :task (execute-task 'automaton-build-app.tasks.test-clj/gha :clj)},
+    gha-lconnect {:doc "Connect to a local container running this code",
+                  :task (execute-task
+                          'automaton-build-app.tasks.test/gha-lconnect)},
+    lconnect {:doc "Local connect - repl",
+              :task (execute-task
+                      'automaton-build-app.tasks.code-helpers/lconnect)},
+    ltest {:doc "Local test",
+           :task (execute-task 'automaton-build-app.tasks.test/ltest)},
+    push {:doc "Push this repo",
+          :task (execute-task
+                  'automaton-build-app.tasks.publication-clj/push-from-local
+                  :clj)},
+    report {:doc "Creates the reports of code analyzis",
+            :task (execute-task
+                    'automaton-build-app.tasks.code-analyze-clj/reports
+                    :clj)},
+    update-deps
+      {:doc
+         "Update the dependencies, cider-nrepl and refactor are to be updated manually",
+       :task (execute-task
+               'automaton-build-app.tasks.code-helpers-clj/update-deps
+               :clj)}}}
