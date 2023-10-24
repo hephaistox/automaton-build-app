@@ -31,7 +31,7 @@
                                             (str "(uses:\\s*docker://\\w*/"
                                                  container-name
                                                  ":)(.*)"))
-                                          (str "$1:" tag)))]
+                                          (str "$1" tag)))]
     (when-not (nil? file-content)
       (build-files/spit-file filename file-content)
       true)))
@@ -45,6 +45,6 @@
 (comment
   (update-workflows [[".github/workflows/commit_validation.yml"
                       "gha-automaton-build-app"]]
-                    "v0.0.5")
+                    "v0.0.8")
   ;
 )
