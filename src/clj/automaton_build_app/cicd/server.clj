@@ -37,13 +37,14 @@
       true)))
 
 (defn update-workflows
-  "Used to update all workflow of a repo to a "
+  "Used to update all workflow of a repo to the tag"
   [updates tag]
   (doseq [[filename container-name] updates]
     (update-workflow filename container-name tag)))
 
 (comment
-  (update-workflows [[".github/workflows/commit_validation.yml" "gha_runner"]]
+  (update-workflows [[".github/workflows/commit_validation.yml"
+                      "gha-automaton-build-app"]]
                     "v0.0.5")
   ;
 )

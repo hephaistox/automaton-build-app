@@ -52,8 +52,8 @@
                       'automaton-build-app.tasks.code-helpers/lconnect)},
     ltest {:doc "Local test",
            :task (execute-task 'automaton-build-app.tasks.test/ltest)},
-    publish
-      {:doc "Publish the container, useful to push the github container itself",
+    publish-gha-container
+      {:doc "Update the gha container to run that app",
        :task
          (execute-task
            'automaton-build-app.tasks.container-publication/push-gha-from-local)},

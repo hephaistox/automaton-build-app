@@ -38,7 +38,7 @@
         gha-repo-url (get-in publication [:gha-container :repo-url])
         gha-workflows (get-in publication [:gha-container :workflows])
         gha-repo-account (get-in publication [:gha-container :account])
-        gha-repo-branch (get-in publication [:gha-container :branch])
+        gha-repo-branch (get-in publication [:gha-container :repo-branch])
         container-dir (build-files/create-temp-dir "gha-container")]
     (cond
       (str/blank? tag)

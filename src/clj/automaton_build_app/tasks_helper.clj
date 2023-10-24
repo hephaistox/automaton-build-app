@@ -32,7 +32,7 @@
 (def build-app-task-specific-cli-opts
   {"push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
            ["-t" "--tag-message TAG-MESSAGE" "Tag message"]],
-   "publish" [["-t" "--tag TAG" "Tag for the publication"]],
+   "publish-gha-container" [["-t" "--tag TAG" "Tag for the publication"]],
    "gha" [["-f" "--force" "Force execution on local machine"]]})
 
 (defn enter-tasks
