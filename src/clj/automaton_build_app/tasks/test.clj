@@ -53,7 +53,7 @@
     (when-not (and (build-lint/lint true (build-app/src-dirs app-data))
                    (build-cmds/execute-and-trace ["clojure"
                                                   (apply str "-M" aliases)])
-                   (or (:shadow-cljs shadow-cljs)
+                   (or (not (:shadow-cljs shadow-cljs))
                        (build-cmds/execute-and-trace
                          ["npm" "install"]
                          ["npx" "shadow-cljs" "compile" "ltest"]
