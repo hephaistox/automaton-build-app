@@ -20,12 +20,14 @@
   [{:keys [min-level], :as _opts}]
   (build-log/set-min-level! min-level)
   (let [app-dir ""
-        {:keys [publication deps-edn]} (@build-app/build-app-data_ "")
-        {:keys [as-lib jar major-version]} publication
-        {:keys [target-filename class-dir]} jar
-        excluded-aliases #{}
+        {:keys [publication deps-edn]} (@build-app/build-app-data_ app-dir)
+        {:keys [as-lib jar major-version shadow-cljs]} publication
+        {:keys [excluded-aliases target-filename class-dir]} jar
+        {:keys [target-build]} shadow-cljs
         res (and (or (not (build-frontend-compiler/is-shadow-project? app-dir))
-                     (build-frontend-compiler/compile-target :app app-dir))
+                     (nil? target-build)
+                     (build-frontend-compiler/compile-target target-build
+                                                             app-dir))
                  (build-compiler/clj-compiler deps-edn
                                               target-filename
                                               as-lib

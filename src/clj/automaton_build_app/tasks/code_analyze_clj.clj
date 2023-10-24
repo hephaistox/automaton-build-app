@@ -62,11 +62,13 @@
 (defn- shadow-report
   [dir build-data]
   (if (build-frontend-compiler/is-shadow-project? dir)
-    (build-frontend-compiler/create-size-optimization-report
-      ""
-      (get-in build-data
-              [:doc :reports :output-files :shadow-size-opt]
-              "doc/codes/code-size.edn"))
+    (when-let [shadow-report-filename (get-in build-data
+                                              [:doc :reports :output-files
+                                               :shadow-size-opt]
+                                              "doc/codes/code-size.edn")]
+      (build-frontend-compiler/create-size-optimization-report
+        ""
+        shadow-report-filename))
     (build-log/debug "No frontend found, skip optimization report")))
 
 (defn reports
@@ -81,11 +83,3 @@
     (shadow-report app-dir build-data)
     ((juxt comment-report css-report alias-report namespace-report)
       [build-data clj-repo])))
-
-(def app-dir "")
-(def build-data (@build-app/build-app-data_ app-dir))
-(def clj-repo
-  (-> build-data
-      build-app/src-dirs
-      build-clj-code/make-clj-repo-from-dirs))
-(css-report [build-data clj-repo])

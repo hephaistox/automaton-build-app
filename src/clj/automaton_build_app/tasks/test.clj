@@ -52,7 +52,7 @@
     (when-not (and (build-lint/lint true (build-app/src-dirs app-data))
                    (build-cmds/execute-and-trace ["clojure"
                                                   (apply str "-M" aliases)])
-                   (or (not (:shadow-cljs shadow-cljs))
+                   (or (not shadow-cljs)
                        (build-cmds/execute-and-trace
                          ["npm" "install"]
                          ["npx" "shadow-cljs" "compile" "ltest"]
@@ -63,4 +63,9 @@
   "Local acceptance"
   [{:keys [min-level], :as _opts}]
   (build-log/set-min-level! min-level)
-  (build-la/run))
+  (let [{:keys [la]} (@build-app/build-app-data_ "")
+        selected-tasks (get la :selected-tasks)]
+    (build-log/trace-format
+      "The following tasks are selected in configuration: %s"
+      selected-tasks)
+    (build-la/run selected-tasks)))

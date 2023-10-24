@@ -7,30 +7,59 @@
 
 (def cmds-to-test
   "List of commands to test"
-  [{:cmd ["bb" "blog"]}
-   {:cmd ["bb" "clean"]}
-   {:cmd ["bb" "clean-hard" {:in "q"}]}
-   {:cmd ["bb" "code-doc"]}
-   {:cmd ["bb" "compile-to-jar"]}
-   {:cmd ["bb" "container-list"]}
-   {:cmd ["bb" "container-clear"]}
+  [{:cmd ["bb" "blog"]
+    :cmd-name "blog"}
+   {:cmd ["bb" "clean"]
+    :cmd-name "clean"}
+   {:cmd ["bb" "clean-hard" {:in "q"}]
+    :cmd-name "clean-hard"}
+   {:cmd ["bb" "code-doc"]
+    :cmd-name "code-doc"}
+   {:cmd ["bb" "compile-to-jar"]
+    :cmd-name "compile-to-jar"}
+   {:cmd ["bb" "container-list"]
+    :cmd-name "container-list"}
+   {:cmd ["bb" "container-clear"]
+    :cmd-name "container-clear"}
    {:cmd ["bb" "gha"]
+    :cmd-name "gha"
     :expected-exit-code 1}
-   {:cmd ["bb" "gha" "-f"]}
+   {:cmd ["bb" "gha" "-f" :cmd-name "blog"]}
    {:cmd ["bb" "gha-lconnect" {:in "exit\n"}]
+    :cmd-name "gha-lconnect"
     :skip? true}
    {:cmd ["bb" "lconnect"]
+    :cmd-name "lconnect"
     :skip? true}
    {:cmd ["bb" "la"]
+    :cmd-name "la"
     :skip? true}
-   {:cmd ["bb" "ltest"]}
+   {:cmd ["bb" "ltest"]
+    :cmd-name "ltest"}
    {:cmd ["bb" "publish" "-t" "v-test"]
+    :cmd-name "publish"
     :skip? true}
    {:cmd ["bb" "push" "-m" "la" "-t" "la"]
+    :cmd-name "push"
     :skip? true}
-   {:cmd ["bb" "report"]}
+   {:cmd ["bb" "report"]
+    :cmd-name "report"}
    {:cmd ["bb" "updated-deps"]
+    :cmd-name "updated-deps"
     :skip? true}])
+
+(defn select-tasks
+  [selected-tasks cmds-to-test]
+  (let [selected-tasks (set selected-tasks)
+        selected-cmds (filter #(contains?  selected-tasks
+                                           (:cmd-name %))
+                              cmds-to-test)]
+    (when (= (count selected-cmds)
+             (count selected-tasks))
+      (build-log/warn-format "Mismatch in tasks, build_config %s, bb.edn %s"
+                             (count selected-tasks)
+                             (count selected-cmds)))
+    selected-cmds))
 
 (defn- run-cmd
   "Run a command
@@ -43,7 +72,7 @@
     (build-log/info msg)
     (if (= expected-exit-code
            exit-code)
-      [true #(build-log/trace-format "Test `%s` successfully passed" expanded-cmd)]
+      [true #(build-log/info-format "Test `%s` successfully passed" expanded-cmd)]
       [false #(build-log/error-format "Test `%s` expects `%s` and found `%s`"
                                       expanded-cmd
                                       expected-exit-code

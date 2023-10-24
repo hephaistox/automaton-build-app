@@ -18,12 +18,16 @@
      [:gha-container {:optional true}
       [:map {:closed true} [:repo-url :string] [:repo-branch :string]
        [:account :string] [:workflows [:vector [:tuple :string :string]]]]]
+     [:shadow-cljs {:optional true}
+      [:map {:closed true} [:target-build [:maybe :keyword]]]]
      [:jar {:optional true}
       [:map {:closed true} [:class-dir :string]
        [:excluded-aliases [:set :keyword]] [:target-filename :string]]]]]
    [:lconnect {:optional true}
     [:map {:closed true} [:aliases [:vector :keyword]]]]
    [:ltest {:optional true} [:map {:closed true} [:aliases [:vector :keyword]]]]
+   [:la {:optional true}
+    [:map {:closed true} [:selected-tasks [:vector :string]]]]
    [:customer-materials {:optional true}
     [:map {:closed true} [:html-dir :string] [:dir :string] [:pdf-dir :string]]]
    [:container-repo {:optional true} [:map {:closed true} [:account :string]]]

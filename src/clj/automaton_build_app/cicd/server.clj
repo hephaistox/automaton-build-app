@@ -26,18 +26,25 @@
   * `tag` tag to upsert"
   [filename container-name tag]
   (build-log/info-format "Update file `%s`, with tag `%s`" filename tag)
-  (let [file-content (some-> (build-files/read-file filename)
-                             (str/replace (re-pattern
-                                            (str "(uses:\\s*docker://\\w*/"
-                                                 container-name
-                                                 ":)(.*)"))
-                                          (str "$1" tag)))]
-    (when-not (nil? file-content)
-      (build-files/spit-file filename file-content)
-      true)))
+  (let [file-content (build-files/read-file filename)
+        searched-pattern
+          (-> (str "(uses:\\s*docker://\\w*/" container-name ":)(.*)")
+              re-pattern)]
+    (if (re-find searched-pattern file-content)
+      (do (str/replace file-content searched-pattern (str "$1" tag))
+          (when-not (nil? file-content)
+            (build-files/spit-file filename file-content)
+            true))
+      (build-log/warn-format
+        "Not able to update `%s`, the pattern `%s` has not been found"
+        filename
+        searched-pattern))))
 
 (defn update-workflows
-  "Used to update all workflow of a repo to the tag"
+  "Used to update all workflow of a repo to the tag
+  Params:
+  * `updates` list of updates, each one is a filename and a container
+  * `tag` the tag "
   [updates tag]
   (doseq [[filename container-name] updates]
     (update-workflow filename container-name tag)))

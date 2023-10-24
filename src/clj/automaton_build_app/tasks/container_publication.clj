@@ -40,21 +40,19 @@
         gha-repo-account (get-in publication [:gha-container :account])
         gha-repo-branch (get-in publication [:gha-container :repo-branch])
         container-dir (build-files/create-temp-dir "gha-container")]
-    (cond
-      (str/blank? tag)
-        (do
-          (build-log/error-format
-            "Parameters are missing, check cli options below and `build_config.edn`")
-          (println (get-in cli-opts [:summary])))
-      (not (and gha-workflows gha-repo-url))
-        (build-log/warn "Skipped as build_config.edn parameters are not set")
-      :else (push-gha-from-local* gha-repo-url
-                                  container-dir
-                                  app-name
-                                  gha-repo-account
-                                  tag
-                                  gha-workflows
-                                  gha-repo-branch))))
+    (cond (str/blank? tag) (do (build-log/error-format
+                                 "Cli option are missing, check below")
+                               (println (get-in cli-opts [:summary])))
+          (not (and gha-workflows gha-repo-url))
+            (build-log/warn
+              "Skipped as build_config.edn parameters are not set")
+          :else (push-gha-from-local* gha-repo-url
+                                      container-dir
+                                      app-name
+                                      gha-repo-account
+                                      tag
+                                      gha-workflows
+                                      gha-repo-branch))))
 
 (defn container-list
   "List all available containers"
