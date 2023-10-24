@@ -304,10 +304,12 @@
   * `sub-dirs` is an optional list of strings, each one is a sub directory
   Returns the string of the directory path"
   [& sub-dirs]
-  (apply create-dir-path
-    (-> (fs/create-temp-dir)
-        str)
-    sub-dirs))
+  (let [tmp-dir (apply create-dir-path
+                  (-> (fs/create-temp-dir)
+                      str)
+                  sub-dirs)]
+    (create-dirs tmp-dir)
+    tmp-dir))
 
 (defn filter-existing-dir
   "Filter only existing dirs

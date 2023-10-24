@@ -3,21 +3,18 @@
         org.clojure/tools.cli {:mvn/version "1.0.219"}},
  :paths ["src/clj"],
  :tasks
-   {:enter (def execute-task
-             (partial build-task-helper/execute-task
-                      (-> (babashka.tasks/current-task)
-                          :name
-                          str)
-                      (build-task-helper/enter-tasks
-                        (-> (babashka.tasks/current-task)
-                            :name
-                            str)
-                        {}))),
+   {:enter (let [task-name (-> (babashka.tasks/current-task)
+                               :name
+                               str)]
+             (def execute-task
+               (partial build-task-helper/execute-task
+                        task-name
+                        (build-task-helper/enter-tasks task-name {})))),
     :init (build-task-helper/init-tasks),
     :requires [[automaton-build-app.tasks-helper :as build-task-helper]],
     blog {:doc "Transforms md file to pdf based on edn file",
           :task (execute-task 'automaton-build-app.tasks.doc-clj/blog-task
-                              :clj)},
+                              {:executing-pf :clj})},
     clean {:doc "Clean cache files for compiles, and logs",
            :task (execute-task 'automaton-build-app.tasks.clean/clean)},
     clean-hard
@@ -26,14 +23,25 @@
        :task (execute-task 'automaton-build-app.tasks.clean/clean-hard)},
     code-doc {:doc "Create the documentation of the app",
               :task (execute-task 'automaton-build-app.tasks.doc-clj/code-doc
-                                  :clj)},
+                                  {:executing-pf :clj})},
     compile-to-jar
       {:doc "Compile that code to a jar",
        :task (execute-task
                'automaton-build-app.tasks.code-helpers-clj/compile-to-jar
-               :clj)},
+               {:executing-pf :clj})},
+    container-clear
+      {:doc "Clear all local containers",
+       :task
+         (execute-task
+           'automaton-build-app.tasks.container-publication/container-clean)},
+    container-list
+      {:doc "List all available containers",
+       :task
+         (execute-task
+           'automaton-build-app.tasks.container-publication/container-list)},
     gha {:doc "Github action command - is launched automatically by github",
-         :task (execute-task 'automaton-build-app.tasks.test-clj/gha :clj)},
+         :task (execute-task 'automaton-build-app.tasks.test-clj/gha
+                             {:executing-pf :clj})},
     gha-lconnect {:doc "Connect to a local container running this code",
                   :task (execute-task
                           'automaton-build-app.tasks.test/gha-lconnect)},
@@ -42,17 +50,22 @@
                       'automaton-build-app.tasks.code-helpers/lconnect)},
     ltest {:doc "Local test",
            :task (execute-task 'automaton-build-app.tasks.test/ltest)},
+    publish
+      {:doc "Publish the container, useful to push the github container itself",
+       :task
+         (execute-task
+           'automaton-build-app.tasks.container-publication/push-gha-from-local)},
     push {:doc "Push this repo",
           :task (execute-task
                   'automaton-build-app.tasks.publication-clj/push-from-local
-                  :clj)},
+                  {:executing-pf :clj})},
     report {:doc "Creates the reports of code analyzis",
             :task (execute-task
                     'automaton-build-app.tasks.code-analyze-clj/reports
-                    :clj)},
+                    {:executing-pf :clj})},
     update-deps
       {:doc
          "Update the dependencies, cider-nrepl and refactor are to be updated manually",
        :task (execute-task
                'automaton-build-app.tasks.code-helpers-clj/update-deps
-               :clj)}}}
+               {:executing-pf :clj})}}}

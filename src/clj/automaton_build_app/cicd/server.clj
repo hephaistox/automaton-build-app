@@ -4,7 +4,10 @@
 
   * When run is github action: that environment variable is set automatically, check [docs](https://docs.github.com/en/actions/learn-github-actions/variables)
   * When run is github action container image, we set manually that variable in the `Dockerfile`(clojure/container-images/gha_runner/Dockerfile)
-  * Otherwise, that variable is not set and `is-cicd?` returns false")
+  * Otherwise, that variable is not set and `is-cicd?` returns false"
+  (:require [automaton-build-app.os.files :as build-files]
+            [clojure.string :as str]
+            [automaton-build-app.log :as build-log]))
 
 (def github-env-var "CI")
 
@@ -14,3 +17,33 @@
   (boolean (System/getenv github-env-var)))
 
 (def is-cicd? (memoize is-cicd?*))
+
+(defn update-workflow
+  "Update a workflow file with
+  Params:
+  * `filename` filename to modify
+  * `container-name` name of the container to update
+  * `tag` tag to upsert"
+  [filename container-name tag]
+  (build-log/info-format "Update file `%s`, with tag `%s`" filename tag)
+  (let [file-content (some-> (build-files/read-file filename)
+                             (str/replace (re-pattern
+                                            (str "(uses:\\s*docker://\\w*/"
+                                                 container-name
+                                                 ":)(.*)"))
+                                          (str "$1:" tag)))]
+    (when-not (nil? file-content)
+      (build-files/spit-file filename file-content)
+      true)))
+
+(defn update-workflows
+  "Used to update all workflow of a repo to a "
+  [updates tag]
+  (doseq [[filename container-name] updates]
+    (update-workflow filename container-name tag)))
+
+(comment
+  (update-workflows [[".github/workflows/commit_validation.yml" "gha_runner"]]
+                    "v0.0.5")
+  ;
+)

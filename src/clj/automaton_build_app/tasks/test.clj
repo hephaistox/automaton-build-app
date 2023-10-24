@@ -5,25 +5,41 @@
             [automaton-build-app.containers :as build-containers]
             [automaton-build-app.containers.github-action :as
              build-github-action]
-            [automaton-build-app.os.exit-codes :as build-exit-code]
+            [automaton-build-app.os.exit-codes :as build-exit-codes]
             [automaton-build-app.log :as build-log]
-            [automaton-build-app.os.commands :as build-cmds]))
+            [automaton-build-app.os.commands :as build-cmds]
+            [automaton-build-app.os.files :as build-files]
+            [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]))
 
 (defn gha-lconnect
   "Task to locally connect to github action"
-  [_opts]
+  [{:keys [cli-opts], :as _opts}]
   (build-log/info "Run and connect to github container locally")
-  (let [{:keys [app-name], :as app-data} (@build-app/build-app-data_ "")
+  (let [{:keys [app-name publication], :as app-data} (@build-app/build-app-data_
+                                                      "")
+        tag (get-in cli-opts [:options :tag])
         container-repo-account (get-in app-data [:container-repo :account])
-        ;;TODO Should come from a github repo
-        tmp-dir "../../container_images/gha_image"
-        container (build-github-action/make-github-action
-                    app-name
-                    tmp-dir
-                    ""
-                    container-repo-account)]
-    (when-not (and container (build-containers/connect container))
-      (System/exit build-exit-code/catch-all))))
+        {:keys [gha-container]} publication
+        {:keys [repo-url workflows]} gha-container
+        tmp-dir (build-files/create-temp-dir "gha_image")]
+    (if (or (nil? repo-url) (nil? workflows))
+      (do
+        (build-log/warn
+          "Parameters are missing  [:publication :gha-cntainer] in `build_config.edn`")
+        (System/exit build-exit-codes/catch-all))
+      (when (not (and (build-cfg-mgt/clone-repo-branch tmp-dir
+                                                       repo-url
+                                                       ;;TODO search main in
+                                                       ;;parameters
+                                                       "main")
+                      (some-> (build-github-action/make-github-action
+                                app-name
+                                tmp-dir
+                                ""
+                                container-repo-account
+                                tag)
+                              build-containers/connect)))
+        (System/exit build-exit-codes/catch-all)))))
 
 (defn ltest
   "Local tests
@@ -37,9 +53,9 @@
     (when-not (and (build-lint/lint true (build-app/src-dirs app-data))
                    (build-cmds/execute-and-trace ["clojure"
                                                   (apply str "-M" aliases)])
-                   (or (not (:shadow-cljs shadow-cljs))
+                   (or (:shadow-cljs shadow-cljs)
                        (build-cmds/execute-and-trace
                          ["npm" "install"]
                          ["npx" "shadow-cljs" "compile" "ltest"]
                          ["npx" "karma" "start" "--single-run"])))
-      (System/exit build-exit-code/catch-all))))
+      (System/exit build-exit-codes/catch-all))))

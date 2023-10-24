@@ -3,6 +3,7 @@
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
             [automaton-build-app.tasks.code-helpers :as build-task-code-helper]
+            [automaton-build-app.os.exit-codes :as exit-codes]
             [babashka.fs :as fs]
             [clojure.pprint :as pp]
             [clojure.tools.cli :refer [parse-opts]]))
@@ -31,6 +32,7 @@
 (def build-app-task-specific-cli-opts
   {"push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
            ["-t" "--tag-message TAG-MESSAGE" "Tag message"]],
+   "publish" [["-t" "--tag TAG" "Tag for the publication"]],
    "gha" [["-f" "--force" "Force execution on local machine"]]})
 
 (defn enter-tasks
@@ -65,19 +67,27 @@
   (build-log/trace-format "Run %s task on bb" task-name)
   (let [ns (-> (symbol body-fn)
                namespace
-               symbol)]
-    (require ns)
-    ((resolve body-fn)
-      {:command-line-args *command-line-args*, :cli-opts opts})))
+               symbol)
+        _ (require ns)
+        resolved-body-fn (resolve body-fn)]
+    (if (nil? resolved-body-fn)
+      (build-log/fatal-format "Unknown task `%s` with fn `%s`"
+                              task-name
+                              body-fn)
+      (resolved-body-fn {:command-line-args *command-line-args*,
+                         :cli-opts opts}))))
 
 (defn- run-clj
   "Run the `body-fn` on the current full clojure environment"
   [task-name body-fn opts]
   (build-log/trace-format "Run %s task on clj" task-name)
-  (build-cmds/execute-and-trace ["clojure" "-X:build:bb-deps"
-                                 (qualified-name body-fn) :command-line-args
-                                 (or *command-line-args* []) :cli-opts opts
-                                 :min-level (build-log/min-level-kw) {}]))
+  (when-not (build-cmds/execute-and-trace
+              ["clojure" "-X:build:bb-deps" (qualified-name body-fn)
+               :command-line-args (or *command-line-args* []) :cli-opts opts
+               :min-level (build-log/min-level-kw) {}])
+    (build-log/trace
+      "The clj command has failed, so the exit code is passed to the bb")
+    (System/exit exit-codes/catch-all)))
 
 (defn- dispatch
   "Execute the body-fn directy in currently running bb env
@@ -95,19 +105,20 @@
   * `cli-opts`
   * `body` body to execute
   * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
-  [task-name cli-opts body-fn & executing-pf]
-  (build-task-code-helper/update-bb-deps "")
-  (try (build-log/info-format "Run %s task" task-name)
-       (dispatch task-name body-fn (first executing-pf) cli-opts)
-       (catch Exception e
-         (println (format "Error during execution of `%s`, %s`"
-                          task-name
-                          (pr-str (ex-message e))))
-         (if (cicd?)
-           (println e)
-           (let [file (fs/create-temp-file {:suffix ".edn"})]
-             (println (format "See details in `%s`"
-                              (.toString (.toAbsolutePath file))))
-             (spit (fs/file file) (prn-str e))
-             ""))
-         (System/exit 1))))
+  ([task-name cli-opts body-fn {:keys [executing-pf], :or {executing-pf :bb}}]
+   (build-task-code-helper/update-bb-deps "")
+   (try (build-log/info-format "Run %s task" task-name)
+        (dispatch task-name body-fn executing-pf cli-opts)
+        (catch Exception e
+          (println (format "Error during execution of `%s`, %s`"
+                           task-name
+                           (pr-str (ex-message e))))
+          (if (cicd?)
+            (println e)
+            (let [file (fs/create-temp-file {:suffix ".edn"})]
+              (println (format "See details in `%s`"
+                               (.toString (.toAbsolutePath file))))
+              (spit (fs/file file) (prn-str e))
+              ""))
+          (System/exit exit-codes/catch-all))))
+  ([task-name cli-opts body-fn] (execute-task task-name cli-opts body-fn {})))

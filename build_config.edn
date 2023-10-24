@@ -3,6 +3,8 @@
                       :branch "main"}
                :as-lib hephaistox/automaton-build-app
                :major-version "1.2.%s"
+               :gha-container {:repo-url "git@github.com:hephaistox/gha_image.git"
+                               :workflows [[".github/workflows/commit_validation.yml" "gha_runner"]]}
                :jar {:class-dir "target/classes"
                      :excluded-aliases #{}
                      :target-filename "target/%s-%s.jar"}}
