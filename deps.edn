@@ -6,12 +6,17 @@
         clj-htmltopdf/clj-htmltopdf {:mvn/version "0.2.1"}
         markdown-clj/markdown-clj #:mvn{:version "1.11.7"}
         io.github.clojure/tools.build {:mvn/version "0.9.6"}
+        dev.weavejester/medley {:mvn/version "1.7.0"}
+        io.dominic/vizns {:git/url "https://github.com/SevereOverfl0w/vizns.git"
+                          :sha "69774e8c29e1c1c691f9922d5c5a6d764374ada3"}
+        io.github.clojure/tools.deps.graph {:git/url "https://github.com/clojure/tools.deps.graph.git"
+                                            :sha "df0bc056061306014be72dbe961d3eb6649500cc"}
         zprint/zprint {:mvn/version "1.2.8"}
         metosin/malli {:mvn/version "0.13.0"}}
 
  :ns-default automaton-build-app.core
 
- :paths ["src/clj"]
+ :paths ["src/clj" "test_la/clj"]
  :aliases {:common-test {:exec-fn cognitect.test-runner.api/test
                          :extra-deps {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner",
                                                                  :sha "7284cda41fb9edc0f3bc6b6185cfb7138fc8a023"},
@@ -23,10 +28,7 @@
                          :jvm-opts ["-Dheph-conf=env/test/config.edn"
                                     "-Dheph-common-conf=env/common_config.edn"]}
 
-           :build {:extra-deps {io.dominic/vizns {:git/url "https://github.com/SevereOverfl0w/vizns.git"
-                                                  :sha "69774e8c29e1c1c691f9922d5c5a6d764374ada3"}
-                                io.github.clojure/tools.deps.graph {:git/url "https://github.com/clojure/tools.deps.graph.git"
-                                                                    :git/sha "df0bc056061306014be72dbe961d3eb6649500cc"}}}
+           :build {:extra-deps {}}
            :env-development-repl {:extra-paths ["env/development/resources"
                                                 "env/development/src/clj"
                                                 "env/development/src/cljc"]

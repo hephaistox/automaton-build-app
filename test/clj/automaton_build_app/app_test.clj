@@ -17,7 +17,6 @@
    :customer-materials {:html-dir "tmp/html"
                         :dir "customer_materials"
                         :pdf-dir "tmp/pdf"}
-   :container-repo {:account "hephaistox"}
    :doc {:dir "docs"
          :archi {:dir "docs/archi/"}
          :code-stats {:output-file "docs/code/stats.md"}

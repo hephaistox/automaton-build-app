@@ -16,8 +16,8 @@
      [:as-lib {:optional true} :symbol]
      [:major-version {:optional true} :string]
      [:gha-container {:optional true}
-      [:map {:closed true} [:repo-url :string]
-       [:workflows [:vector [:tuple :string :string]]]]]
+      [:map {:closed true} [:repo-url :string] [:repo-branch :string]
+       [:account :string] [:workflows [:vector [:tuple :string :string]]]]]
      [:jar {:optional true}
       [:map {:closed true} [:class-dir :string]
        [:excluded-aliases [:set :keyword]] [:target-filename :string]]]]]

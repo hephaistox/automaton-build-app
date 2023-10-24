@@ -1,7 +1,7 @@
 {:deps {io.github.clojure/tools.build {:mvn/version "0.9.6"},
         metosin/malli {:mvn/version "0.13.0"},
         org.clojure/tools.cli {:mvn/version "1.0.219"}},
- :paths ["src/clj"],
+ :paths ["src/clj" "test_la/clj"],
  :tasks
    {:enter (let [task-name (-> (babashka.tasks/current-task)
                                :name
@@ -45,6 +45,8 @@
     gha-lconnect {:doc "Connect to a local container running this code",
                   :task (execute-task
                           'automaton-build-app.tasks.test/gha-lconnect)},
+    la {:doc "Local acceptance test",
+        :task (execute-task 'automaton-build-app.tasks.test/la)},
     lconnect {:doc "Local connect - repl",
               :task (execute-task
                       'automaton-build-app.tasks.code-helpers/lconnect)},

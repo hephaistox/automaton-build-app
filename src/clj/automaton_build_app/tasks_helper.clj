@@ -3,7 +3,7 @@
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
             [automaton-build-app.tasks.code-helpers :as build-task-code-helper]
-            [automaton-build-app.os.exit-codes :as exit-codes]
+            [automaton-build-app.os.exit-codes :as build-exit-codes]
             [babashka.fs :as fs]
             [clojure.pprint :as pp]
             [clojure.tools.cli :refer [parse-opts]]))
@@ -75,6 +75,7 @@
                               task-name
                               body-fn)
       (resolved-body-fn {:command-line-args *command-line-args*,
+                         :min-level (build-log/min-level-kw),
                          :cli-opts opts}))))
 
 (defn- run-clj
@@ -87,7 +88,7 @@
                :min-level (build-log/min-level-kw) {}])
     (build-log/trace
       "The clj command has failed, so the exit code is passed to the bb")
-    (System/exit exit-codes/catch-all)))
+    (System/exit build-exit-codes/catch-all)))
 
 (defn- dispatch
   "Execute the body-fn directy in currently running bb env
@@ -120,5 +121,5 @@
                                (.toString (.toAbsolutePath file))))
               (spit (fs/file file) (prn-str e))
               ""))
-          (System/exit exit-codes/catch-all))))
+          (System/exit build-exit-codes/catch-all))))
   ([task-name cli-opts body-fn] (execute-task task-name cli-opts body-fn {})))

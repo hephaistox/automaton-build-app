@@ -81,3 +81,11 @@
     (shadow-report app-dir build-data)
     ((juxt comment-report css-report alias-report namespace-report)
       [build-data clj-repo])))
+
+(def app-dir "")
+(def build-data (@build-app/build-app-data_ app-dir))
+(def clj-repo
+  (-> build-data
+      build-app/src-dirs
+      build-clj-code/make-clj-repo-from-dirs))
+(css-report [build-data clj-repo])

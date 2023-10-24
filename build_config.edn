@@ -4,6 +4,8 @@
                :as-lib hephaistox/automaton-build-app
                :major-version "1.2.%s"
                :gha-container {:repo-url "git@github.com:hephaistox/gha_image.git"
+                               :repo-branch "main"
+                               :account "hephaistox"
                                :workflows [[".github/workflows/commit_validation.yml" "gha_runner"]]}
                :jar {:class-dir "target/classes"
                      :excluded-aliases #{}
@@ -13,7 +15,6 @@
  :customer-materials {:html-dir "tmp/html"
                       :dir "customer_materials"
                       :pdf-dir "tmp/pdf"}
- :container-repo {:account "hephaistox"}
  :doc {:dir "docs"
        :archi {:dir "docs/archi/"}
        :code-stats {:output-file "docs/code/stats.md"}

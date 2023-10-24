@@ -51,3 +51,11 @@
                                    [0 ""]
                                    [0 ""]
                                    [0 ""]])))))
+
+(deftest expand-cmd-test
+  (testing "Expand command without options is ok"
+    (is (= "foo bar"
+           (sut/expand-cmd ["foo" "bar"]))))
+  (testing "Expand command with options is ok"
+    (is (= "foo bar"
+           (sut/expand-cmd ["foo" "bar" {:bar :foo}])))))

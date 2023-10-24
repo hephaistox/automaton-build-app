@@ -43,7 +43,7 @@
         nrepl-ports (map #(build-files/file-in-same-dir % nrepl-port-filename)
                       build-configs)]
     (doseq [nrepl-port nrepl-ports]
-      (build-files/spit-file (str repl-port) nrepl-port))))
+      (build-files/spit-file (str nrepl-port) repl-port))))
 
 (defn start-repl*
   "Launch a new repl"

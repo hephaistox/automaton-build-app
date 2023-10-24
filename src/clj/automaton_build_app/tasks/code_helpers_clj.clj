@@ -6,7 +6,7 @@
              build-frontend-compiler]
             [automaton-build-app.code-helpers.update-deps-clj :as
              build-update-deps-clj]
-            [automaton-build-app.os.exit-codes :as build-exit-code]
+            [automaton-build-app.os.exit-codes :as build-exit-codes]
             [automaton-build-app.log :as build-log]))
 
 (defn update-deps
@@ -32,5 +32,5 @@
                                               excluded-aliases
                                               class-dir
                                               major-version))]
-    (when-not res (System/exit build-exit-code/catch-all))
+    (when-not res (System/exit build-exit-codes/catch-all))
     res))

@@ -48,4 +48,6 @@
 
 (defn assert-empty
   [matches]
-  (build-analyze-utils/assert-empty matches "Found forbidden css code"))
+  (build-analyze-utils/assert-empty
+    matches
+    "Found namespace represented with more than one alias"))

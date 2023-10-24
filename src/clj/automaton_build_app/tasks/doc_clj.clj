@@ -3,7 +3,7 @@
   (:require [automaton-build-app.app :as build-app]
             [automaton-build-app.doc.blog :as build-blog]
             [automaton-build-app.doc.code-doc :as app-code-doc]
-            [automaton-build-app.os.exit-codes :as build-exit-code]
+            [automaton-build-app.os.exit-codes :as build-exit-codes]
             [automaton-build-app.doc.mermaid :as build-mermaid]
             [automaton-build-app.log :as build-log]))
 
@@ -33,7 +33,7 @@
                                            title
                                            description
                                            dir))]
-    (when-not res (System/exit build-exit-code/catch-all))
+    (when-not res (System/exit build-exit-codes/catch-all))
     res))
 
 (defn mermaid

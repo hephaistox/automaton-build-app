@@ -5,6 +5,7 @@
             [automaton-build-app.containers :as build-containers]
             [automaton-build-app.containers.github-action :as
              build-github-action]
+            [automaton-build-app.la :as build-la]
             [automaton-build-app.os.exit-codes :as build-exit-codes]
             [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
@@ -20,7 +21,7 @@
         tag (get-in cli-opts [:options :tag])
         container-repo-account (get-in app-data [:container-repo :account])
         {:keys [gha-container]} publication
-        {:keys [repo-url workflows]} gha-container
+        {:keys [repo-url workflows repo-branch]} gha-container
         tmp-dir (build-files/create-temp-dir "gha_image")]
     (if (or (nil? repo-url) (nil? workflows))
       (do
@@ -29,9 +30,7 @@
         (System/exit build-exit-codes/catch-all))
       (when (not (and (build-cfg-mgt/clone-repo-branch tmp-dir
                                                        repo-url
-                                                       ;;TODO search main in
-                                                       ;;parameters
-                                                       "main")
+                                                       repo-branch)
                       (some-> (build-github-action/make-github-action
                                 app-name
                                 tmp-dir
@@ -59,3 +58,9 @@
                          ["npx" "shadow-cljs" "compile" "ltest"]
                          ["npx" "karma" "start" "--single-run"])))
       (System/exit build-exit-codes/catch-all))))
+
+(defn la
+  "Local acceptance"
+  [{:keys [min-level], :as _opts}]
+  (build-log/set-min-level! min-level)
+  (build-la/run))

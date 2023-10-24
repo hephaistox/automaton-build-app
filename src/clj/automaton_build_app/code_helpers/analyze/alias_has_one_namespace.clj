@@ -47,4 +47,6 @@
 
 (defn assert-empty
   [matches]
-  (build-analyze-utils/assert-empty matches "Found forbidden css code"))
+  (build-analyze-utils/assert-empty
+    matches
+    "Some aliases are not consistent over your codebase"))

@@ -89,6 +89,19 @@
   (->> (execute* commands true false)
        (every? (comp zero? first))))
 
+(defn execute-and-trace-return-exit-codes
+  "Execute the commands and trace their result, return the exit code and messages
+  Note that if the last parameter is a map, it is recognized as options. If you need to pass a map as a param (for a clojure -X for instance), just add the optional map to the caller
+
+  Params:
+  * `commands` is a sequence of vectors
+  Each vector is a command to execute
+  If the last element is a map, it is used as an option map
+  That option map could be:
+  * `:background?` if true the process is done in the background"
+  [& commands]
+  (execute* commands true false))
+
 (defn execute-get-string
   "Execute the commands and returns a vector of string, one for each command, appending output and error stream as string, in that order
   Params:
@@ -106,3 +119,11 @@
        (filter (comp pos? ffirst))
        first
        ((juxt second (comp second first)))))
+
+(defn expand-cmd
+  "Expand the command to a string
+  Remove the trailing map of options if exist
+  Params:
+  * `cmd` a command, as a list of strings optionally ended by the option map"
+  [cmd]
+  (if (map? (last cmd)) (str/join " " (butlast cmd)) (str/join " " cmd)))
