@@ -23,7 +23,6 @@
 (deftest spit-edn-test
   (let [tmp-file (sut/create-tmp-edn "edn-utils-test.edn")]
     (testing "Creates edn file"
-      (is false)
       (sut/spit-edn tmp-file
                     {10 20})
       (is (= {10 20}

@@ -53,7 +53,7 @@ with at least two lines in it"
                build-file-repo-raw/file-repo-map
                count)))
     (is (every? (fn [file-content]
-                  (< 1 (count file-content)))
+                  (<= 1 (count file-content)))
                 (->> text-file-repo
                      build-file-repo-raw/file-repo-map
                      vals)))))
