@@ -1,14 +1,14 @@
 (ns automaton-build-app.file-repo.raw-test
   (:require
    [automaton-build-app.file-repo.raw :as sut]
-   [automaton-build-app.file-repo.raw.impl-text :as sut-raw-impl]
+   [automaton-build-app.file-repo.raw.impl-test :as sut-raw-impl]
    [clojure.test :refer [deftest is testing]]))
 
 (def raw-file-repo
   (sut/->RawFileRepo sut-raw-impl/raw-file-repo-map))
 
 (deftest exclude-files
-  (testing "Exclusion of no file is ok"
+  (testing "Exclusion of non existing files is ok"
     (let [res (sut/exclude-files raw-file-repo
                                  #{"none"})]
       (is (map? (sut/file-repo-map res)))

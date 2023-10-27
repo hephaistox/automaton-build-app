@@ -30,9 +30,9 @@
   "Build the container, publish the local code
   The gha container is adapted for each application, so this build is tagged with the name of the app and its version.
   The deps files are copied in the docker to preload all deps (for instance all `deps.edn`)"
-  [opts]
+  [parsed-cli-opts]
   (build-log/info "Build and publish github container")
-  (let [{:keys [cli-opts]} opts
+  (let [{:keys [cli-opts]} parsed-cli-opts
         tag (get-in cli-opts [:options :tag])
         {:keys [app-name publication]} (@build-app/build-app-data_ "")
         gha-repo-url (get-in publication [:gha-container :repo-url])
@@ -56,10 +56,10 @@
 
 (defn container-list
   "List all available containers"
-  [_opts]
+  [_parsed-cli-opts]
   (println (build-local-engine/container-image-list)))
 
 (defn container-clean
-  [_opts]
+  [_parsed-cli-opts]
   (build-log/info "Clean the containers")
   (build-local-engine/container-clean))

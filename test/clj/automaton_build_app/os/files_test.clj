@@ -190,9 +190,7 @@
 
                           (fs/glob tmp-dir "**"))))))))
   (testing "If files are not a vector of string"
-    (is (thrown-with-msg? clojure.lang.ExceptionInfo
-                          #"parameter should be a sequence"
-                          (sut/copy-files-or-dir {} "/tmp"))))
+    (is (not (sut/copy-files-or-dir {} "/tmp"))))
   (let [tmp-dir (fs/create-temp-dir)]
     (testing "File copy"
       (is (= (do

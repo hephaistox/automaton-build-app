@@ -6,5 +6,5 @@
 (deftest container-installed?-test
   (testing "Detect non existing command"
     (is (not (sut/container-installed?* "non-existing-command"))))
-  (testing "Detect non existing command"
+  (testing "Detect existing command"
     (is (sut/container-installed?* "echo"))))

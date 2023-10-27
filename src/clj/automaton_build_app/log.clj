@@ -13,27 +13,40 @@
 
 (def ^:private log-levels [:trace :debug :info :warning :error :fatal])
 
-(def min-level "Minimum level to be displayed during log" (atom -1))
+(def ^:private log-level-to-idx
+  (into {} (map-indexed (fn [idx itm] [itm idx]) log-levels)))
+
+(defn compare-log-levels
+  "Is the log-level greater than the reference
+  Params:
+  * `log-levels` collection of log levels in the order of more detailed to more scarce errors"
+  [& log-levels]
+  (or (empty? log-levels)
+      (->> log-levels
+           (map log-level-to-idx)
+           (apply <=))))
+
+(def min-level "Minimum level to be displayed during log" (atom :info))
 
 (def details? (atom false))
 
 (defn set-min-level!
   "Set the minimum level"
   [min-level*]
-  (reset! min-level (.indexOf log-levels min-level*)))
+  (reset! min-level min-level*))
 
 (defn set-details?
   "If true, the console will limit to the size"
   [b]
   (reset! details? b))
 
-(defn min-level-kw [] (get log-levels @min-level))
+(defn min-level-kw [] @min-level)
 
 (defmacro print-message
   "Helper function to print the log message"
   [level & messages]
-  `(when-not (build-java-properties/get-java-property "hephaistox-in-test")
-     (let [prefix# (str (.format (java.text.SimpleDateFormat. "HH:mm:ss:SSS")
+  (when-not (build-java-properties/get-java-property "hephaistox-in-test")
+    `(let [prefix# (str (.format (java.text.SimpleDateFormat. "HH:mm:ss:SSS")
                                  (java.util.Date.))
                         " "
                         ~level
@@ -51,105 +64,128 @@
 
 (defmacro trace
   [& messages]
-  `(when (>= 0 @min-level) (print-message "T" ~@messages)))
+  `(let [printable# (compare-log-levels @min-level :trace)]
+     (when printable# (print-message "T" ~@messages))))
 
 (defmacro debug
   [& messages]
-  `(when (>= 1 @min-level) (print-message "D" ~@messages)))
+  `(let [printable# (compare-log-levels @min-level :debug)]
+     (when printable# (print-message "D" ~@messages))))
 
 (defmacro info
   [& messages]
-  `(when (>= 2 @min-level) (print-message "I" ~@messages)))
+  `(let [printable# (compare-log-levels @min-level :info)]
+     (when printable# (print-message "I" ~@messages))))
 
 (defmacro warn
   [& messages]
-  `(when (>= 3 @min-level) (print-message "W" ~@messages)))
+  `(let [printable# (compare-log-levels @min-level :warning)]
+     (when printable# (print-message "W" ~@messages))))
 
 (defmacro error
   [& messages]
-  `(when (>= 4 @min-level) (print-message "E" ~@messages)))
+  `(let [printable# (compare-log-levels @min-level :error)]
+     (when printable# (print-message "E" ~@messages))))
 
 (defmacro fatal
   [& messages]
-  `(when (>= 5 @min-level) (print-message "F" ~@messages)))
+  `(let [printable# (compare-log-levels @min-level :fatal)]
+     (when printable# (print-message "F" ~@messages))))
 
 (defmacro trace-format
   [fmt & messages]
-  `(when (>= 0 @min-level) (print-message "T" (format ~fmt ~@messages))))
+  `(let [printable# (compare-log-levels @min-level :trace)]
+     (when printable# (print-message "T" (format ~fmt ~@messages)))))
 
 (defmacro debug-format
   [fmt & messages]
-  `(when (>= 1 @min-level) (print-message "D" (format ~fmt ~@messages))))
+  `(let [printable# (compare-log-levels @min-level :debug)]
+     (when printable# (print-message "D" (format ~fmt ~@messages)))))
 
 (defmacro info-format
   [fmt & messages]
-  `(when (>= 2 @min-level) (print-message "I" (format ~fmt ~@messages))))
+  `(let [printable# (compare-log-levels @min-level :info)]
+     (when printable# (print-message "I" (format ~fmt ~@messages)))))
 
 (defmacro warn-format
   [fmt & messages]
-  `(when (>= 3 @min-level) (print-message "W" (format ~fmt ~@messages))))
+  `(let [printable# (compare-log-levels @min-level :info)]
+     (when printable# (print-message "W" (format ~fmt ~@messages)))))
 
 (defmacro error-format
   [fmt & messages]
-  `(when (>= 4 @min-level) (print-message "E" (format ~fmt ~@messages))))
+  `(let [printable# (compare-log-levels @min-level :error)]
+     (when printable# (print-message "E" (format ~fmt ~@messages)))))
 
 (defmacro fatal-format
   [fmt & messages]
-  `(when (>= 5 @min-level) (print-message "F" (format ~fmt ~@messages))))
+  `(let [printable# (compare-log-levels @min-level :fatal)]
+     (when printable# (print-message "F" (format ~fmt ~@messages)))))
 
 (defmacro trace-exception
   [e]
-  `(when (>= 0 @min-level) (print-message "T" (pr-str ~e))))
+  `(let [printable# (compare-log-levels @min-level :trace)]
+     (when printable# (print-message "T" (pr-str ~e)))))
 
 (defmacro debug-exception
   [e]
-  `(when (>= 1 @min-level) (print-message "D" (pr-str ~e))))
+  `(let [printable# (compare-log-levels @min-level :debug)]
+     (when printable# (print-message "D" (pr-str ~e)))))
 
 (defmacro info-exception
   [e]
-  `(when (>= 2 @min-level) (print-message "I" (pr-str ~e))))
+  `(let [printable# (compare-log-levels @min-level :info)]
+     (when printable# (print-message "I" (pr-str ~e)))))
 
 (defmacro warn-exception
   [e]
-  `(when (>= 3 @min-level) (print-message "W" (pr-str ~e))))
+  `(let [printable# (compare-log-levels @min-level :warning)]
+     (when printable# (print-message "W" (pr-str ~e)))))
 
 (defmacro error-exception
   [e]
-  `(when (>= 4 @min-level) (print-message "E" (pr-str ~e))))
+  `(let [printable# (compare-log-levels @min-level :error)]
+     (when printable# (print-message "E" (pr-str ~e)))))
 
 (defmacro fatal-exception
   [e]
-  `(when (>= 5 @min-level) (print-message "F" (pr-str ~e))))
+  `(let [printable# (compare-log-levels @min-level :fatal)]
+     (when printable# (print-message "F" (pr-str ~e)))))
 
 (defmacro trace-vars
   [msg & variables]
-  `(when (>= 0 @min-level)
-     (print-message "T" ~msg)
-     (print-message "T"
-                    (apply hash-map
-                      (interleave (map symbol [~@variables])
-                                  (map var-get [~@variables]))))))
+  `(let [printable# (compare-log-levels @min-level :trace)]
+     (when printable#
+       (print-message "T" ~msg)
+       (print-message "T"
+                      (apply hash-map
+                        (interleave (map symbol [~@variables])
+                                    (map var-get [~@variables])))))))
 
 (defmacro trace-map
   [msg & variables]
-  `(when (>= 0 @min-level)
-     (print-message "T" ~msg)
-     (print-message "T" (pp/pprint (apply hash-map [~@variables])))))
+  `(let [printable# (compare-log-levels @min-level :trace)]
+     (when printable#
+       (print-message "T" ~msg)
+       (print-message "T" (pp/pprint (apply hash-map [~@variables]))))))
 
 (defmacro trace-data
   [data & messages]
-  `(when (>= 0 @min-level)
-     (when-not (empty? [~@messages]) (print-message "T" ~@messages))
-     (print-message "T" (pr-str ~data))))
+  `(let [printable# (compare-log-levels @min-level :trace)]
+     (when printable#
+       (when-not (empty? [~@messages]) (print-message "T" ~@messages))
+       (print-message "T" (pr-str ~data)))))
 
 (defmacro warn-data
   [data & messages]
-  `(when (>= 3 @min-level)
-     (when-not (empty? [~@messages]) (print-message "W" ~@messages))
-     (print-message "W" (pr-str ~data))))
+  `(let [printable# (compare-log-levels @min-level :warning)]
+     (when printable#
+       (when-not (empty? [~@messages]) (print-message "W" ~@messages))
+       (print-message "W" (pr-str ~data)))))
 
 (defmacro error-data
   [data & messages]
-  `(when (>= 4 @min-level)
-     (when-not (empty? [~@messages]) (print-message "E" ~@messages))
-     (print-message "E" (pr-str ~data))))
+  `(let [printable# (compare-log-levels @min-level :error)]
+     (when printable#
+       (when-not (empty? [~@messages]) (print-message "E" ~@messages))
+       (print-message "E" (pr-str ~data)))))

@@ -53,7 +53,7 @@
                  [:doc? {:optional true} :boolean]
                  [:frontend? {:optional true} :boolean]
                  ;; This map is not closed, as monorepo features should not
-                 ;; be described here that data are here for convienience
+                 ;; be described here that data are here for convenience
                  [:monorepo [:map {:closed true} [:app-dir :string]]]]
                 cust-app-schema)))
 

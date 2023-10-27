@@ -12,9 +12,22 @@
             [automaton-build-app.os.files :as build-files]
             [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]))
 
+(defn- gha-lconnect*
+  [tmp-dir repo-url repo-branch app-name container-repo-account tag]
+  (when-not (and (build-cfg-mgt/clone-repo-branch tmp-dir repo-url repo-branch)
+                 (some-> (build-github-action/make-github-action
+                           app-name
+                           tmp-dir
+                           ""
+                           container-repo-account
+                           tag)
+                         build-containers/connect))
+    (build-log/fatal "Error during gha connection")
+    (System/exit build-exit-codes/catch-all)))
+
 (defn gha-lconnect
   "Task to locally connect to github action"
-  [{:keys [cli-opts], :as _opts}]
+  [{:keys [cli-opts], :as _parsed-cli-opts}]
   (build-log/info "Run and connect to github container locally")
   (let [{:keys [app-name publication], :as app-data} (@build-app/build-app-data_
                                                       "")
@@ -25,31 +38,26 @@
         tmp-dir (build-files/create-temp-dir "gha_image")]
     (if (or (nil? repo-url) (nil? workflows))
       (do
-        (build-log/warn
+        (build-log/fatal
           "Parameters are missing  [:publication :gha-cntainer] in `build_config.edn`")
         (System/exit build-exit-codes/catch-all))
-      (when (not (and (build-cfg-mgt/clone-repo-branch tmp-dir
-                                                       repo-url
-                                                       repo-branch)
-                      (some-> (build-github-action/make-github-action
-                                app-name
-                                tmp-dir
-                                ""
-                                container-repo-account
-                                tag)
-                              build-containers/connect)))
-        (System/exit build-exit-codes/catch-all)))))
+      (gha-lconnect* tmp-dir
+                     repo-url
+                     repo-branch
+                     app-name
+                     container-repo-account
+                     tag))))
 
 (defn ltest
   "Local tests
   All that tests should be runnable on github action
   `rlwrap` is not on the container image, so `clojure` should be used instead of `clj`"
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (let [{:keys [ltest shadow-cljs], :as app-data} (@build-app/build-app-data_
                                                    "")
         aliases (get ltest :aliases)]
-    (when-not (and (build-lint/lint true (build-app/src-dirs app-data))
+    (when-not (and (build-lint/lint false (build-app/src-dirs app-data))
                    (build-cmds/execute-and-trace ["clojure"
                                                   (apply str "-M" aliases)])
                    (or (not shadow-cljs)
@@ -57,15 +65,17 @@
                          ["npm" "install"]
                          ["npx" "shadow-cljs" "compile" "ltest"]
                          ["npx" "karma" "start" "--single-run"])))
+      (build-log/fatal "Tests have failed")
       (System/exit build-exit-codes/catch-all))))
 
 (defn la
   "Local acceptance"
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as parsed-cli-args}]
   (build-log/set-min-level! min-level)
   (let [{:keys [la]} (@build-app/build-app-data_ "")
         selected-tasks (get la :selected-tasks)]
     (build-log/trace-format
       "The following tasks are selected in configuration: %s"
       selected-tasks)
-    (build-la/run selected-tasks)))
+    (build-la/run selected-tasks
+                  (get-in parsed-cli-args [:command-line-args]))))

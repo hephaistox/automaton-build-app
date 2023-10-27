@@ -22,7 +22,6 @@
   * `report-title` a human readable title of that report. Contains one `%s` parameter which will be replaced with the content of the report
   * `report-filename` where to store the report"
   [matches report-title report-filename]
-  (when-not (str/blank? report-filename)
-    (build-log/info-format "Save report `%s`" report-title)
-    (when-not (empty? matches)
-      (build-edn-utils/spit-edn report-filename matches))))
+  (build-log/info-format "Save report `%s`" report-title)
+  (when (and (not (str/blank? report-filename)) (seq matches))
+    (build-edn-utils/spit-edn report-filename matches)))

@@ -15,6 +15,14 @@
 
 (def ellipsis "...")
 
+(defn- shrink-string-from-end
+  [s prefix suffix limit]
+  (apply str
+    (concat prefix
+            (take (- limit (count ellipsis) (count prefix) (count suffix)) s)
+            ellipsis
+            suffix)))
+
 (defn limit-length
   "Limit the length of the string
   Params:
@@ -26,32 +34,31 @@
    (let [line (str prefix s suffix)]
      (if (<= (count line) limit)
        line
-       (do (on-ellipsis s)
-           (apply str
-             (concat
-               prefix
-               (take (- limit (count ellipsis) (count prefix) (count suffix)) s)
-               ellipsis
-               suffix)))))))
+       (do (on-ellipsis s) (shrink-string-from-end s prefix suffix limit))))))
+
+(defn- shrink-string-from-beginning
+  [s prefix suffix limit]
+  (apply str
+    (concat prefix
+            ellipsis
+            (subs s
+                  (- (count s)
+                     (- limit (count prefix) (count ellipsis) (count suffix))))
+            suffix)))
 
 (defn fix-length
   "Fix the length of the string, meaning it will be add ellipsis at the beginning of the string if needed, or add white spaces otherwise
   Params:
-  * `s` string to limit
+  * `s` string that will be shrinked
   * `limit` maximum numbers of character of the resulting string, with prefix and suffix included, with an ellipsis of string s if necessary
+  * `prefix` string to add before the string (copied as is)
+  * `suffix` string to add after the string (copied as is)
   * `on-ellipsis` a function executed when the ellipsis is done"
   [s limit prefix suffix]
   (let [line (str prefix s suffix)]
     (if (<= (count line) limit)
       (apply str line (repeat (- limit (count line)) " "))
-      (apply str
-        (concat prefix
-                ellipsis
-                (subs
-                  s
-                  (- (count s)
-                     (- limit (count prefix) (count ellipsis) (count suffix))))
-                suffix)))))
+      (shrink-string-from-beginning s prefix suffix limit))))
 
 (defn remove-trailing-character
   "Remove last character if it is matching char

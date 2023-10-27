@@ -2,7 +2,7 @@
   "Helpers function to initiate the bb tasks"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
-            [automaton-build-app.tasks.code-helpers :as build-task-code-helper]
+            [automaton-build-app.code-helpers.update-deps :as build-update-deps]
             [automaton-build-app.os.exit-codes :as build-exit-codes]
             [babashka.fs :as fs]
             [clojure.pprint :as pp]
@@ -32,7 +32,7 @@
 (def build-app-task-specific-cli-opts
   {"push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
            ["-t" "--tag-message TAG-MESSAGE" "Tag message"]],
-   "publish-gha-container" [["-t" "--tag TAG" "Tag for the publication"]],
+   "gha-container-publish" [["-t" "--tag TAG" "Tag for the publication"]],
    "gha" [["-f" "--force" "Force execution on local machine"]]})
 
 (defn enter-tasks
@@ -107,13 +107,13 @@
   * `body` body to execute
   * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
   ([task-name cli-opts body-fn {:keys [executing-pf], :or {executing-pf :bb}}]
-   (build-task-code-helper/update-bb-deps "")
+   (build-update-deps/update-bb-deps "")
    (try (build-log/info-format "Run %s task" task-name)
         (dispatch task-name body-fn executing-pf cli-opts)
         (catch Exception e
           (println (format "Error during execution of `%s`, %s`"
                            task-name
-                           (pr-str (ex-message e))))
+                           (pr-str (or (ex-message e) e))))
           (if (cicd?)
             (println e)
             (let [file (fs/create-temp-file {:suffix ".edn"})]

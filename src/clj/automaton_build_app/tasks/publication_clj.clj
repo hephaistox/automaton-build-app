@@ -10,13 +10,13 @@
 
 (defn push-from-local
   "Push the current repository.
-  Use with care, the source truth is monorepo commits
+  Use with care, as source of truth is the monorepo commits
   Params:
   * `commit-msg` commit message
   * `tag-msg` tag message"
-  [{:keys [min-level], :as opts}]
+  [{:keys [min-level], :as parsed-cli-opts}]
   (build-log/set-min-level! min-level)
-  (if-let [commit-msg (get-in opts [:cli-opts :options :message])]
+  (if-let [commit-msg (get-in parsed-cli-opts [:cli-opts :options :message])]
     (let [_ (build-log/debug-format "Push local `%s` " commit-msg)
           app-data (@build-app/build-app-data_ "")
           clj-repo (-> app-data
@@ -32,6 +32,6 @@
         commit-msg
         commit-msg
         (get-in app-data [:publication :major-version])))
-    (let [usage-msg (get-in opts [:cli-opts :usage-msg])]
+    (let [usage-msg (get-in parsed-cli-opts [:cli-opts :usage-msg])]
       (println usage-msg)
-      (println (get-in opts [:cli-opts :summary])))))
+      (println (get-in parsed-cli-opts [:cli-opts :summary])))))

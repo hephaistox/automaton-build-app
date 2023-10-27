@@ -18,7 +18,7 @@
      (build-files/spit-file
        filename
        (apply str
-         [(when-not (str/blank? header)
+         [(when (and (string? header) (not (str/blank? header)))
             (print-str ";;" header (build-time/now-str) "\n")) format-content]))
      (build-cmds/execute-and-trace ["zprint" "-w" filename])))
   ([filename] (format-file filename nil)))

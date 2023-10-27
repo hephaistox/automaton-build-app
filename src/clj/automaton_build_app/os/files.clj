@@ -132,39 +132,44 @@
 (defn- copy-files-or-dir-validate
   "Internal function to validate data for `copy-files-or-dir`"
   [files]
-  (when-not (and (sequential? files)
-                 (every? #(or (string? %) (= java.net.URL (class %))) files))
-    (throw
-      (ex-info
-        "The `files` parameter should be a sequence of string or `java.net.URL`"
-        {:files files}))))
+  (if (and (sequential? files)
+           (every? #(or (string? %) (= java.net.URL (class %))) files))
+    true
+    (do
+      (build-log/error-exception
+        (ex-info
+          "The `files` parameter should be a sequence of string or `java.net.URL`"
+          {:files files}))
+      false)))
 
 (defn copy-files-or-dir
   "Copy the files, even if they are directories to the target
   * `files` is a sequence of file or directory name, in absolute or relative form
   * `target-dir` is where files are copied to"
   [files target-dir]
-  (copy-files-or-dir-validate files)
-  (try (fs/create-dirs target-dir)
-       (doseq [file files]
-         (build-log/debug "Copy from " file " to " target-dir)
-         (if (fs/directory? file)
-           (do (build-log/trace-format "Copy directory `%s` to `%s`"
-                                       (absolutize file)
-                                       (absolutize target-dir))
-               (fs/copy-tree file
-                             target-dir
-                             {:replace-existing true, :copy-attributes true}))
-           (do (build-log/trace-format "Copy files `%s` to `%s`"
-                                       (absolutize file)
-                                       (absolutize target-dir))
-               (fs/copy file
-                        target-dir
-                        {:replace-existing true, :copy-attributes true}))))
-       (catch Exception e
-         (throw (ex-info
-                  "Unexpected exception during copy"
-                  {:exception e, :files files, :target-dir target-dir})))))
+  (when (copy-files-or-dir-validate files)
+    (try (fs/create-dirs target-dir)
+         (doseq [file files]
+           (build-log/debug "Copy from " file " to " target-dir)
+           (if (fs/directory? file)
+             (do (build-log/trace-format "Copy directory `%s` to `%s`"
+                                         (absolutize file)
+                                         (absolutize target-dir))
+                 (fs/copy-tree file
+                               target-dir
+                               {:replace-existing true, :copy-attributes true}))
+             (do (build-log/trace-format "Copy files `%s` to `%s`"
+                                         (absolutize file)
+                                         (absolutize target-dir))
+                 (fs/copy file
+                          target-dir
+                          {:replace-existing true, :copy-attributes true}))))
+         true
+         (catch Exception e
+           (build-log/error-exception
+             (ex-info "Unexpected exception during copy"
+                      {:exception e, :files files, :target-dir target-dir}))
+           false))))
 
 (defn delete-files
   "Deletes the files which are given in the list.

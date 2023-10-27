@@ -12,9 +12,6 @@
                         (build-task-helper/enter-tasks task-name {})))),
     :init (build-task-helper/init-tasks),
     :requires [[automaton-build-app.tasks-helper :as build-task-helper]],
-    blog {:doc "Transforms md file to pdf based on edn file",
-          :task (execute-task 'automaton-build-app.tasks.doc-clj/blog-task
-                              {:executing-pf :clj})},
     clean {:doc "Clean cache files for compiles, and logs",
            :task (execute-task 'automaton-build-app.tasks.clean/clean)},
     clean-hard
@@ -42,6 +39,11 @@
     gha {:doc "Github action command - is launched automatically by github",
          :task (execute-task 'automaton-build-app.tasks.test-clj/gha
                              {:executing-pf :clj})},
+    gha-container-publish
+      {:doc "Update the gha container to run that app",
+       :task
+         (execute-task
+           'automaton-build-app.tasks.container-publication/push-gha-from-local)},
     gha-lconnect {:doc "Connect to a local container running this code",
                   :task (execute-task
                           'automaton-build-app.tasks.test/gha-lconnect)},
@@ -52,11 +54,6 @@
                       'automaton-build-app.tasks.code-helpers/lconnect)},
     ltest {:doc "Local test",
            :task (execute-task 'automaton-build-app.tasks.test/ltest)},
-    publish-gha-container
-      {:doc "Update the gha container to run that app",
-       :task
-         (execute-task
-           'automaton-build-app.tasks.container-publication/push-gha-from-local)},
     push {:doc "Push this repo",
           :task (execute-task
                   'automaton-build-app.tasks.publication-clj/push-from-local

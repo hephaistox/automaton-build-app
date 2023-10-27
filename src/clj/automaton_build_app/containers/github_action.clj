@@ -26,7 +26,6 @@
           app-files-to-copy-in-cc-container
           publish?)))
     (connect [this]
-      (println "connect")
       (if (build-containers/build this false)
         (build-local-engine/container-interactive
           (build-containers/container-name this)

@@ -12,7 +12,7 @@
                      :target-filename "target/%s-%s.jar"}}
  :lconnect {:aliases [:common-test :env-development-repl :build]}
  :ltest {:aliases [:env-development-test :common-test]}
- :la {:selected-tasks ["blog" "clean" "clean-hard" "code-doc" "compile-to-jar" "container-clear" "container-list" "gha" "gha-lconnect" "ltest" "publish-gha-container" "push" "report" "update-deps"]}
+ :la {:selected-tasks ["clean" "clean-hard" "code-doc" "compile-to-jar" "container-clear" "container-list" "gha" "gha-lconnect" "gha-container-publish" "ltest" "push" "report" "update-deps"]}
  :customer-materials {:html-dir "tmp/html"
                       :dir "customer_materials"
                       :pdf-dir "tmp/pdf"}

@@ -28,7 +28,9 @@
   Params:
   * `proc` the process to listen at"
   [proc]
-  (future (log-a-stream (fn [& args] (build-log/trace args)) proc (:out proc)))
+  (future (log-a-stream (fn [& args] (build-log/trace (doall args)))
+                        proc
+                        (:out proc)))
   (log-a-stream (fn [& args] (build-log/error (doall args))) proc (:err proc)))
 
 (defn- create-process

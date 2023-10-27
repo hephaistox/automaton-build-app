@@ -1,1 +1,3 @@
-List of forbidden comments
+;; List of forbidden comments Fri Oct 27 15:10:31 CEST 2023
+clojure.lang.LazySeq
+@1

@@ -11,21 +11,23 @@
 
 (defn update-deps
   "Update the dependencies of the project"
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (build-update-deps-clj/do-update ""))
 
 (defn compile-to-jar
   "Compile both backend and frontend (if its setup file exists, e.g. `shadow-cljs.edn`)), in production mode"
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (let [app-dir ""
         {:keys [publication deps-edn]} (@build-app/build-app-data_ app-dir)
         {:keys [as-lib jar major-version shadow-cljs]} publication
         {:keys [excluded-aliases target-filename class-dir]} jar
         {:keys [target-build]} shadow-cljs
-        res (and (or (not (build-frontend-compiler/is-shadow-project? app-dir))
-                     (nil? target-build)
+        skip-frontend-building?
+          (or (not (build-frontend-compiler/is-shadow-project? app-dir))
+              (nil? target-build))
+        res (and (or skip-frontend-building?
                      (build-frontend-compiler/compile-target target-build
                                                              app-dir))
                  (build-compiler/clj-compiler deps-edn

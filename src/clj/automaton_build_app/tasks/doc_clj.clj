@@ -9,7 +9,7 @@
 
 (defn blog-task
   "Blog task"
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (let [{:keys [customer-materials]} (@build-app/build-app-data_ "")
         {:keys [dir html-dir pdf-dir]} customer-materials]
@@ -17,7 +17,7 @@
 
 (defn code-doc
   "Create the code documentation"
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (let [{:keys [_app-name doc], :as app-data} (@build-app/build-app-data_ "")
         {:keys [_code-doc reports]} doc
@@ -38,7 +38,7 @@
 
 (defn mermaid
   "Build all mermaid files"
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (let [{:keys [doc]} (@build-app/build-app-data_ "")
         {:keys [archi]} doc
@@ -47,5 +47,5 @@
 
 (defn cicd-doc
   "Generate all docs for cicd"
-  [opts]
-  ((juxt code-doc blog-task mermaid) opts))
+  [parsed-cli-opts]
+  ((juxt code-doc blog-task mermaid) parsed-cli-opts))

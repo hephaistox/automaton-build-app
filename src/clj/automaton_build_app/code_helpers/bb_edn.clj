@@ -13,8 +13,8 @@
   * `bb-edn-dir` name of the dir where the bb.edn is
   * `update-bb-edn-fn` updater function taking bb.edn content as a paramter and returning the new content to save"
   [bb-edn-dir update-bb-edn-fn]
-  (let [bb-edn-filename (build-files/create-file-path bb-edn-dir
-                                                      bb-edn-filename)
-        bb-edn (build-edn-utils/read-edn bb-edn-filename)
+  (let [bb-edn-filename-fullpath (build-files/create-file-path bb-edn-dir
+                                                               bb-edn-filename)
+        bb-edn (build-edn-utils/read-edn bb-edn-filename-fullpath)
         updated-bb-edn (update-bb-edn-fn bb-edn)]
-    (build-edn-utils/spit-edn bb-edn-filename updated-bb-edn)))
+    (build-edn-utils/spit-edn bb-edn-filename-fullpath updated-bb-edn)))

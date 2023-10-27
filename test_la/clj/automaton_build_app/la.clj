@@ -4,11 +4,11 @@
 
 (defn run
   "Defines tests to run"
-  [selected-tasks]
+  [selected-tasks cli-args]
   (-> (build-cli-test/select-tasks selected-tasks build-cli-test/cmds-to-test)
-      build-cli-test/cli-test))
+      (build-cli-test/cli-test cli-args)))
 
 (comment
-  (run ["clean"])
+  (run ["clean"] {})
 ;
   )

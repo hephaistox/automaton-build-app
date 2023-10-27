@@ -110,9 +110,9 @@
       assembled-container-dir
       image-to-build)
     (let [files (keep build-files/is-existing-file? files)]
-      (build-files/copy-files-or-dir (concat [image-src-dir] files)
-                                     assembled-container-dir)
-      (when (build-container-image image-to-build assembled-container-dir)
+      (when (and (build-files/copy-files-or-dir (concat [image-src-dir] files)
+                                                assembled-container-dir)
+                 (build-container-image image-to-build assembled-container-dir))
         (if publish?
           (push-container image-to-build remote-repo-account)
           true)))))

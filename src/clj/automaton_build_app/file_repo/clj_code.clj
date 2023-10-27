@@ -25,23 +25,23 @@
   (filter-by-usage [this usage-kw]
     "Filter the existing files based on its usage, see `code-extenstions-map` for details"))
 
-(defrecord CljCodeFileRepo [_file-repo-map]
+(defrecord CljCodeFileRepo [file-repo-map*]
   build-filerepo-raw/FileRepo
     (exclude-files [_ exclude-files]
-      (-> _file-repo-map
+      (-> file-repo-map*
           (build-raw-impl/exclude-files exclude-files)
           ->CljCodeFileRepo))
-    (file-repo-map [_] _file-repo-map)
-    (nb-files [_] (count _file-repo-map))
+    (file-repo-map [_] file-repo-map*)
+    (nb-files [_] (count file-repo-map*))
     (filter-repo [_ filter-fn]
-      (-> (build-raw-impl/filter-repo-map _file-repo-map filter-fn)
+      (-> (build-raw-impl/filter-repo-map file-repo-map* filter-fn)
           ->CljCodeFileRepo))
     (filter-by-extension [_ extensions]
-      (build-raw-impl/filter-by-extension _file-repo-map extensions))
+      (build-raw-impl/filter-by-extension file-repo-map* extensions))
   CodeRepo
     (filter-by-usage [_ usage-kw]
       (build-raw-impl/filter-repo-map
-        _file-repo-map
+        file-repo-map*
         (fn [[filename _]]
           (some some?
                 (map (partial build-files/match-extension? filename)

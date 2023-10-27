@@ -7,13 +7,13 @@
 
 (defn clean-hard
   "Clean the repository to the state as it's after being cloned from git server"
-  [_opts]
+  [_parsed-cli-opts]
   (-> (build-files/absolutize ".")
       build-cfg-mgt/clean-hard))
 
 (defn clean
   "Clean cache files for compilers to start from scratch"
-  [_opts]
+  [_parsed-cli-opts]
   (let [app-data (@build-app/build-app-data_)
         dirs (get-in app-data [:clean :compile-logs-dirs])]
     (build-log/debug-format "The directories `%s` are cleaned" dirs)

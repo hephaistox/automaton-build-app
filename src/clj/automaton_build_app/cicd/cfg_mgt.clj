@@ -80,11 +80,11 @@
     (let [branch-switch-res (build-cmds/execute-with-exit-code
                               ["git" "branch" branch-name {:dir dir}]
                               ["git" "switch" branch-name {:dir dir}])]
-      (cond (every? #(= 0 (first %)) branch-switch-res) true
-            :else (do (build-log/error-format
-                        "Unexpected error during branch creation %s"
-                        (map second branch-switch-res))
-                      false)))))
+      (if (build-cmds/first-cmd-failing branch-switch-res)
+        true
+        (do (build-log/error-format "Unexpected error during branch creation %s"
+                                    (map second branch-switch-res))
+            false)))))
 
 (defn current-branch
   "Return the name of the current branch in `dir`
@@ -208,12 +208,12 @@
     (->> (build-files/search-files tmp-dir "*")
          (filter (fn [file] (not (str/ends-with? file ".git"))))
          build-files/delete-files)
-    (build-files/copy-files-or-dir [source-dir] tmp-dir)
-    (commit-and-push-and-tag tmp-dir
-                             commit-message
-                             (current-branch tmp-dir)
-                             version
-                             tag-msg)))
+    (when (build-files/copy-files-or-dir [source-dir] tmp-dir)
+      (commit-and-push-and-tag tmp-dir
+                               commit-message
+                               (current-branch tmp-dir)
+                               version
+                               tag-msg))))
 
 (defn- validate-branch-name
   "Validate the name of the branch

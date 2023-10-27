@@ -39,9 +39,7 @@
           new-version (format major-version new-minor-version)]
       (build-edn-utils/spit-edn
         version-filename
-        {:version new-version,
-         :major-version major-version,
-         :minor-version new-minor-version}
+        {:version new-version, :minor-version new-minor-version}
         "Last generated version, note a failed push consume a number")
       new-version)
     (build-log/warn "Major version is missing")))

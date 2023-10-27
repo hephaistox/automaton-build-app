@@ -1,4 +1,4 @@
-(ns automaton-build-app.file-repo.raw.impl-text
+(ns automaton-build-app.file-repo.raw.impl-test
   (:require
    [automaton-build-app.file-repo.raw.impl :as sut]
    [clojure.test :refer [deftest is testing]]))

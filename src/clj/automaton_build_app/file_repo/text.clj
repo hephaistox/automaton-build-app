@@ -52,7 +52,7 @@
   * `pattern`"
   [text-file-repo pattern]
   (->> text-file-repo
-       :_file-repo-map
+       build-filerepo-raw/file-repo-map
        (mapcat (fn [[filename file-content]]
                  (->> file-content
                       (map (fn [file-line] [(build-files/relativize-to-pwd

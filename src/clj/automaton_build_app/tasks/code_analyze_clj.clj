@@ -15,7 +15,7 @@
             [automaton-build-app.log :as build-log]))
 
 (defn code-stats
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (let [filename (get-in (@build-app/build-app-data_ "")
                          [:doc :code-stats :output-file]
@@ -73,7 +73,7 @@
 
 (defn reports
   "Build all the reports"
-  [{:keys [min-level], :as _opts}]
+  [{:keys [min-level], :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (let [app-dir ""
         build-data (@build-app/build-app-data_ app-dir)

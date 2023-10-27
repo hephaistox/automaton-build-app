@@ -9,8 +9,7 @@
 (defn read-edn
   "Read the `.edn` file,
   Params:
-  * `edn-filename` name of the edn file to load
-  * `loader-fn` (Optional, default: files/read-file) a function returning the content of the file"
+  * `edn-filename` name of the edn file to load"
   [edn-filename]
   (try (let [edn-filename (build-files/absolutize edn-filename)
              edn-content (build-files/read-file edn-filename)]
@@ -32,7 +31,7 @@
   ([edn-filename content header]
    (try (build-log/trace "Spit edn file:" edn-filename)
         (let [previous-content (build-files/read-file edn-filename)]
-          (if (= previous-content content)
+          (if (= (hash previous-content) (hash content))
             (build-log/debug-format
               "Content of file `%s` is already update, spitting is skipped"
               edn-filename)
@@ -44,7 +43,7 @@
                           {:deps-edn-filename edn-filename,
                            :exception e,
                            :content content})))))
-  ([deps-edn-filename content] (spit-edn deps-edn-filename content nil)))
+  ([edn-filename content] (spit-edn edn-filename content nil)))
 
 (defn create-tmp-edn
   "Create a temporary file with edn extension
