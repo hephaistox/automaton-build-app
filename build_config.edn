@@ -2,7 +2,7 @@
  :publication {:repo {:address "git@github.com:hephaistox/automaton-build-app.git"
                       :branch "main"}
                :as-lib hephaistox/automaton-build-app
-               :major-version "1.2.%s"
+               :major-version "0.0.%s"
                :gha-container {:repo-url "git@github.com:hephaistox/gha_image.git"
                                :repo-branch "main"
                                :account "hephaistox"
