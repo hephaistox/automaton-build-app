@@ -62,6 +62,16 @@
     ["npx" "shadow-cljs" "compile" "karma-test" {:dir dir}]
     ["npx" "karma" "start" "--single-run" {:dir dir}]))
 
+(defn load-shadow-cljs
+  "Read the shadow-cljs of an app
+  Params:
+  * `dir` the directory where to
+  Returns the content as data structure"
+  [dir]
+  (let [shadow-filepath (build-files/create-file-path dir shadow-cljs-edn)]
+    (when (build-files/is-existing-file? shadow-filepath)
+      (build-edn-utils/read-edn shadow-filepath))))
+
 (defn create-size-optimization-report
   "Create a report on size-optimization
   Params:
@@ -69,11 +79,15 @@
   * `target-file` target file"
   [dir target-file]
   (build-log/debug "Generate the size optimization report in " target-file)
-  ;; The output of the command is useless, as it is pushed in the
-  ;; targetfile
-  (build-cmds/execute-and-trace ["npx" "shadow-cljs" "run"
-                                 "shadow.cljs.build-report" "app" target-file
-                                 {:dir dir}]))
+  (cond (not (is-shadow-project? dir))
+          (build-log/debug "No frontend found, skip optimization report")
+        (nil? (-> (load-shadow-cljs dir)
+                  (get-in [:build :app])))
+          (build-log/debug
+            "no app build target found, skip optimization report")
+        :else (build-cmds/execute-and-trace ["npx" "shadow-cljs" "run"
+                                             "shadow.cljs.build-report" "app"
+                                             target-file {:dir dir}])))
 
 (defn watch-modifications
   "Watch modification on code on cljs part, from tests or app
@@ -85,16 +99,6 @@
                                  "-o" compiled-styles-css "--watch" {:dir dir}]
                                 ["npx" "shadow-cljs" "watch" "app" "karma-test"
                                  "browser-test" {:dir dir, :background? true}]))
-
-(defn load-shadow-cljs
-  "Read the shadow-cljs of an app
-  Params:
-  * `dir` the directory where to
-  Returns the content as data structure"
-  [dir]
-  (let [shadow-filepath (build-files/create-file-path dir shadow-cljs-edn)]
-    (when (build-files/is-existing-file? shadow-filepath)
-      (build-edn-utils/read-edn shadow-filepath))))
 
 (defn extract-paths
   "Extract paths from the shadow cljs file content

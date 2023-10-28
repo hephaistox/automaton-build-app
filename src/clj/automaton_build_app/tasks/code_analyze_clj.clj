@@ -60,16 +60,14 @@
         build-analyze-namespace/assert-empty)))
 
 (defn- shadow-report
-  [dir build-data]
-  (if (build-frontend-compiler/is-shadow-project? dir)
-    (when-let [shadow-report-filename (get-in build-data
-                                              [:doc :reports :output-files
-                                               :shadow-size-opt]
-                                              "doc/codes/code-size.edn")]
-      (build-frontend-compiler/create-size-optimization-report
-        ""
-        shadow-report-filename))
-    (build-log/debug "No frontend found, skip optimization report")))
+  [app-dir build-data]
+  (when-let [shadow-report-filename (get-in build-data
+                                            [:doc :reports :output-files
+                                             :shadow-size-opt]
+                                            "doc/codes/code-size.edn")]
+    (build-frontend-compiler/create-size-optimization-report
+      app-dir
+      shadow-report-filename)))
 
 (defn reports
   "Build all the reports"
