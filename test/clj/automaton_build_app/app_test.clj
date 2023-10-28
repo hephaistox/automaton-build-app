@@ -10,7 +10,7 @@
    :publication {:repo {:address "git@github.com:hephaistox/app-stub.git"
                         :branch "main"}
                  :as-lib 'hephaistox/automaton-app-stub
-                 :major-version "1.0.%s"
+                 :major-version "1.0.%d"
                  :jar {:class-dir "target/classes"
                        :excluded-aliases #{}
                        :target-filename "target/%s-%s.jar"}}

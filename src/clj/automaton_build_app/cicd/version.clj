@@ -36,7 +36,7 @@
           minor-version (when (= older-major-version major-version)
                           older-minor-version)
           new-minor-version (inc (or minor-version -1))
-          major-version-only (format major-version "")
+          major-version-only (format major-version -1)
           new-version (format major-version new-minor-version)]
       (build-edn-utils/spit-edn
         version-filename
