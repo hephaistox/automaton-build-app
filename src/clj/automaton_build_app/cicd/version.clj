@@ -36,10 +36,13 @@
           minor-version (when (= older-major-version major-version)
                           older-minor-version)
           new-minor-version (inc (or minor-version -1))
+          major-version-only (format major-version "")
           new-version (format major-version new-minor-version)]
       (build-edn-utils/spit-edn
         version-filename
-        {:version new-version, :minor-version new-minor-version}
+        {:major-version major-version-only,
+         :version new-version,
+         :minor-version new-minor-version}
         "Last generated version, note a failed push consume a number")
       new-version)
     (build-log/warn "Major version is missing")))
