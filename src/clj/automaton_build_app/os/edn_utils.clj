@@ -30,12 +30,20 @@
   Return the content of the file"
   ([edn-filename content header]
    (try (build-log/trace "Spit edn file:" edn-filename)
-        (let [previous-content (build-files/read-file edn-filename)]
+        (let [content (doall content)
+              previous-content (read-edn edn-filename)]
           (if (= (hash previous-content) (hash content))
             (build-log/debug-format
               "Content of file `%s` is already update, spitting is skipped"
               edn-filename)
-            (do (build-files/spit-file edn-filename content)
+            (do (build-log/debug "Contents have changed")
+                (build-log/trace-format "content (hash= `%s`, content = `%s`)"
+                                        (hash content)
+                                        content)
+                (build-log/trace-format "content (hash= `%s`, content = `%s`)"
+                                        (hash previous-content)
+                                        previous-content)
+                (build-files/spit-file edn-filename content)
                 (build-code-formatter/format-file edn-filename header))))
         content
         (catch Exception e

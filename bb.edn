@@ -5,11 +5,10 @@
  :tasks
    {:enter (let [task-name (-> (babashka.tasks/current-task)
                                :name
-                               str)]
+                               str)
+                 cli-opts (build-task-helper/enter-tasks task-name {})]
              (def execute-task
-               (partial build-task-helper/execute-task
-                        task-name
-                        (build-task-helper/enter-tasks task-name {})))),
+               (partial build-task-helper/execute-task task-name cli-opts))),
     :init (build-task-helper/init-tasks),
     :requires [[automaton-build-app.tasks-helper :as build-task-helper]],
     clean {:doc "Clean cache files for compiles, and logs",

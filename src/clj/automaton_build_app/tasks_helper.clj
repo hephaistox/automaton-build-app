@@ -37,6 +37,7 @@
 
 (defn enter-tasks
   "To be run during the enter of tasks
+  Returns cli-opts
   Params:
   * `task-specific-cli-opts` app specific cli opts, a map associating a task name as a string to the cli options, as understood by tools.cli"
   [task-name task-specific-cli-opts]

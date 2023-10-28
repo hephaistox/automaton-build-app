@@ -6,7 +6,7 @@
 
 (defn- matches-to-output-lines
   [match-to-output-line matches]
-  (map match-to-output-line matches))
+  (mapv match-to-output-line matches))
 
 (defn save-report
   "Matches
