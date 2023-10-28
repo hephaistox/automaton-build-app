@@ -1,63 +1,69 @@
-{:paths ["src/clj"]
- :deps {metosin/malli {:mvn/version "0.13.0"}}
- :tasks {:requires [[babashka.process :as p]
-                    [automaton-build-app.tasks.clean :as build-clean]
-                    [automaton-build-app.tasks.publication :as build-publication]
-                    [automaton-build-app.tasks.test :as build-test]
-                    [automaton-build-app.tasks.code-helpers :as build-code-helpers]
-                    [babashka.fs :as fs]]
-
-         :init (do
-                 (defn- cicd?
-                   []
-                   (System/getenv "CI"))
-
-                 (defn wrap-fn
-                   "Run the function and manage
-                    Params:
-                    * `body` body to execute"
-                   [body-fn]
-                   (try
-                     (body-fn)
-                     (catch Exception e
-                       (println (format "Error during execution of `%s`, %s`" (:name (current-task)) (pr-str (ex-message e))))
-                       (if (cicd?)
-                         (println e)
-                         (let [file (fs/create-temp-file {:suffix ".edn"})]
-                           (println (format "See details in `%s`" (.toString (.toAbsolutePath file))))
-                           (spit (fs/file file) (prn-str e))
-                           ""))
-                       (System/exit 1))))
-
-                 (defn ltest []
-                   (build-test/ltest :env-development-test
-                                     :common-test))
-                 (defn lint []
-                   (build-code-helpers/lint (= "-d" (first *command-line-args*))
-                                            "src/clj"
-                                            "test/clj"))
-                 (defn repl []
-                   (build-code-helpers/repl :common-test :env-development-repl))
-
-                 (defn push []
-                   (build-publication/push (first *command-line-args*))))
-
-         clean-hard {:doc "Clean hard"
-                     :task (wrap-fn build-clean/clean-hard)}
-
-         ltest {:doc "Local test"
-                :task (wrap-fn ltest)}
-
-         lint {:doc "Lint (option -d will print details of file linted)"
-               :task (wrap-fn lint)}
-
-         repl {:doc "Repl"
-               :task (wrap-fn repl)}
-
-         push {:doc "Push this repo"
-               :task (wrap-fn push)}
-
-         gha {:doc "Github action command - is launched automatically by github"
-              :task (do
-                      (lint)
-                      (ltest))}}}
+{:deps {io.github.clojure/tools.build {:mvn/version "0.9.6"},
+        metosin/malli {:mvn/version "0.13.0"},
+        org.clojure/tools.cli {:mvn/version "1.0.219"}},
+ :paths ["src/clj" "test_la/clj"],
+ :tasks
+   {:enter (let [task-name (-> (babashka.tasks/current-task)
+                               :name
+                               str)
+                 cli-opts (build-task-helper/enter-tasks task-name {})]
+             (def execute-task
+               (partial build-task-helper/execute-task task-name cli-opts))),
+    :init (build-task-helper/init-tasks),
+    :requires [[automaton-build-app.tasks-helper :as build-task-helper]],
+    clean {:doc "Clean cache files for compiles, and logs",
+           :task (execute-task 'automaton-build-app.tasks.clean/clean)},
+    clean-hard
+      {:doc
+         "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)",
+       :task (execute-task 'automaton-build-app.tasks.clean/clean-hard)},
+    code-doc {:doc "Create the documentation of the app",
+              :task (execute-task 'automaton-build-app.tasks.doc-clj/code-doc
+                                  {:executing-pf :clj})},
+    compile-to-jar
+      {:doc "Compile that code to a jar",
+       :task (execute-task
+               'automaton-build-app.tasks.code-helpers-clj/compile-to-jar
+               {:executing-pf :clj})},
+    container-clear
+      {:doc "Clear all local containers",
+       :task
+         (execute-task
+           'automaton-build-app.tasks.container-publication/container-clean)},
+    container-list
+      {:doc "List all available containers",
+       :task
+         (execute-task
+           'automaton-build-app.tasks.container-publication/container-list)},
+    gha {:doc "Github action command - is launched automatically by github",
+         :task (execute-task 'automaton-build-app.tasks.test-clj/gha
+                             {:executing-pf :clj})},
+    gha-container-publish
+      {:doc "Update the gha container to run that app",
+       :task
+         (execute-task
+           'automaton-build-app.tasks.container-publication/push-gha-from-local)},
+    gha-lconnect {:doc "Connect to a local container running this code",
+                  :task (execute-task
+                          'automaton-build-app.tasks.test/gha-lconnect)},
+    la {:doc "Local acceptance test",
+        :task (execute-task 'automaton-build-app.tasks.test/la)},
+    lconnect {:doc "Local connect - repl",
+              :task (execute-task
+                      'automaton-build-app.tasks.code-helpers/lconnect)},
+    ltest {:doc "Local test",
+           :task (execute-task 'automaton-build-app.tasks.test/ltest)},
+    push {:doc "Push this repo",
+          :task (execute-task
+                  'automaton-build-app.tasks.publication-clj/push-from-local
+                  {:executing-pf :clj})},
+    report {:doc "Creates the reports of code analyzis",
+            :task (execute-task
+                    'automaton-build-app.tasks.code-analyze-clj/reports
+                    {:executing-pf :clj})},
+    update-deps
+      {:doc
+         "Update the dependencies, cider-nrepl and refactor are to be updated manually",
+       :task (execute-task
+               'automaton-build-app.tasks.code-helpers-clj/update-deps
+               {:executing-pf :clj})}}}
