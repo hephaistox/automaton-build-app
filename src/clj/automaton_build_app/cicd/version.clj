@@ -34,7 +34,7 @@
            older-major-version :major-version}
             version-map
           _ (println "older major versin " older-major-version)
-          minor-version (when (= older-major-version major-version)
+          minor-version (when (= older-major-version (format major-version -1))
                           (build-log/info "A new major version is detected")
                           older-minor-version)
           new-minor-version (inc (or minor-version -1))
