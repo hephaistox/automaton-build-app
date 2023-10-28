@@ -34,10 +34,15 @@
            older-major-version :major-version}
             version-map
           minor-version (when (= older-major-version major-version)
+                          (build-log/info "A new major version is detected")
                           older-minor-version)
           new-minor-version (inc (or minor-version -1))
           major-version-only (format major-version -1)
           new-version (format major-version new-minor-version)]
+      (build-log/trace-format "Major version: %s, old minor: %s, new minor %s"
+                              major-version
+                              older-minor-version
+                              minor-version)
       (build-edn-utils/spit-edn
         version-filename
         {:major-version major-version-only,
