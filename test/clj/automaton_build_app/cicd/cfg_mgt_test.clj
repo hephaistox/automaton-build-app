@@ -23,7 +23,8 @@
     (sut/push-local-dir-to-repo
       "/Users/anthonycaumond/Dev/hephaistox/monorepo/clojure/automaton/automaton_core"
       "git@github.com:hephaistox/automaton-core.git" "main"
-      "caumond/feature/core-is-autonomous_2" "Manual test")
+      "caumond/feature/core-is-autonomous_2" "Manual test"
+      "Manual test" "v-test-1.%s")
     (catch Exception e (println e)))
   (try (sut/extract-app-from-repo "git@github.com:hephaistox/monorepo.git"
                                   "git@github.com:hephaistox/automaton-core.git"
