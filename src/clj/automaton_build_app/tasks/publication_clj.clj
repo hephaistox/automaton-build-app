@@ -4,7 +4,6 @@
   (:require [automaton-build-app.app :as build-app]
             [automaton-build-app.code-helpers.formatter :as
              build-code-formatter]
-            [automaton-build-app.file-repo.clj-code :as build-clj-code]
             [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]
             [automaton-build-app.log :as build-log]))
 
@@ -19,12 +18,10 @@
   (if-let [commit-msg (get-in parsed-cli-opts [:cli-opts :options :message])]
     (let [_ (build-log/debug-format "Push local `%s` " commit-msg)
           app-data (@build-app/build-app-data_ "")
-          clj-repo (-> app-data
-                       build-app/src-dirs
-                       build-clj-code/make-clj-repo-from-dirs)
+          src-paths (build-app/src-dirs app-data)
           repo (get-in app-data [:publication :repo])
           {:keys [address branch]} repo]
-      (build-code-formatter/code-files-formatted clj-repo)
+      (apply build-code-formatter/format-all-app src-paths)
       (build-cfg-mgt/push-local-dir-to-repo
         "."
         address

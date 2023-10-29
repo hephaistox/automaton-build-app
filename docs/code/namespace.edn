@@ -1,2 +1,63 @@
-;; List of aliases referencing many namespaces Fri Oct 27 14:22:51 CEST 2023
-{}
+;; List of aliases referencing many namespaces Sun Oct 29 18:57:32 CET 2023
+{"automaton-build-app.cicd.server"
+   [[["automaton-build-app.cicd.server" "build-cicd-server"]
+     ["test/clj/automaton_build_app/cicd/cfg_mgt_test.clj"]]
+    [["automaton-build-app.cicd.server" "build-server"]
+     ["src/clj/automaton_build_app/tasks/container_publication.clj"]]],
+ "automaton-build-app.file-repo.raw"
+   [[["automaton-build-app.file-repo.raw" "build-filerepo-raw"]
+     ["src/clj/automaton_build_app/code_helpers/analyze/css.clj"
+      "src/clj/automaton_build_app/file_repo/clj_code.clj"
+      "src/clj/automaton_build_app/code_helpers/analyze/comments.clj"]]
+    [["automaton-build-app.file-repo.raw" "build-file-repo-raw"]
+     ["test/clj/automaton_build_app/file_repo/text_test.clj"
+      "test/clj/automaton_build_app/file_repo/clj_code_test.clj"]]],
+ "automaton-build-app.file-repo.text"
+   [[["automaton-build-app.file-repo.text" "build-filerepo-text"]
+     ["src/clj/automaton_build_app/code_helpers/analyze/css.clj"
+      "src/clj/automaton_build_app/code_helpers/analyze/namespace_has_one_alias.clj"
+      "src/clj/automaton_build_app/code_helpers/analyze/alias_has_one_namespace.clj"
+      "test/clj/automaton_build_app/code_helpers/analyze/css_test.clj"]]
+    [["automaton-build-app.file-repo.text" "build-text-file-repo"]
+     ["test/clj/automaton_build_app/code_helpers/analyze/comments_test.clj"]]],
+ "automaton-build-app.os.exit-codes"
+   [[["automaton-build-app.os.exit-codes" "build-exit-codes"]
+     ["src/clj/automaton_build_app/tasks/doc_clj.clj"
+      "src/clj/automaton_build_app/code_helpers/analyze/utils.clj"
+      "src/clj/automaton_build_app/tasks/container_publication.clj"
+      "src/clj/automaton_build_app/tasks_helper.clj"
+      "src/clj/automaton_build_app/tasks/test.clj"
+      "src/clj/automaton_build_app/tasks/test_clj.clj"
+      "src/clj/automaton_build_app/tasks/code_helpers_clj.clj"]]
+    [["automaton-build-app.os.exit-codes" "exit-codes"]
+     ["test_la/clj/automaton_build_app/cli_test.clj"]]],
+ "automaton-build-app.os.files"
+   [[["automaton-build-app.os.files" "build-files"]
+     ["src/clj/automaton_build_app/repl.clj"
+      "src/clj/automaton_build_app/tasks/container_publication.clj"
+      "src/clj/automaton_build_app/code_helpers/compiler.clj"
+      "src/clj/automaton_build_app/doc/code_doc.clj"
+      "src/clj/automaton_build_app/code_helpers/frontend_compiler.clj"
+      "src/clj/automaton_build_app/os/edn_utils.clj"
+      "src/clj/automaton_build_app/tasks/test.clj"
+      "src/clj/automaton_build_app/tasks/clean.clj"
+      "src/clj/automaton_build_app/doc/html.clj"
+      "src/clj/automaton_build_app/code_helpers/formatter.clj"
+      "src/clj/automaton_build_app/cicd/version.clj"
+      "src/clj/automaton_build_app/file_repo/clj_code.clj"
+      "src/clj/automaton_build_app/doc/mermaid.clj"
+      "src/clj/automaton_build_app/cicd/cfg_mgt.clj"
+      "src/clj/automaton_build_app/app.clj"
+      "src/clj/automaton_build_app/utils/namespace.clj"
+      "src/clj/automaton_build_app/code_helpers/build_config.clj"
+      "src/clj/automaton_build_app/code_helpers/bb_edn.clj"
+      "src/clj/automaton_build_app/doc/blog.clj"
+      "src/clj/automaton_build_app/containers/local_engine.clj"
+      "src/clj/automaton_build_app/containers/github_action.clj"
+      "src/clj/automaton_build_app/file_repo/text.clj"
+      "src/clj/automaton_build_app/code_helpers/code_stats.clj"
+      "test/clj/automaton_build_app/cicd/cfg_mgt_test.clj"
+      "test/clj/automaton_build_app/doc/markdown_test.clj"]]
+    [["automaton-build-app.os.files" "files"]
+     ["test/clj/automaton_build_app/code_helpers/deps_edn_test.clj"
+      "test/clj/automaton_build_app/code_helpers/bb_edn_test.clj"]]]}

@@ -2,7 +2,10 @@
   "Tests"
   (:require [automaton-build-app.app :as build-app]
             [automaton-build-app.code-helpers.lint :as build-lint]
+            [automaton-build-app.code-helpers.bb-edn :as build-bb-edn]
             [automaton-build-app.containers :as build-containers]
+            [automaton-build-app.code-helpers.frontend-compiler :as
+             build-frontend-compiler]
             [automaton-build-app.containers.github-action :as
              build-github-action]
             [automaton-build-app.la :as build-la]
@@ -61,21 +64,23 @@
                    (build-cmds/execute-and-trace ["clojure"
                                                   (apply str "-M" aliases)])
                    (or (not shadow-cljs)
-                       (build-cmds/execute-and-trace
-                         ["npm" "install"]
-                         ["npx" "shadow-cljs" "compile" "ltest"]
-                         ["npx" "karma" "start" "--single-run"])))
+                       (apply build-cmds/execute-and-trace
+                         (concat [["npm" "install"]]
+                                 (mapv (fn [build] ["npx" "shadow-cljs"
+                                                    "compile" (str build)])
+                                   (build-frontend-compiler/builds
+                                     "../automaton_web"))
+                                 [["npx" "karma" "start" "--single-run"]]))))
       (build-log/fatal "Tests have failed")
       (System/exit build-exit-codes/catch-all))))
 
 (defn la
   "Local acceptance"
   [{:keys [min-level], :as parsed-cli-args}]
-  (build-log/set-min-level! min-level)
-  (let [{:keys [la]} (@build-app/build-app-data_ "")
-        selected-tasks (get la :selected-tasks)]
-    (build-log/trace-format
-      "The following tasks are selected in configuration: %s"
-      selected-tasks)
-    (build-la/run selected-tasks
-                  (get-in parsed-cli-args [:command-line-args]))))
+  (let [task-names-in-bb (build-bb-edn/task-names "")]
+    (build-log/set-min-level! min-level)
+    (build-log/trace-format "The following tasks are found in `bb.edn`: %s"
+                            task-names-in-bb)
+    (build-la/run task-names-in-bb
+                  (get-in parsed-cli-args [:command-line-args])
+                  {})))

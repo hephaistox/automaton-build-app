@@ -15,10 +15,7 @@
                                 :deps "docs/code/deps.png",
                                 :deps-ns "docs/code/deps-ns.svg",
                                 :ns "docs/code/ns.png"}}},
- :la {:selected-tasks ["clean" "clean-hard" "code-doc" "compile-to-jar"
-                       "container-clear" "container-list" "gha" "gha-lconnect"
-                       "gha-container-publish" "ltest" "push" "report"
-                       "update-deps"]},
+ :la {},
  :lconnect {:aliases [:common-test :env-development-repl :build]},
  :ltest {:aliases [:env-development-test :common-test]},
  :monorepo {:app-dir "automaton/automaton_build_app"},

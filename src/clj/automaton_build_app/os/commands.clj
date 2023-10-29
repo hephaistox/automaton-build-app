@@ -78,7 +78,7 @@
   (vec (for [command commands] (create-process command trace? string?))))
 
 (defn execute-and-trace
-  "Execute the commands and trace their result
+  "Execute the commands and trace their result in the log
   Note that if the last parameter is a map, it is recognized as options. If you need to pass a map as a param (for a clojure -X for instance), just add the optional map to the caller
 
   Params:

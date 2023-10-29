@@ -65,12 +65,22 @@
 (defn load-shadow-cljs
   "Read the shadow-cljs of an app
   Params:
-  * `dir` the directory where to
+  * `app-dir` the directory of the application
   Returns the content as data structure"
-  [dir]
-  (let [shadow-filepath (build-files/create-file-path dir shadow-cljs-edn)]
+  [app-dir]
+  (let [shadow-filepath (build-files/create-file-path app-dir shadow-cljs-edn)]
     (when (build-files/is-existing-file? shadow-filepath)
       (build-edn-utils/read-edn shadow-filepath))))
+
+(defn builds
+  "List build setup in the application
+  Params:
+  * `app-dir`"
+  [app-dir]
+  (some-> (load-shadow-cljs app-dir)
+          (get :builds)
+          keys
+          vec))
 
 (defn create-size-optimization-report
   "Create a report on size-optimization

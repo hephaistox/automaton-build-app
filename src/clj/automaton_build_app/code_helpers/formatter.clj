@@ -14,13 +14,17 @@
   * `filename` to format
   * `header` (optional) is written at the top of the file"
   ([filename header]
-   (let [format-content (slurp filename)]
-     (build-files/spit-file
-       filename
-       (apply str
-         [(when (and (string? header) (not (str/blank? header)))
-            (print-str ";;" header (build-time/now-str) "\n")) format-content]))
-     (build-cmds/execute-and-trace ["zprint" "-w" filename])))
+   (if (build-files/is-existing-file? filename)
+     (let [format-content (slurp filename)]
+       (build-files/spit-file
+         filename
+         (apply str
+           [(when (and (string? header) (not (str/blank? header)))
+              (print-str ";;" header (build-time/now-str) "\n"))
+            format-content]))
+       (build-cmds/execute-and-trace ["zprint" "-w" filename]))
+     (build-log/warn-format "Can't format file `%s` as it's not found"
+                            filename)))
   ([filename] (format-file filename nil)))
 
 (defn code-files-formatted
@@ -38,15 +42,27 @@
 
   Is the equivalent of manually run `d * -e clj -e cljs -e cljc -e edn -x zprint -w {}`
   Params:
-  * src-paths list of directories to analyze
-  "
+  * src-paths list of directories to analyze"
   [& src-paths]
-  (build-log/info "Format clojure files in directories `%s`" src-paths)
+  (build-log/info-format "Format clojure files in directories `%s`" src-paths)
   (let [extensions-to-parse (interleave
                               (repeat "-e")
                               (map (fn [s] (subs s 1))
                                 build-clj-code/all-reader-extensions))]
     (doseq [src-path src-paths]
-      (build-cmds/execute-and-trace (concat ["fd" (format "`%s`" src-path)]
+      (build-cmds/execute-and-trace (concat ["fd"]
                                             extensions-to-parse
-                                            ["-x" "zprint" "-w" "{}"])))))
+                                            ["-F" "." src-path "-x" "zprint"
+                                             "-w" "{}"])))))
+
+(defn format-all-app
+  "Scan all applications file to
+  Params:
+  * `src-paths`"
+  [& src-paths]
+  (format-file "bb.edn")
+  (format-file "build_config.edn")
+  (format-file "deps.edn")
+  (format-file "shadow-cljs.edn")
+  (format-file "version.edn")
+  (apply format-dir src-paths))

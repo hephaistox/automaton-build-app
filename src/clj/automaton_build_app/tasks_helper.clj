@@ -3,10 +3,13 @@
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
             [automaton-build-app.code-helpers.update-deps :as build-update-deps]
+            [automaton-build-app.bb-tasks :as build-bb-tasks]
             [automaton-build-app.os.exit-codes :as build-exit-codes]
             [babashka.fs :as fs]
             [clojure.pprint :as pp]
-            [clojure.tools.cli :refer [parse-opts]]))
+            [clojure.tools.cli :refer [parse-opts]]
+            [automaton-build-app.code-helpers.build-config :as
+             build-build-config]))
 
 (defn- assemble-opts
   "Assemble task specific options and common cli options"
@@ -109,6 +112,9 @@
   * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
   ([task-name cli-opts body-fn {:keys [executing-pf], :or {executing-pf :bb}}]
    (build-update-deps/update-bb-deps "")
+   (build-bb-tasks/update-bb-tasks
+     ""
+     (build-build-config/read-param [:bb-tasks] build-bb-tasks/all-tasks))
    (try (build-log/info-format "Run %s task" task-name)
         (dispatch task-name body-fn executing-pf cli-opts)
         (catch Exception e

@@ -23,4 +23,4 @@
   (let [app-dir ""
         app-data (@build-app/build-app-data_ app-dir)
         src-paths (build-app/src-dirs app-data)]
-    (apply build-formatter/format-dir src-paths)))
+    (apply build-formatter/format-all-app src-paths)))

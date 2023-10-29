@@ -2,29 +2,8 @@
   "Test all the cli that they returns `0` exit code"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
+            [automaton-build-app.bb-tasks :as build-bb-tasks]
             [automaton-build-app.os.exit-codes :as exit-codes]))
-
-(def cmds-to-test
-  "List of commands to test"
-  [{:cmd ["bb" "blog"], :cmd-name "blog"}
-   {:cmd ["bb" "clean"], :cmd-name "clean"}
-   {:cmd ["bb" "clean-hard"], :process-opts {:in "q"}, :cmd-name "clean-hard"}
-   {:cmd ["bb" "code-doc"], :cmd-name "code-doc"}
-   {:cmd ["bb" "compile-to-jar"], :cmd-name "compile-to-jar"}
-   {:cmd ["bb" "container-list"], :cmd-name "container-list"}
-   {:cmd ["bb" "container-clear"], :cmd-name "container-clear"}
-   {:cmd ["bb" "gha"], :cmd-name "gha", :expected-exit-code 1}
-   {:cmd ["bb" "gha" "-f" :cmd-name "blog"]}
-   {:cmd ["bb" "gha-lconnect"],
-    :process-opts {:in "exit\n"},
-    :cmd-name "gha-lconnect",
-    :skip? true} {:cmd ["bb" "lconnect"], :cmd-name "lconnect", :skip? true}
-   {:cmd ["bb" "la"], :cmd-name "la", :skip? true}
-   {:cmd ["bb" "ltest"], :cmd-name "ltest"}
-   {:cmd ["bb" "publish" "-t" "v-test"], :cmd-name "publish", :skip? true}
-   {:cmd ["bb" "push" "-m" "la" "-t" "la"], :cmd-name "push", :skip? true}
-   {:cmd ["bb" "report"], :cmd-name "report"}
-   {:cmd ["bb" "updated-deps"], :cmd-name "updated-deps", :skip? true}])
 
 (defn select-tasks
   "Select the tasks executed by a cli - as each app may have its varians
@@ -68,10 +47,12 @@
   * `cmd-line-args` command line arguments
   * `map-cmd` map of the command to execute"
   [cmd-line-args
-   {:keys [cmd expected-exit-code skip? process-opts],
-    :or {expected-exit-code exit-codes/ok},
-    :as _map-cmd}]
-  (let [expanded-cmd (build-cmds/expand-cmd cmd)]
+   [_task-name
+    {:keys [la-test expected-exit-code skip? process-opts],
+     :or {expected-exit-code exit-codes/ok},
+     :as _map-cmd}]]
+  (let [cmd (get la-test :cmd)
+        expanded-cmd (build-cmds/expand-cmd cmd)]
     (if skip?
       [true #(build-log/warn-format "Skip `%s` " expanded-cmd)]
       (do (build-log/info-format "Test cmd `%s`:" expanded-cmd)
@@ -92,7 +73,7 @@
 (defn cli-test
   "Test to execute
   Params:
-  * `cmds-to-test` collection of maps defining the command to execute
+  * `cmds-to-test` collection of maps defining the tasks to execute (should comply to automaton-build-app.bb-tasks/registry-schema)
   * `cli-args` arguments of the cli - useful to keep that setup in the called bb tasks"
   [cmds-to-test cli-args]
   (let [results (mapv (comp exec-and-return (partial test-cli-cmd cli-args))
@@ -105,6 +86,6 @@
           (System/exit exit-codes/catch-all)))))
 
 (comment
-  (cli-test cmds-to-test {})
+  (cli-test build-bb-tasks/registry {})
   ;
 )

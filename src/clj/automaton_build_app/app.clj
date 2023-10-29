@@ -26,8 +26,8 @@
    [:lconnect {:optional true}
     [:map {:closed true} [:aliases [:vector :keyword]]]]
    [:ltest {:optional true} [:map {:closed true} [:aliases [:vector :keyword]]]]
-   [:la {:optional true}
-    [:map {:closed true} [:selected-tasks [:vector :string]]]]
+   [:la {:optional true} [:map {:closed true}]]
+   [:bb-tasks {:optional true} [:vector :string]]
    [:customer-materials {:optional true}
     [:map {:closed true} [:html-dir :string] [:dir :string] [:pdf-dir :string]]]
    [:container-repo {:optional true} [:map {:closed true} [:account :string]]]
@@ -135,6 +135,6 @@
   [app]
   (->> (concat (clj-compiler-classpath app true) (cljs-compiler-classpaths app))
        dedupe
-       (filter #(re-find #"src" %))
+       (filter (fn [path] (not (contains? #{"resources"} path))))
        sort
        (into [])))
