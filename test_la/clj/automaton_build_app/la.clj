@@ -1,6 +1,5 @@
 (ns automaton-build-app.la
-  (:require
-   [automaton-build-app.cli-test :as build-cli-test]))
+  (:require [automaton-build-app.cli-test :as build-cli-test]))
 
 (defn run
   "Defines tests to run"
@@ -10,5 +9,5 @@
 
 (comment
   (run ["clean"] {})
-;
-  )
+  ;
+)

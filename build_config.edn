@@ -1,32 +1,37 @@
-{:monorepo {:app-dir "automaton/automaton_build_app"}
- :publication {:repo {:address "git@github.com:hephaistox/automaton-build-app.git"
-                      :branch "main"}
-               :as-lib hephaistox/automaton-build-app
-               :major-version "0.0.%d"
-               :gha-container {:repo-url "git@github.com:hephaistox/gha_image.git"
-                               :repo-branch "main"
-                               :account "hephaistox"
-                               :workflows [[".github/workflows/commit_validation.yml" "gha-automaton-build-app"]]}
-               :jar {:class-dir "target/classes"
-                     :excluded-aliases #{}
-                     :target-filename "target/%s-%s.jar"}}
- :lconnect {:aliases [:common-test :env-development-repl :build]}
- :ltest {:aliases [:env-development-test :common-test]}
- :la {:selected-tasks ["clean" "clean-hard" "code-doc" "compile-to-jar" "container-clear" "container-list" "gha" "gha-lconnect" "gha-container-publish" "ltest" "push" "report" "update-deps"]}
- :customer-materials {:html-dir "tmp/html"
-                      :dir "customer_materials"
-                      :pdf-dir "tmp/pdf"}
- :doc {:dir "docs"
-       :archi {:dir "docs/archi/"}
-       :code-stats {:output-file "docs/code/stats.md"}
-       :reports {:output-files {:comments "docs/code/comments.edn"
-                                :alias "docs/code/alias.edn"
-                                :css "docs/code/css.edn"
-                                :deps-ns "docs/code/deps-ns.svg"
-                                :deps "docs/code/deps.png"
-                                :ns "docs/code/ns.png"}}
-       :code-doc {:dir "docs/code"
-                  :title "Build app automaton"
-                  :description "Build an hephaistox app"}}
- :clean {:compile-logs-dirs [".cpcache" ".clj-kondo/.cache" "tmp" ".DS_Store" "target"]}
- :app-name "automaton-build-app"}
+{:app-name "automaton-build-app",
+ :clean {:compile-logs-dirs [".cpcache" ".clj-kondo/.cache" "tmp" ".DS_Store"
+                             "target"]},
+ :customer-materials
+   {:dir "customer_materials", :html-dir "tmp/html", :pdf-dir "tmp/pdf"},
+ :doc {:archi {:dir "docs/archi/"},
+       :code-doc {:description "Build an hephaistox app",
+                  :dir "docs/code",
+                  :title "Build app automaton"},
+       :code-stats {:output-file "docs/code/stats.md"},
+       :dir "docs",
+       :reports {:output-files {:alias "docs/code/alias.edn",
+                                :comments "docs/code/comments.edn",
+                                :css "docs/code/css.edn",
+                                :deps "docs/code/deps.png",
+                                :deps-ns "docs/code/deps-ns.svg",
+                                :ns "docs/code/ns.png"}}},
+ :la {:selected-tasks ["clean" "clean-hard" "code-doc" "compile-to-jar"
+                       "container-clear" "container-list" "gha" "gha-lconnect"
+                       "gha-container-publish" "ltest" "push" "report"
+                       "update-deps"]},
+ :lconnect {:aliases [:common-test :env-development-repl :build]},
+ :ltest {:aliases [:env-development-test :common-test]},
+ :monorepo {:app-dir "automaton/automaton_build_app"},
+ :publication
+   {:as-lib hephaistox/automaton-build-app,
+    :gha-container {:account "hephaistox",
+                    :repo-branch "main",
+                    :repo-url "git@github.com:hephaistox/gha_image.git",
+                    :workflows [[".github/workflows/commit_validation.yml"
+                                 "gha-automaton-build-app"]]},
+    :jar {:class-dir "target/classes",
+          :excluded-aliases #{},
+          :target-filename "target/%s-%s.jar"},
+    :major-version "0.0.%d",
+    :repo {:address "git@github.com:hephaistox/automaton-build-app.git",
+           :branch "main"}}}

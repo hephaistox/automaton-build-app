@@ -4,5 +4,4 @@
 
 (deftest unguessable
   (testing "check that generates proper uuid"
-    (is (every? uuid?
-                (repeatedly 10 #(sut/time-based-uuid))))))
+    (is (every? uuid? (repeatedly 10 #(sut/time-based-uuid))))))

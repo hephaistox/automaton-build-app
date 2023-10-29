@@ -1,10 +1,8 @@
 (ns automaton-build-app.containers.local-engine-test
-  (:require
-   [automaton-build-app.containers.local-engine :as sut]
-   [clojure.test :refer [deftest is testing]]))
+  (:require [automaton-build-app.containers.local-engine :as sut]
+            [clojure.test :refer [deftest is testing]]))
 
 (deftest container-installed?-test
   (testing "Detect non existing command"
     (is (not (sut/container-installed?* "non-existing-command"))))
-  (testing "Detect existing command"
-    (is (sut/container-installed?* "echo"))))
+  (testing "Detect existing command" (is (sut/container-installed?* "echo"))))

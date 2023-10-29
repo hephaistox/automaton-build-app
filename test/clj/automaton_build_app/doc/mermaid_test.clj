@@ -1,8 +1,7 @@
 (ns automaton-build-app.doc.mermaid-test
-  (:require
-   [automaton-build-app.doc.mermaid :as sut]
-   [automaton-build-app.os.edn-utils :as build-edn-utils]
-   [clojure.test :refer [deftest is testing]]))
+  (:require [automaton-build-app.doc.mermaid :as sut]
+            [automaton-build-app.os.edn-utils :as build-edn-utils]
+            [clojure.test :refer [deftest is testing]]))
 
 (deftest need-to-update?
   (let [older-test-file (build-edn-utils/create-tmp-edn "older-test-file")
@@ -19,7 +18,5 @@
       (is (not (sut/need-to-update? (str older-test-file ".mermaid")
                                     newer-test-file))))
     (testing "Whatever the age, non mermaid files are ignored"
-      (is (not (sut/need-to-update? (str newer-test-file)
-                                    older-test-file)))
-      (is (not (sut/need-to-update? (str older-test-file)
-                                    newer-test-file))))))
+      (is (not (sut/need-to-update? (str newer-test-file) older-test-file)))
+      (is (not (sut/need-to-update? (str older-test-file) newer-test-file))))))

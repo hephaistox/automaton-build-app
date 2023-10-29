@@ -1,25 +1,22 @@
 (ns automaton-build-app.file-repo.text-test
-  (:require
-   [automaton-build-app.file-repo.text :as sut]
-   [automaton-build-app.file-repo.raw :as build-file-repo-raw]
-   [clojure.test :refer [deftest is testing]]
-   [clojure.string :as str]))
+  (:require [automaton-build-app.file-repo.text :as sut]
+            [automaton-build-app.file-repo.raw :as build-file-repo-raw]
+            [clojure.test :refer [deftest is testing]]
+            [clojure.string :as str]))
 
 (def files-to-test
   "Should be a list of existing files in all context where that tests are run
 with at least two lines in it"
   ["build_config.edn" "bb.edn"])
 
-(def text-file-repo
-  (sut/make-text-file-repo files-to-test))
+(def text-file-repo (sut/make-text-file-repo files-to-test))
 
 (deftest exclude-files-test
   (testing "The core map is returned"
-    (is (map? (build-file-repo-raw/exclude-files text-file-repo
-                                                 #{})))
-    (is (= 1 (count
-              (build-file-repo-raw/exclude-files text-file-repo
-                                                 #{"build_config.edn"}))))))
+    (is (map? (build-file-repo-raw/exclude-files text-file-repo #{})))
+    (is (= 1
+           (count (build-file-repo-raw/exclude-files text-file-repo
+                                                     #{"build_config.edn"}))))))
 
 (deftest file-repo-map-test
   (testing "The core map is returned"
@@ -36,8 +33,7 @@ with at least two lines in it"
 
 (deftest nb-files-test
   (testing "2 files of files-to-test are found"
-    (is (= 2
-           (build-file-repo-raw/nb-files text-file-repo)))))
+    (is (= 2 (build-file-repo-raw/nb-files text-file-repo)))))
 
 (deftest filter-by-extension-test
   (testing ""
@@ -52,8 +48,7 @@ with at least two lines in it"
            (-> text-file-repo
                build-file-repo-raw/file-repo-map
                count)))
-    (is (every? (fn [file-content]
-                  (<= 1 (count file-content)))
+    (is (every? (fn [file-content] (<= 1 (count file-content)))
                 (->> text-file-repo
                      build-file-repo-raw/file-repo-map
                      vals)))))

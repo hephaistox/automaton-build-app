@@ -18,6 +18,10 @@
    :code [".clj" ".cljc" ".cljs"],
    :reader [".clj" ".cljc" ".cljs" ".edn"]})
 
+(def all-reader-extensions
+  "All extensions understood by a clojure reader"
+  (get usage-to-extension :reader))
+
 (defonce ^:private glob-code-extensions
   (format "**{%s}" (str/join "," (:reader usage-to-extension))))
 
@@ -78,4 +82,3 @@
                       build-filerepo-text/make-text-file-map))
                 dirs)
         ->CljCodeFileRepo)))
-

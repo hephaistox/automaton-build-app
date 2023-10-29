@@ -35,6 +35,9 @@
        :task
          (execute-task
            'automaton-build-app.tasks.container-publication/container-list)},
+    format {:doc "Format the whole documentation",
+            :task (execute-task
+                    'automaton-build-app.tasks.code-helpers/format-all)},
     gha {:doc "Github action command - is launched automatically by github",
          :task (execute-task 'automaton-build-app.tasks.test-clj/gha
                              {:executing-pf :clj})},

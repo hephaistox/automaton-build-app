@@ -32,3 +32,21 @@
         formattings (map format-file (keys clj-files))]
     (build-log/info "Files formatted")
     (every? some? formattings)))
+
+(defn format-dir
+  "Source paths format directory
+
+  Is the equivalent of manually run `d * -e clj -e cljs -e cljc -e edn -x zprint -w {}`
+  Params:
+  * src-paths list of directories to analyze
+  "
+  [& src-paths]
+  (build-log/info "Format clojure files in directories `%s`" src-paths)
+  (let [extensions-to-parse (interleave
+                              (repeat "-e")
+                              (map (fn [s] (subs s 1))
+                                build-clj-code/all-reader-extensions))]
+    (doseq [src-path src-paths]
+      (build-cmds/execute-and-trace (concat ["fd" (format "`%s`" src-path)]
+                                            extensions-to-parse
+                                            ["-x" "zprint" "-w" "{}"])))))
