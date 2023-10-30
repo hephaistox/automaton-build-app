@@ -37,20 +37,18 @@
 
 (defn vizualize-ns
   "Vizualise all namespaces relations"
-  [reports]
-  (build-log/info "Vizualization of ns - deps link")
-  (let [output-filename
-          (get-in reports [:output-files :deps-ns] "docs/code/deps-ns.svg")]
-    (build-files/create-parent-dirs output-filename)
-    (vizns/-main "single" "-o" output-filename "-f" "svg"))
+  [deps-filename]
+  (build-log/info "Graph of ns - deps link")
+  (build-log/trace-format "Graph stored in `%s`" deps-filename)
+  (build-files/create-parent-dirs deps-filename)
+  (vizns/-main "single" "-o" deps-filename "-f" "svg")
   true)
 
 (defn vizualize-deps
   "Vizualize the dependencies between deps"
-  [reports]
-  (build-log/info "Graph of dependencies")
-  (let [output-filename
-          (get-in reports [:output-files :deps] "docs/code/deps.svg")]
-    (build-files/create-parent-dirs output-filename)
-    (tools-deps-graph/graph {:output output-filename}))
+  [output-filename]
+  (build-log/info "Graph of deps")
+  (build-log/trace-format "Graph stored in `%s`" output-filename)
+  (build-files/create-parent-dirs output-filename)
+  (tools-deps-graph/graph {:output output-filename})
   true)

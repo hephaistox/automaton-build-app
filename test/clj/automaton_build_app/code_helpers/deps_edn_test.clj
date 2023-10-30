@@ -1,9 +1,9 @@
 (ns automaton-build-app.code-helpers.deps-edn-test
   (:require [automaton-build-app.code-helpers.deps-edn :as sut]
-            [automaton-build-app.os.files :as files]
+            [automaton-build-app.os.files :as build-files]
             [clojure.test :refer [deftest is testing]]))
 
-(def tmp-dir (files/create-temp-dir))
+(def tmp-dir (build-files/create-temp-dir))
 
 (deftest get-deps-filename-test
   (testing "Get deps is working"

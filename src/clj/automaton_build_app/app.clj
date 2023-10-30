@@ -38,7 +38,7 @@
      [:archi [:map {:closed true} [:dir :string]]]
      [:reports [:map {:closed true} [:output-files [:map-of :keyword :string]]]]
      [:code-stats [:map {:closed true} [:output-file :string]]]
-     [:code-doc
+     [:code-doc {:optional true}
       [:map {:closed true} [:dir :string] [:title :string]
        [:description :string]]]]]
    [:clean [:map {:closed true} [:compile-logs-dirs [:vector :string]]]]

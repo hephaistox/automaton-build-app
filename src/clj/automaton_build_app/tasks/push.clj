@@ -1,18 +1,14 @@
-(ns automaton-build-app.tasks.publication-clj
-  "For one application publication to its configuration management
-  The source is the local files"
+(ns automaton-build-app.tasks.push
   (:require [automaton-build-app.app :as build-app]
             [automaton-build-app.code-helpers.formatter :as
              build-code-formatter]
             [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]
             [automaton-build-app.log :as build-log]))
 
-(defn push-from-local
-  "Push the current repository.
-  Use with care, as source of truth is the monorepo commits
-  Params:
-  * `commit-msg` commit message
-  * `tag-msg` tag message"
+(defn push
+  "Push the current repository from the local repository
+
+  Use with care, as source of truth is the monorepo commits"
   [{:keys [min-level], :as parsed-cli-opts}]
   (build-log/set-min-level! min-level)
   (if-let [commit-msg (get-in parsed-cli-opts [:cli-opts :options :message])]

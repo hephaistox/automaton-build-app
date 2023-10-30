@@ -251,3 +251,16 @@
     (is (= 1
            (count (sut/filter-existing-dir [".clj-kondo"
                                             "non-existing-dir-filtered"]))))))
+
+(deftest search-in-parents-test
+  (testing "Search in current dir is ok"
+    (is (= (sut/absolutize "")
+           (sut/search-in-parents (sut/absolutize "") "bb.edn"))))
+  (testing "Search in current dir is ok"
+    (is (= (sut/absolutize "")
+           (sut/search-in-parents (sut/absolutize "src/clj") "bb.edn"))))
+  (testing "Search in current dir the src directory"
+    (is (= (sut/absolutize "")
+           (sut/search-in-parents (sut/absolutize "") "src"))))
+  (testing "Non existing file return nil"
+    (is (nil? (sut/search-in-parents "" "non-existing-file")))))

@@ -25,14 +25,18 @@
 
 (defn update-bb-edn
   "Update the `bb-edn` with the mono file with the file parameter, keep :tasks and :init keys and refresh aliases with tasks content
+  Returns true iif the file has changed
+
   Params:
   * `app-dir` name of the dir where the bb.edn is
   * `update-bb-edn-fn` updater function taking bb.edn content as a paramter and returning the new content to save"
   [app-dir update-bb-edn-fn]
   (let [bb-edn-filename-fullpath (bb-edn-filename-fullpath app-dir)
-        updated-bb-edn (-> (read-bb-edn app-dir)
+        bb-edn-content (read-bb-edn app-dir)
+        updated-bb-edn (-> bb-edn-content
                            update-bb-edn-fn)]
-    (build-edn-utils/spit-edn bb-edn-filename-fullpath updated-bb-edn)))
+    (when-not (= updated-bb-edn bb-edn-content)
+      (build-edn-utils/spit-edn bb-edn-filename-fullpath updated-bb-edn))))
 
 (defn task-names
   [app-dir]

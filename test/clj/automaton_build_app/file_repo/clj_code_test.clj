@@ -1,6 +1,6 @@
 (ns automaton-build-app.file-repo.clj-code-test
   (:require [automaton-build-app.file-repo.clj-code :as sut]
-            [automaton-build-app.file-repo.raw :as build-file-repo-raw]
+            [automaton-build-app.file-repo.raw :as build-filerepo-raw]
             [clojure.test :refer [deftest is testing]]))
 
 (def clj-repo-stub (sut/make-clj-repo-from-dirs [""]))
@@ -19,7 +19,7 @@
 
 (comment
   (prn (-> (sut/filter-by-usage (sut/make-clj-repo-from-dirs [""]) :reader)
-           build-file-repo-raw/file-repo-map
+           build-filerepo-raw/file-repo-map
            keys))
   ;
 )
@@ -28,19 +28,19 @@
   (testing "test repos for edn"
     (is (< 0
            (-> (sut/make-clj-repo-from-dirs [""] :edn)
-               build-file-repo-raw/file-repo-map
+               build-filerepo-raw/file-repo-map
                keys
                count))))
   (testing "test repos for clj"
     (is (< 0
            (-> (sut/make-clj-repo-from-dirs [""] :clj)
-               build-file-repo-raw/file-repo-map
+               build-filerepo-raw/file-repo-map
                keys
                count))))
   (testing "test to optional value :reader"
     (is (< 30
-           (count (build-file-repo-raw/file-repo-map
-                    (sut/make-clj-repo-from-dirs [""])))))))
+           (count (build-filerepo-raw/file-repo-map (sut/make-clj-repo-from-dirs
+                                                      [""])))))))
 
 (comment
   (-> (sut/make-clj-repo-from-dirs ["src" "test"] :clj)

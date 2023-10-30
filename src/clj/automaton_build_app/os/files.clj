@@ -42,7 +42,8 @@
             dir (-> dir
                     (str/replace (str file-separator file-separator)
                                  (str file-separator))
-                    (str/replace (str file-separator ".") ""))]
+                    (str/replace (str file-separator "." file-separator)
+                                 file-separator))]
         (if (= old-dir dir) dir (recur dir))))))
 
 (defn create-file-path
@@ -370,3 +371,21 @@
   [& filename]
   (-> (fs/create-temp-file {:suffix (apply str filename)})
       str))
+
+(defn search-in-parents
+  "Search in parents directories
+  Params:
+  * `dir` starting point for the search
+  * `file-or-dir` file or directory to search for"
+  [dir file-or-dir]
+  (loop [dir (absolutize dir)]
+    (let [file-candidate (create-file-path (str dir) file-or-dir)]
+      (if (fs/exists? file-candidate)
+        dir
+        (when-not (str/blank? dir) (recur (str (fs/parent dir))))))))
+
+(defn make-executable
+  "Make a file executable"
+  [filename]
+  (when (is-existing-file? filename)
+    (fs/set-posix-file-permissions filename (fs/str->posix "rwx------"))))

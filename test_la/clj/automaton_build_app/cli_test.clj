@@ -3,7 +3,7 @@
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
             [automaton-build-app.bb-tasks :as build-bb-tasks]
-            [automaton-build-app.os.exit-codes :as exit-codes]))
+            [automaton-build-app.os.exit-codes :as build-exit-codes]))
 
 (defn select-tasks
   "Select the tasks executed by a cli - as each app may have its varians
@@ -46,12 +46,11 @@
   Params:
   * `cmd-line-args` command line arguments
   * `map-cmd` map of the command to execute"
-  [cmd-line-args
-   [_task-name
-    {:keys [la-test expected-exit-code skip? process-opts],
-     :or {expected-exit-code exit-codes/ok},
-     :as _map-cmd}]]
-  (let [cmd (get la-test :cmd)
+  [cmd-line-args [_task-name {:keys [la-test], :as _map-cmd}]]
+  (build-log/trace "Test is la-test" la-test)
+  (let [{:keys [skip? process-opts cmd expected-exit-code],
+         :or {expected-exit-code build-exit-codes/ok}}
+          la-test
         expanded-cmd (build-cmds/expand-cmd cmd)]
     (if skip?
       [true #(build-log/warn-format "Skip `%s` " expanded-cmd)]
@@ -71,7 +70,7 @@
   [passed? display-return-fn])
 
 (defn cli-test
-  "Test to execute
+  "Test cli commands (through bb commands for instance)
   Params:
   * `cmds-to-test` collection of maps defining the tasks to execute (should comply to automaton-build-app.bb-tasks/registry-schema)
   * `cli-args` arguments of the cli - useful to keep that setup in the called bb tasks"
@@ -83,7 +82,7 @@
     (if (every? first results)
       (build-log/info "All tests passed")
       (do (build-log/error "Errors found")
-          (System/exit exit-codes/catch-all)))))
+          (System/exit build-exit-codes/catch-all)))))
 
 (comment
   (cli-test build-bb-tasks/registry {})

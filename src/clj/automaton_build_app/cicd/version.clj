@@ -23,18 +23,22 @@
 (defn version-from-edn-to-push
   "Build the string of the version to be pushed (the next one)
   Params:
-  * `dir` directory of the version to count
+  * `app-dir` directory of the version to count
   * `major-version`"
-  [dir major-version]
+  [app-dir major-version]
   (if major-version
-    (let [version-filename (build-files/create-file-path dir "version.edn")
-          version-map (build-edn-utils/read-edn version-filename)
+    (let [version-filename (build-files/create-file-path app-dir "version.edn")
           {_version :version,
            older-minor-version :minor-version,
            older-major-version :major-version}
-            version-map
-          minor-version (when (= older-major-version (format major-version -1))
+            (build-edn-utils/read-edn version-filename)
+          minor-version (when-not (= older-major-version
+                                     (format major-version -1))
                           (build-log/info "A new major version is detected")
+                          (build-log/trace-format "Older major version is `%s`"
+                                                  older-major-version)
+                          (build-log/trace-format "Newer major version is `%s`"
+                                                  (format major-version -1))
                           older-minor-version)
           new-minor-version (inc (or minor-version -1))
           major-version-only (format major-version -1)

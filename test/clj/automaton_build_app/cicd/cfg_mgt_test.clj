@@ -2,7 +2,8 @@
   (:require [automaton-build-app.cicd.cfg-mgt :as sut]
             [automaton-build-app.cicd.server :as build-cicd-server]
             [clojure.test :refer [deftest is testing]]
-            [automaton-build-app.os.files :as build-files]))
+            [automaton-build-app.os.files :as build-files]
+            [clojure.string :as str]))
 
 (deftest git-installed?*-test
   (when-not (build-cicd-server/is-cicd?)
@@ -35,3 +36,8 @@
        (catch Exception e (println e)))
   ;
 )
+
+(deftest find-git-repo-test
+  (testing "The current code should be in a git repo"
+    (when-not (build-cicd-server/is-cicd?)
+      (is (not (str/blank? (sut/find-git-repo "")))))))

@@ -60,9 +60,7 @@
   Params:
   * `src-paths`"
   [& src-paths]
-  (format-file "bb.edn")
-  (format-file "build_config.edn")
-  (format-file "deps.edn")
-  (format-file "shadow-cljs.edn")
-  (format-file "version.edn")
+  (doseq [file ["bb.edn" "build_config.edn" "deps.edn" "shadow-cljs.edn"
+                "version.edn"]]
+    (when (build-files/is-existing-file? file) (format-file file)))
   (apply format-dir src-paths))

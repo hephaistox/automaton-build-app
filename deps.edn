@@ -30,7 +30,12 @@
           "-Dhephaistox-in-test=true"
           "-Dlog4j.configurationFile=resources/log_config/appenders.properties,resources/log_config/logging-tests.properties"],
        :main-opts ["-m" "cognitect.test-runner" "-r" ".*-test.*" "-d"
-                   "test/clj"]}},
+                   "test/clj"]},
+    :user/vizns {:deps {io.dominic/vizns
+                          {:git/url
+                             "https://github.com/SevereOverfl0w/vizns.git",
+                           :sha "69774e8c29e1c1c691f9922d5c5a6d764374ada3"}},
+                 :main-opts ["-m" "io.dominic.vizns.core"]}},
  :deps {babashka/fs {:mvn/version "0.4.19"},
         babashka/process {:mvn/version "0.5.21"},
         clj-htmltopdf/clj-htmltopdf {:mvn/version "0.2.1"},

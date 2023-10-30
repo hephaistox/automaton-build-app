@@ -328,3 +328,24 @@
                  commit-msg
                  tag-msg
                  version)))))))))
+
+(defn find-git-repo
+  "Search in the parent directories if
+  Params:
+  * `dir` directory where to start the search"
+  [dir]
+  (build-files/search-in-parents dir ".git"))
+
+(defn spit-hook
+  "Spit the `content` in the hook called `hook-name`
+  Params:
+  * `app-dir` will search in git repository here or in the first parent which is a repo
+  * `hook-name`
+  * `content`"
+  [app-dir hook-name content]
+  (let [hook-filename
+          (-> (find-git-repo app-dir)
+              (build-files/create-file-path ".git" "hooks" hook-name))]
+    (build-log/trace-format "Creating hook `%s`" hook-filename)
+    (build-files/spit-file hook-filename content)
+    (build-files/make-executable hook-filename)))

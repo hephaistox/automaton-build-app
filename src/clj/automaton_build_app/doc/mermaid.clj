@@ -40,14 +40,16 @@
   Params:
   * `archi-dir` Directory where all `.mermaid` extension files are turned into `.svg` files"
   [archi-dir]
-  (build-log/debug-format "Build if needed all files in `%s`" archi-dir)
-  (build-all-files* archi-dir))
+  (build-log/debug-format "Build mermaid files in `%s`" archi-dir)
+  (build-all-files* archi-dir)
+  true)
 
 (defn watch
   "Watch the docs directory to build mermaid images
   * `archi-dir` is the directory to watch"
   [archi-dir]
-  (build-log/info "Start watching docs directory in " archi-dir)
+  (build-log/info-format "Start watching mermaid files in directory `%s` "
+                         archi-dir)
   (loop []
     (build-all-files* archi-dir)
     (Thread/sleep 1000)

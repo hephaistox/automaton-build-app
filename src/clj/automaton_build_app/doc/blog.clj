@@ -81,6 +81,7 @@
 (defn blog-process
   "Process all customer materials directory as set in the configuration file"
   [customer-materials-dir output-html-dir output-pdf-dir]
+  (build-log/info "Start to process blog files")
   (build-log/trace-map "Blog is processing all files in the following dirs"
                        :customer-materials-dir customer-materials-dir
                        :output-html-dir output-html-dir
@@ -89,25 +90,28 @@
                                                     "**.edn")]
     (build-log/debug-format "Process configuration files %s" blog-config-files)
     (if (empty? blog-config-files)
-      (doseq [blog-config-file blog-config-files]
-        (build-log/trace-format
-          "Process `%s blog configuration file` blog-config-file")
-        (let [configuration-data (configuration-data blog-config-file
-                                                     output-html-dir
-                                                     output-pdf-dir)]
-          (doseq [{:keys [pdf-path html-path md-path]} configuration-data]
-            (if (and (build-files/modified-since blog-config-file
-                                                 [pdf-path html-path])
-                     (build-files/modified-since md-path [pdf-path html-path]))
-              (build-log/trace-format "Blog files `%s` and `%s` are uptodate"
-                                      pdf-path
-                                      html-path)
-              (do (build-log/debug-format
-                    "Blog file `%s` and `%s` are regenerated from `%s`"
+      (do (build-log/warn "No blog file found") false)
+      (do (doseq [blog-config-file blog-config-files]
+            (build-log/trace-format
+              "Process `%s blog configuration file` blog-config-file")
+            (let [configuration-data (configuration-data blog-config-file
+                                                         output-html-dir
+                                                         output-pdf-dir)]
+              (doseq [{:keys [pdf-path html-path md-path]} configuration-data]
+                (if (and (build-files/modified-since blog-config-file
+                                                     [pdf-path html-path])
+                         (build-files/modified-since md-path
+                                                     [pdf-path html-path]))
+                  (build-log/trace-format
+                    "Blog files `%s` and `%s` are uptodate"
                     pdf-path
-                    html-path
-                    md-path)
-                  (doseq [configuration-data-by-language configuration-data]
-                    (configuration-data-by-language-to-html-pdf
-                      configuration-data-by-language)))))))
-      (build-log/warn "No blog file found"))))
+                    html-path)
+                  (do (build-log/debug-format
+                        "Blog file `%s` and `%s` are regenerated from `%s`"
+                        pdf-path
+                        html-path
+                        md-path)
+                      (doseq [configuration-data-by-language configuration-data]
+                        (configuration-data-by-language-to-html-pdf
+                          configuration-data-by-language)))))))
+          true))))

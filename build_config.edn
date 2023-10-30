@@ -1,13 +1,12 @@
 {:app-name "automaton-build-app",
- :bb-tasks {:exclude-tasks #{'blog}},
+ :bb-tasks {:exclude-tasks #{blog}},
  :clean {:compile-logs-dirs [".cpcache" ".clj-kondo/.cache" "tmp" ".DS_Store"
                              "target"]},
- :customer-materials
-   {:dir "customer_materials", :html-dir "tmp/html", :pdf-dir "tmp/pdf"},
  :doc {:archi {:dir "docs/archi/"},
-       :code-doc {:description "Build an hephaistox app",
-                  :dir "docs/code",
-                  :title "Build app automaton"},
+       ;; Code too large happens when this is :code-doc {:description
+       ;; "Build an hephaistox app",
+       ;;            :dir "docs/code",
+       ;;           :title "Build app automaton"},
        :code-stats {:output-file "docs/code/stats.md"},
        :dir "docs",
        :reports {:output-files {:alias "docs/code/alias.edn",

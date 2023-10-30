@@ -1,19 +1,10 @@
-(ns automaton-build-app.tasks.code-helpers-clj
-  "Separate namespace from code-helpers so the transitive dependencies of this namespace don't mess upt bb "
+(ns automaton-build-app.tasks.compile-to-jar
   (:require [automaton-build-app.app :as build-app]
             [automaton-build-app.code-helpers.compiler :as build-compiler]
             [automaton-build-app.code-helpers.frontend-compiler :as
              build-frontend-compiler]
-            [automaton-build-app.code-helpers.update-deps-clj :as
-             build-update-deps-clj]
             [automaton-build-app.os.exit-codes :as build-exit-codes]
             [automaton-build-app.log :as build-log]))
-
-(defn update-deps
-  "Update the dependencies of the project"
-  [{:keys [min-level], :as _parsed-cli-opts}]
-  (build-log/set-min-level! min-level)
-  (build-update-deps-clj/do-update ""))
 
 (defn compile-to-jar
   "Compile both backend and frontend (if its setup file exists, e.g. `shadow-cljs.edn`)), in production mode"

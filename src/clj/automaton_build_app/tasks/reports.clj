@@ -1,5 +1,4 @@
-(ns automaton-build-app.tasks.code-analyze-clj
-  "Analyze the code"
+(ns automaton-build-app.tasks.reports
   (:require [automaton-build-app.app :as build-app]
             [automaton-build-app.code-helpers.analyze.alias-has-one-namespace
              :as build-analyze-alias]
@@ -14,10 +13,9 @@
             [automaton-build-app.file-repo.clj-code :as build-clj-code]
             [automaton-build-app.log :as build-log]))
 
-(defn code-stats
-  [{:keys [min-level], :as _parsed-cli-opts}]
-  (build-log/set-min-level! min-level)
-  (let [filename (get-in (@build-app/build-app-data_ "")
+(defn- code-stats
+  [build-data]
+  (let [filename (get-in build-data
                          [:doc :code-stats :output-file]
                          "docs/code/stats.md")]
     (->> (build-code-stats/line-numbers "")
@@ -78,6 +76,7 @@
         clj-repo (-> build-data
                      build-app/src-dirs
                      build-clj-code/make-clj-repo-from-dirs)]
+    (code-stats build-data)
     (shadow-report app-dir build-data)
     ((juxt comment-report css-report alias-report namespace-report)
       [build-data clj-repo])))
