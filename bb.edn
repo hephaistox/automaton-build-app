@@ -11,9 +11,9 @@
                (partial build-task-helper/execute-task task-name cli-opts))),
     :init (build-task-helper/init-tasks),
     :requires [[automaton-build-app.tasks-helper :as build-task-helper]],
-    blog {:doc "",
-          :task (execute-task (quote
-                                automaton-build-app.tasks.doc-clj/cicd-doc))},
+    blog {:doc "Regenerate blog documents and pages",
+          :task (execute-task (quote automaton-build-app.tasks.doc-clj/cicd-doc)
+                              {:executing-pf :clj})},
     clean {:doc "Clean cache files for compiles, and logs",
            :task (execute-task (quote automaton-build-app.tasks.clean/clean))},
     clean-hard

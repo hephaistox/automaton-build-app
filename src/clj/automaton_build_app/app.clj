@@ -27,7 +27,9 @@
     [:map {:closed true} [:aliases [:vector :keyword]]]]
    [:ltest {:optional true} [:map {:closed true} [:aliases [:vector :keyword]]]]
    [:la {:optional true} [:map {:closed true}]]
-   [:bb-tasks {:optional true} [:vector :string]]
+   [:bb-tasks {:optional true}
+    [:map {:closed true} [:exclude-tasks {:optional true} [:set :symbol]]
+     [:select-tasks {:optional true} [:vector :string]]]]
    [:customer-materials {:optional true}
     [:map {:closed true} [:html-dir :string] [:dir :string] [:pdf-dir :string]]]
    [:container-repo {:optional true} [:map {:closed true} [:account :string]]]

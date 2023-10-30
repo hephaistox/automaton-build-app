@@ -360,7 +360,8 @@
 (defn for-each
   "Apply fn-each on each files in a directory"
   [dir fn-each]
-  (doseq [file (fs/list-dir dir)] (fn-each (str file))))
+  (when (is-existing-dir? dir)
+    (doseq [file (fs/list-dir dir)] (fn-each (str file)))))
 
 (defn create-temp-file
   "Create a temporary file

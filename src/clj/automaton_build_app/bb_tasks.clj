@@ -5,8 +5,9 @@
             [automaton-build-app.schema :as build-schema]))
 
 (def registry
-  {'blog {:doc "",
+  {'blog {:doc "Regenerate blog documents and pages",
           :task-fn 'automaton-build-app.tasks.doc-clj/cicd-doc,
+          :pf :clj,
           :la-test {:cmd ["bb" "blog"]}},
    'clean {:doc "Clean cache files for compiles, and logs",
            :la-test {:cmd ["bb" "clean"]},
@@ -89,29 +90,44 @@
 (when (nil? (build-schema/valid? registry-schema registry))
   (build-log/error "The bb task registry does not comply the schema"))
 
-(defn- update-bb-task
-  [dir bb-task {:keys [doc pf task-fn], :as _bb-task-content}]
-  (bb-edn/update-bb-edn dir
-                        (fn [bb-content]
-                          (assoc-in bb-content
-                            [:tasks bb-task]
-                            {:doc doc,
-                             :task (->> (cond-> ['execute-task
-                                                 (list 'quote task-fn)]
-                                          pf (conj {:executing-pf pf}))
-                                        (apply list))}))))
-
 (def all-tasks "Vector of task names (as strings)" (mapv str (keys registry)))
+
+(defn update-bb-task
+  "Create a bb task from a bb registry task
+  Params:
+  * `registry-bb-task`"
+  [{:keys [doc pf task-fn], :as _registry-bb-task}]
+  {:doc doc,
+   :task (->> (cond-> ['execute-task (list 'quote task-fn)]
+                pf (conj {:executing-pf pf}))
+              (apply list))})
+
+(defn add-bb-tasks
+  "Add tasks from registry in the bb edn tasks"
+  [registry-tasks bb-edn-tasks]
+  (->> registry-tasks
+       (map (fn [[k v]] [k (update-bb-task v)]))
+       (into {})
+       (merge bb-edn-tasks)))
+
+(defn- remove-bb-tasks
+  [to-be-removed in-bb-edn]
+  (->> to-be-removed
+       (into #{})
+       (apply dissoc in-bb-edn)))
 
 (defn update-bb-tasks
   "Update the bb tasks in the `bb.edn` file
   Params:
   * `dir` the directory where to look at the bb.edn file
-  * `tasks`"
-  [dir bb-tasks]
-  (doseq [bb-task bb-tasks]
-    (let [bb-task (symbol bb-task)]
-      (if-let [bb-task-content (get registry bb-task)]
-        (update-bb-task dir bb-task bb-task-content)
-        (build-log/warn-format
-          "The task `%s` is required but does not exist in the registry")))))
+  * `bb-tasks`
+  * `exclude-tasks` "
+  [dir bb-tasks exclude-tasks]
+  (let [bb-tasks (map symbol bb-tasks)
+        registry-bb-tasks (select-keys registry bb-tasks)]
+    (bb-edn/update-bb-edn
+      dir
+      (fn [bb-content]
+        (-> bb-content
+            (update :tasks (partial add-bb-tasks registry-bb-tasks))
+            (update :tasks (partial remove-bb-tasks exclude-tasks)))))))

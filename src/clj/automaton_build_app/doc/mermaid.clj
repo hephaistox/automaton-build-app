@@ -19,11 +19,14 @@
   Params
   * `file-in` input mermaid file"
   [file-in]
-  (let [file-out (build-files/change-extension file-in ".svg")]
-    (when (need-to-update? file-in file-out)
-      (build-log/trace-format "Compile mermaid `%s`, to `%s`" file-in file-out)
-      (build-cmds/execute-and-trace ["mmdc" "-i" file-in "-o" file-out
-                                     {:dir "."}]))))
+  (when (build-files/is-existing-file? file-in)
+    (let [file-out (build-files/change-extension file-in ".svg")]
+      (when (need-to-update? file-in file-out)
+        (build-log/trace-format "Compile mermaid `%s`, to `%s`"
+                                file-in
+                                file-out)
+        (build-cmds/execute-and-trace ["mmdc" "-i" file-in "-o" file-out
+                                       {:dir "."}])))))
 
 (defn build-all-files*
   "Build all mermaid files in the directory `archi-dir`

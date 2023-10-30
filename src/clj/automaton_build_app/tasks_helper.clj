@@ -104,6 +104,17 @@
         (= :clj executing-pf) (run-clj task-name body-fn cli-opts)
         :else (run-bb task-name body-fn cli-opts)))
 
+(defn- update-bb-tasks
+  [app-dir]
+  (let [bb-tasks-config (build-build-config/read-param [:bb-tasks] nil)
+        select-tasks
+          (get bb-tasks-config :select-tasks build-bb-tasks/all-tasks)
+        exclude-tasks (->> (get bb-tasks-config :exclude-tasks #{})
+                           (map symbol)
+                           (into #{}))
+        selected-tasks (remove exclude-tasks select-tasks)]
+    (build-bb-tasks/update-bb-tasks app-dir selected-tasks exclude-tasks)))
+
 (defn execute-task
   "Run the function and manage
   Params:
@@ -111,22 +122,21 @@
   * `body` body to execute
   * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
   ([task-name cli-opts body-fn {:keys [executing-pf], :or {executing-pf :bb}}]
-   (build-update-deps/update-bb-deps "")
-   (build-bb-tasks/update-bb-tasks
-     ""
-     (build-build-config/read-param [:bb-tasks] build-bb-tasks/all-tasks))
-   (try (build-log/info-format "Run %s task" task-name)
-        (dispatch task-name body-fn executing-pf cli-opts)
-        (catch Exception e
-          (println (format "Error during execution of `%s`, %s`"
-                           task-name
-                           (pr-str (or (ex-message e) e))))
-          (if (cicd?)
-            (println e)
-            (let [file (fs/create-temp-file {:suffix ".edn"})]
-              (println (format "See details in `%s`"
-                               (.toString (.toAbsolutePath file))))
-              (spit (fs/file file) (prn-str e))
-              ""))
-          (System/exit build-exit-codes/catch-all))))
+   (let [app-dir ""]
+     (build-update-deps/update-bb-deps app-dir)
+     (update-bb-tasks app-dir)
+     (try (build-log/info-format "Run %s task" task-name)
+          (dispatch task-name body-fn executing-pf cli-opts)
+          (catch Exception e
+            (println (format "Error during execution of `%s`, %s`"
+                             task-name
+                             (pr-str (or (ex-message e) e))))
+            (if (cicd?)
+              (println e)
+              (let [file (fs/create-temp-file {:suffix ".edn"})]
+                (println (format "See details in `%s`"
+                                 (.toString (.toAbsolutePath file))))
+                (spit (fs/file file) (prn-str e))
+                ""))
+            (System/exit build-exit-codes/catch-all)))))
   ([task-name cli-opts body-fn] (execute-task task-name cli-opts body-fn {})))
