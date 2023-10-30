@@ -115,15 +115,15 @@
     (is (= ".clj-kondo/foo"
            (sut/relativize-to-pwd (sut/file-in-same-dir ".clj-kondo" "foo")))))
   (testing "If the source is file, stored in the same parent"
-    (is (= "automaton/automaton-core/foo"
+    (is (= "automaton/automaton-foobar/foo"
            (sut/relativize-to-pwd (sut/file-in-same-dir
-                                    "automaton/automaton-core/deps.edn"
+                                    "automaton/automaton-foobar/deps.edn"
                                     "foo")))))
   (testing "If the source is file does not exist, store in the same parent"
-    (is (= "automaton/automaton-core/foo"
+    (is (= "automaton/automaton-foobar/foo"
            (sut/relativize-to-pwd
              (sut/file-in-same-dir
-               "automaton/automaton-core/deps-does-not-exist.edn"
+               "automaton/automaton-foobar/deps-does-not-exist.edn"
                "foo"))))))
 
 (deftest is-absolute?-test

@@ -10,8 +10,8 @@
   "Scan the directory to find `build-config.edn` files, which is useful to discover applications
 
   Search:
-  * in current directory, so will work when called on application directly (like `automaton-core` or customer app)
-  * in sub directory, so it will discover all customer applications for instances, like `landing`
+  * in current directory, so will work when called on application directly (like `automaton-*` or customer app)
+  * in sub directory, so it will discover all customer applications for instances, like customer app
   * in sub directory level 2, so it will discover `automaton-*`
 
   It is important not to search in all subdirectories to prevent to return so temporary directories

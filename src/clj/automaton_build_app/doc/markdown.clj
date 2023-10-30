@@ -1,13 +1,7 @@
 (ns automaton-build-app.doc.markdown
   "Markdown adapter"
   (:require [automaton-build-app.os.files :as build-files]
-            [clojure.string :as str]
-            [markdown.core :as markdown]))
-
-(defn md-to-html
-  "Transform md file to html"
-  [md-filename html-filename]
-  (markdown/md-to-html md-filename html-filename))
+            [clojure.string :as str]))
 
 (defn create-md
   "Build the markdown file

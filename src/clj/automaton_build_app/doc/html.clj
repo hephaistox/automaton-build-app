@@ -1,6 +1,7 @@
 (ns automaton-build-app.doc.html
   "Manipulate html"
-  (:require [automaton-build-app.doc.markdown :as build-markdown]
+  (:require [automaton-build-app.doc.markdown-to-html :as
+             build-to-html-markdown]
             [automaton-build-app.os.files :as build-files]
             [hiccup2.core :as hiccup]))
 
@@ -16,7 +17,7 @@
 (defn md->html-str
   "Transform a md file to an HTML, provided as a string"
   [{:keys [md-path html-path header-id]}]
-  (let [_create-html-file (build-markdown/md-to-html md-path html-path)
+  (let [_create-html-file (build-to-html-markdown/md-to-html md-path html-path)
         html-file-str (build-files/read-file html-path)
         header (when header-id
                  (header-str {:logo-path "logo.jpg", :header-id header-id}))]

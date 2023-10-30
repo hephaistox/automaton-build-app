@@ -54,11 +54,15 @@
       {:doc "Connect to a local container running this code",
        :task (execute-task
                (quote automaton-build-app.tasks.gha-lconnect/gha-lconnect))},
+    ide {:doc "Quick tests to use during IDE",
+         :task (execute-task (quote automaton-build-app.tasks.ide/ide))},
     la {:doc "Local acceptance test",
         :task (execute-task (quote automaton-build-app.tasks.la/la))},
     lconnect {:doc "Local connect - repl",
               :task (execute-task
                       (quote automaton-build-app.tasks.lconnect/lconnect))},
+    lint {:doc "linter",
+          :task (execute-task (quote automaton-build-app.tasks.lint/lint))},
     ltest {:doc "Local test",
            :task (execute-task (quote automaton-build-app.tasks.ltest/ltest))},
     push {:doc "Push this repo",
@@ -66,8 +70,7 @@
                               {:executing-pf :clj})},
     report {:doc "Creates the reports of code analyzis",
             :task (execute-task (quote
-                                  automaton-build-app.tasks.reports/reports)
-                                {:executing-pf :clj})},
+                                  automaton-build-app.tasks.reports/reports))},
     update-deps
       {:doc
          "Update the dependencies, cider-nrepl and refactor are to be updated manually",

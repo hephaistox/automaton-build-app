@@ -34,7 +34,7 @@
             :la-test {:cmd ["bb" "format"]},
             :task-fn 'automaton-build-app.tasks.format-files/format-files},
    'gha {:doc "Github action command - is launched automatically by github",
-         :la-test {:cmd ["bb" "gha" "-f"]},
+         :la-test {:cmd ["bb" "gha" "-f"], :skip? true},
          :pf :clj,
          :task-fn 'automaton-build-app.tasks.gha/gha},
    'gha-container-publish
@@ -47,12 +47,18 @@
       :la-test
         {:cmd ["bb" "gha-lconnect"], :skip? true, :process-opts {:in "exit\n"}},
       :task-fn 'automaton-build-app.tasks.gha-lconnect/gha-lconnect},
+   'ide {:doc "Quick tests to use during IDE",
+         :la-test {:cmd ["bb" "ide"]},
+         :task-fn 'automaton-build-app.tasks.ide/ide},
    'la {:doc "Local acceptance test",
         :la-test {:cmd ["bb" "la"], :skip? true},
         :task-fn 'automaton-build-app.tasks.la/la},
    'lconnect {:doc "Local connect - repl",
               :la-test {:cmd ["bb" "lconnect"], :skip? true},
               :task-fn 'automaton-build-app.tasks.lconnect/lconnect},
+   'lint {:doc "linter",
+          :la-test {:cmd ["bb" "lint"]},
+          :task-fn 'automaton-build-app.tasks.lint/lint},
    'ltest {:doc "Local test",
            :la-test {:cmd ["bb" "ltest"]},
            :task-fn 'automaton-build-app.tasks.ltest/ltest},
@@ -62,7 +68,6 @@
           :task-fn 'automaton-build-app.tasks.push/push},
    'report {:doc "Creates the reports of code analyzis",
             :la-test {:cmd ["bb" "report"]},
-            :pf :clj,
             :task-fn 'automaton-build-app.tasks.reports/reports},
    'update-deps
      {:doc

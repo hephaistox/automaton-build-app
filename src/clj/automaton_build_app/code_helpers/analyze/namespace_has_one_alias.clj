@@ -2,9 +2,8 @@
   "Search for namespaces which are aliazed many times"
   (:require [automaton-build-app.code-helpers.analyze.utils :as
              build-analyze-utils]
-            [automaton-build-app.os.edn-utils :as build-edn-utils]
-            [automaton-build-app.os.files :as build-files]
-            [automaton-build-app.file-repo.text :as build-filerepo-text]))
+            [automaton-build-app.file-repo.text :as build-filerepo-text]
+            [automaton-build-app.log :as build-log]))
 
 (def alias-pattern
   #"^\s*\[\s*([A-Za-z0-9\*\+\!\-\_\.\'\?<>=]*)\s*(?:(?::as)\s*([A-Za-z0-9\*\+\!\-\_\.\'\?<>=]*)|(:refer).*)\s*\]\s*(?:\)\))*$")
@@ -29,6 +28,7 @@
   Params:
   * `clj-repo`"
   [clj-repo]
+  (build-log/info "Aliases analyzis")
   (let [matches (-> clj-repo
                     (build-filerepo-text/filecontent-to-match alias-pattern))]
     (->> matches
@@ -43,12 +43,15 @@
 
 (defn save-report
   [matches filename]
-  (build-edn-utils/spit-edn filename
-                            matches
-                            "List of aliases referencing many namespaces"))
+  (build-analyze-utils/save-report
+    matches
+    "List of namespaces referenced by many aliases"
+    filename
+    str))
 
 (defn assert-empty
-  [matches]
+  [matches filename]
   (build-analyze-utils/assert-empty
     matches
+    filename
     "Found namespace represented with more than one alias"))

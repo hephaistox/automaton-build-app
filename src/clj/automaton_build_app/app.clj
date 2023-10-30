@@ -36,7 +36,9 @@
    [:doc {:optional true}
     [:map {:closed true} [:dir :string]
      [:archi [:map {:closed true} [:dir :string]]]
-     [:reports [:map {:closed true} [:output-files [:map-of :keyword :string]]]]
+     [:reports
+      [:map {:closed true} [:output-files [:map-of :keyword :string]]
+       [:forbidden-words [:set :string]]]]
      [:code-stats [:map {:closed true} [:output-file :string]]]
      [:code-doc {:optional true}
       [:map {:closed true} [:dir :string] [:title :string]

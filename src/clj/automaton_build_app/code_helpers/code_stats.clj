@@ -30,6 +30,7 @@
      - 100% means there are the same number of test lines than src lines
      - 50% means there are double number of lines src than test ones"
   [stats-root-dir]
+  (build-log/info "Code statistics report")
   (let [clj-total-nb-lines (count-lines (build-files/search-files
                                           stats-root-dir
                                           "**{.clj,.cljs,.cljc}")

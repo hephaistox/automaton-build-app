@@ -41,7 +41,7 @@
   * `pattern` pattern to search
   * `file-line` data to search in"
   [pattern file-line]
-  (re-find pattern file-line))
+  (let [pattern (re-pattern pattern)] (re-find pattern file-line)))
 
 (defn filecontent-to-match
   "Apply the pattern to each line of each file of the repo
@@ -49,7 +49,7 @@
   Each element contains the filename where the match has been found, and the match itself
   Params:
   * `text-file-repo` an instance of `TextFilesRepository`
-  * `pattern`"
+  * `pattern` pattern to search, is a regexp, strings are transformed to regexp"
   [text-file-repo pattern]
   (->> text-file-repo
        build-filerepo-raw/file-repo-map

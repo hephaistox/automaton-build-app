@@ -4,7 +4,8 @@
             [automaton-build-app.file-repo.raw :as build-filerepo-raw]
             [automaton-build-app.code-helpers.analyze.utils :as
              build-analyze-utils]
-            [automaton-build-app.utils.namespace :as build-namespace]))
+            [automaton-build-app.utils.namespace :as build-namespace]
+            [automaton-build-app.log :as build-log]))
 
 ;;These are defined as a workaround, so it won't create false positive when you
 ;;search them with regexp
@@ -26,6 +27,7 @@
   Params:
   * `clj-repo`"
   [clj-repo]
+  (build-log/info "Comments analyzis")
   (let [regexp-filerepo-matcher
           (->> ['automaton-build-app.code-helpers.analyze.comments
                 'automaton-build-app.code-helpers.analyze.comments-test]
@@ -48,6 +50,7 @@
                                      (format "%s -> [%s]" comment filename))))
 
 (defn assert-empty
-  [matches]
+  [matches filename]
   (build-analyze-utils/assert-empty matches
+                                    filename
                                     (format "Some forbidden words are found")))

@@ -31,10 +31,12 @@
   ([edn-filename content header]
    (try (build-log/trace "Spit edn file:" edn-filename)
         (let [content (doall content)
-              previous-content (read-edn edn-filename)]
+              previous-content (when (build-files/is-existing-file?
+                                       edn-filename)
+                                 (read-edn edn-filename))]
           (if (= (hash previous-content) (hash content))
             (build-log/debug-format
-              "Content of file `%s` is already update, spitting is skipped"
+              "Content of file `%s` is already up to date, spitting is skipped"
               edn-filename)
             (do (build-log/debug "Contents have changed")
                 (build-log/trace-format "content (hash= `%s`, content = `%s`)"

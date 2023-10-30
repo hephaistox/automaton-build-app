@@ -2,7 +2,6 @@
   "Search for aliases which are used for many namespaces"
   (:require [automaton-build-app.code-helpers.analyze.utils :as
              build-analyze-utils]
-            [automaton-build-app.os.edn-utils :as build-edn-utils]
             [automaton-build-app.file-repo.text :as build-filerepo-text]))
 
 (def alias-pattern
@@ -41,12 +40,14 @@
 
 (defn save-report
   [matches filename]
-  (build-edn-utils/spit-edn filename
-                            matches
-                            "List of aliases referencing many namespaces"))
+  (build-analyze-utils/save-report matches
+                                   "List of aliases referencing many namespaces"
+                                   filename
+                                   str))
 
 (defn assert-empty
-  [matches]
+  [matches filename]
   (build-analyze-utils/assert-empty
     matches
+    filename
     "Some aliases are not consistent over your codebase"))
