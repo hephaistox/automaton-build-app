@@ -1,5 +1,5 @@
 {:app-name "automaton-build-app",
- :bb-tasks {:exclude-tasks #{blog}},
+ :bb-tasks {:exclude-tasks #{}},
  :clean {:compile-logs-dirs [".cpcache" ".clj-kondo/.cache" "tmp" ".DS_Store"
                              "target"]},
  :doc {:archi {:dir "docs/archi/"},

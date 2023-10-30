@@ -3,6 +3,7 @@
   (:require [automaton-build-app.code-helpers.analyze.utils :as
              build-analyze-utils]
             [automaton-build-app.os.edn-utils :as build-edn-utils]
+            [automaton-build-app.os.files :as build-files]
             [automaton-build-app.file-repo.text :as build-filerepo-text]))
 
 (def alias-pattern
@@ -42,9 +43,11 @@
 
 (defn save-report
   [matches filename]
-  (build-edn-utils/spit-edn filename
-                            matches
-                            "List of aliases referencing many namespaces"))
+  (if (empty? matches)
+    (build-files/delete-files #{filename})
+    (build-edn-utils/spit-edn filename
+                              matches
+                              "List of aliases referencing many namespaces")))
 
 (defn assert-empty
   [matches]
