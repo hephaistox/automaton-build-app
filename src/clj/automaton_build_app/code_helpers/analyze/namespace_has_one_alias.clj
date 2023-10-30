@@ -43,11 +43,9 @@
 
 (defn save-report
   [matches filename]
-  (if (empty? matches)
-    (build-files/delete-files #{filename})
-    (build-edn-utils/spit-edn filename
-                              matches
-                              "List of aliases referencing many namespaces")))
+  (build-edn-utils/spit-edn filename
+                            matches
+                            "List of aliases referencing many namespaces"))
 
 (defn assert-empty
   [matches]

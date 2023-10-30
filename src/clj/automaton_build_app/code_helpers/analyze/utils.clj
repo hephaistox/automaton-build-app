@@ -2,6 +2,7 @@
   "Helpers function to manage analyze of code"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.exit-codes :as build-exit-codes]
+            [automaton-build-app.os.files :as build-files]
             [automaton-build-app.os.edn-utils :as build-edn-utils]))
 
 (defn- matches-to-output-lines
@@ -15,12 +16,15 @@
   * `report-title`
   * `filename`"
   [matches report-title filename match-to-output-line]
-  (build-log/info report-title)
-  (build-edn-utils/spit-edn filename
-                            (->> matches
-                                 (matches-to-output-lines match-to-output-line))
-                            report-title)
-  matches)
+  (if (empty? matches)
+    (build-files/delete-files #{filename})
+    (do (build-log/info report-title)
+        (build-edn-utils/spit-edn filename
+                                  (->> matches
+                                       (matches-to-output-lines
+                                         match-to-output-line))
+                                  report-title)
+        matches)))
 
 (defn assert-empty
   [matches assert-message]
