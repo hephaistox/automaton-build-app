@@ -155,12 +155,12 @@
                          ["git" "push" "--tags" "--set-upstream" "origin"
                           branch-name {:dir dir}])
             [cmd-failing message] (build-cmds/first-cmd-failing commit-res)]
+        (build-log/info-format "branch `%s`" (current-branch dir))
+        (build-log/info-format "commit `%s`" (current-commit-sha dir))
         (case cmd-failing
           nil (do (build-log/info-format
                     "Successfully pushed version `%s` version"
                     version)
-                  (build-log/info-format "branch `%s`" (current-branch dir))
-                  (build-log/info-format "commit `%s`" (current-commit-sha dir))
                   true)
           1 (do (build-log/info-format "Nothing to commit, skip the push")
                 false)
