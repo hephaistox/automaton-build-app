@@ -17,7 +17,7 @@
      [:major-version {:optional true} :string]
      [:gha-container {:optional true}
       [:map {:closed true} [:repo-url :string] [:repo-branch :string]
-       [:account :string] [:workflows [:vector [:tuple :string :string]]]]]
+       [:account :string] [:workflows [:vector :string]]]]
      [:shadow-cljs {:optional true}
       [:map {:closed true} [:target-build [:maybe :keyword]]]]
      [:jar {:optional true}

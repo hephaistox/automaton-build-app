@@ -18,10 +18,13 @@
                                                           container-dir
                                                           ""
                                                           container-repo-account
-                                                          tag)]
+                                                          tag)
+        container-root (build-containers/container-root container)]
     (when-not (and container
                    (build-containers/build container true)
-                   (build-cicd-server/update-workflows gha-workflows tag))
+                   (build-cicd-server/update-workflows gha-workflows
+                                                       tag
+                                                       container-root))
       (System/exit build-exit-codes/catch-all))))
 
 (defn gha-container-publish

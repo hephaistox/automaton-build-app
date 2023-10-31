@@ -27,8 +27,7 @@
     :gha-container {:account "hephaistox",
                     :repo-branch "main",
                     :repo-url "git@github.com:hephaistox/gha_image.git",
-                    :workflows [[".github/workflows/commit_validation.yml"
-                                 "gha-automaton-build-app"]]},
+                    :workflows [".github/workflows/commit_validation.yml"]},
     :jar {:class-dir "target/classes",
           :excluded-aliases #{},
           :target-filename "target/%s-%s.jar"},

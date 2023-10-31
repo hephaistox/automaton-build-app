@@ -18,6 +18,13 @@
 
 (def is-cicd? (memoize is-cicd?*))
 
+(defn- update-workflow*
+  [filename file-content searched-pattern tag]
+  (let [new-content (str/replace file-content searched-pattern (str "$1" tag))]
+    (when-not (nil? new-content)
+      (build-files/spit-file filename new-content)
+      true)))
+
 (defn update-workflow
   "Update a workflow file with
   Params:
@@ -26,32 +33,32 @@
   * `tag` tag to upsert"
   [filename container-name tag]
   (build-log/info-format "Update file `%s`, with tag `%s`" filename tag)
-  (let [file-content (build-files/read-file filename)
-        searched-pattern
-          (-> (str "(uses:\\s*docker://\\w*/" container-name ":)(.*)")
-              re-pattern)]
-    (if (re-find searched-pattern file-content)
-      (do (str/replace file-content searched-pattern (str "$1" tag))
-          (when-not (nil? file-content)
-            (build-files/spit-file filename file-content)
-            true))
-      (build-log/warn-format
-        "Not able to update `%s`, the pattern `%s` has not been found"
-        filename
-        searched-pattern))))
+  (if-let [file-content (build-files/read-file filename)]
+    (let [searched-pattern
+            (-> (str "(uses:\\s*docker://\\w*/" container-name ")(.*)")
+                re-pattern)]
+      (if (re-find searched-pattern file-content)
+        (update-workflow* filename file-content searched-pattern tag)
+        (do (build-log/warn-format
+              "Not able to update `%s`, the pattern `%s` has not been found"
+              filename
+              searched-pattern)
+            false)))
+    (build-log/warn-format
+      "File %s doesn't exist, workflow update is skipped")))
 
 (defn update-workflows
   "Used to update all workflow of a repo to the tag
   Params:
   * `updates` list of updates, each one is a filename and a container
-  * `tag` the tag "
-  [updates tag]
-  (doseq [[filename container-name] updates]
-    (update-workflow filename container-name tag)))
+  * `tag` the tag
+  * `container-name`"
+  [updates tag container-name]
+  (doseq [filename updates] (update-workflow filename container-name tag)))
 
 (comment
-  (update-workflows [[".github/workflows/commit_validation.yml"
-                      "gha-automaton-build-app"]]
-                    "v0.0.8")
+  (update-workflows [".github/workflows/commit_validation.yml"]
+                    "v0.0.8"
+                    "gha-automaton-build-app:")
   ;
 )

@@ -9,6 +9,7 @@
 (defrecord GithubAction [app-name container-dir app-dir remote-repo-account tag]
   build-containers/Container
     (container-name [_] (format "gha-%s:%s" app-name tag))
+    (container-root [_] (format "gha-%s:" app-name))
     (build [this publish?]
       (let [app-files-to-copy-in-cc-container
               (map (partial build-files/create-file-path app-dir)
