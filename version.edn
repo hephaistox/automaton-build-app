@@ -1,4 +1,4 @@
-;; Last generated version, note a failed push consume a number Thu Nov 2 22:02:25 CET 2023 
+;; Last generated version, note a failed push consume a number Thu Nov 2 22:29:33 CET 2023 
 {:major-version "0.0.-1"
- :minor-version 8
- :version "0.0.8"}
+ :minor-version 9
+ :version "0.0.9"}
