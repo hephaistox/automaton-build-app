@@ -68,7 +68,8 @@
   [task-name body-fn opts]
   (build-log/trace-format "Run %s task on clj" task-name)
   (when-not (build-cmds/execute-and-trace ["clojure" "-X:build:bb-deps" (qualified-name body-fn) :command-line-args
-                                           (or *command-line-args* []) :cli-opts opts :min-level (build-log/min-level-kw) {}])
+                                           (or *command-line-args* []) :cli-opts opts :details @build-log/details? :min-level
+                                           (build-log/min-level-kw) {}])
     (build-log/trace "The clj command has failed, so the exit code is passed to the bb")
     (System/exit build-exit-codes/catch-all)))
 

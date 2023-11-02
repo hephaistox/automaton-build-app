@@ -10,9 +10,10 @@
   "Push the current repository from the local repository
 
   Use with care, as source of truth is the monorepo commits"
-  [{:keys [min-level]
+  [{:keys [min-level details]
     :as parsed-cli-opts}]
   (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (if-let [commit-msg (get-in parsed-cli-opts [:cli-opts :options :message])]
     (let [_ (build-log/debug-format "Push local `%s` " commit-msg)
           app-data (@build-app/build-app-data_ "")
