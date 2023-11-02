@@ -11,11 +11,9 @@
   * `app-registry` is a cust-app defined registry for cust specific tasks"
   [tasks-in-app cli-args app-registry]
   (let [tasks-in-app (mapv symbol tasks-in-app)
-        selected-tasks (select-keys (merge build-bb-tasks/registry app-registry)
-                                    tasks-in-app)]
+        selected-tasks (select-keys (merge build-bb-tasks/registry app-registry) tasks-in-app)]
     (when-not (= (count tasks-in-app) (count selected-tasks))
-      (build-log/warn
-        "Some tasks of your application are not defined in any registry - that task can't be tested in la"))
+      (build-log/warn "Some tasks of your application are not defined in any registry - that task can't be tested in la"))
     (build-cli-test/cli-test selected-tasks cli-args)))
 
 (comment

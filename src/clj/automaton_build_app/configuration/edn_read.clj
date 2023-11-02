@@ -16,14 +16,7 @@
   or a (io/resource) object representing the name of the file to load"
   [edn-filename]
   (let [edn-filename (when edn-filename (str (fs/absolutize edn-filename)))
-        edn-content (try (slurp edn-filename)
-                         (catch Exception _
-                           (build-log/warn-format "Unable to load the file `%s`"
-                                                  edn-filename)
-                           nil))]
+        edn-content (try (slurp edn-filename) (catch Exception _ (build-log/warn-format "Unable to load the file `%s`" edn-filename) nil))]
     (when edn-content
       (build-log/trace "Load file:" edn-filename)
-      (try (edn/read-string edn-content)
-           (catch Exception _
-             (build-log/warn-format "File `%s` is not a valid edn" edn-filename)
-             nil)))))
+      (try (edn/read-string edn-content) (catch Exception _ (build-log/warn-format "File `%s` is not a valid edn" edn-filename) nil)))))

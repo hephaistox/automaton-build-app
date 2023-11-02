@@ -5,15 +5,9 @@
             [clj-htmltopdf.core :refer [->pdf]]
             [clojure.string :as str]))
 
-(defn- img-src
-  "full html img tag src, containing both a key and a value as a string"
-  [path]
-  (str "src=\"" path "\""))
+(defn- img-src "full html img tag src, containing both a key and a value as a string" [path] (str "src=\"" path "\""))
 
-(defn- url?
-  "Checks if string is a url. True if it is."
-  [path]
-  (= "http" (str/join "" (take 4 path))))
+(defn- url? "Checks if string is a url. True if it is." [path] (= "http" (str/join "" (take 4 path))))
 
 (defn src->accepted-src
   "Converts img src files references to ones that are accepted by clj-htmltopdf library.
@@ -40,4 +34,6 @@
   (let [updated-img-html (src->accepted-src resources-dir html-str)]
     (->pdf updated-img-html
            output-path
-           {:doc pdf-metadata, :page margin-box, :styles styles})))
+           {:doc pdf-metadata
+            :page margin-box
+            :styles styles})))

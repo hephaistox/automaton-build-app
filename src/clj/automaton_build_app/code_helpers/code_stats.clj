@@ -13,12 +13,12 @@
    (let [files (map str files)
          files-only (filter check-existence-fn files)]
      (reduce +
-       (map (fn [file]
-              (let [content (reader file)]
-                (-> content
-                    str/split-lines
-                    count)))
-         files-only)))))
+             (map (fn [file]
+                    (let [content (reader file)]
+                      (-> content
+                          str/split-lines
+                          count)))
+                  files-only)))))
 
 (defn line-numbers
   "Build statistics on the clojure code
@@ -31,19 +31,12 @@
      - 50% means there are double number of lines src than test ones"
   [stats-root-dir]
   (build-log/info "Code statistics report")
-  (let [clj-total-nb-lines (count-lines (build-files/search-files
-                                          stats-root-dir
-                                          "**{.clj,.cljs,.cljc}")
-                                        slurp)
-        clj-test-nb-lines (count-lines (build-files/search-files
-                                         stats-root-dir
-                                         "**{_test.clj,_test.cljs,_test.cljc}")
-                                       slurp)
+  (let [clj-total-nb-lines (count-lines (build-files/search-files stats-root-dir "**{.clj,.cljs,.cljc}") slurp)
+        clj-test-nb-lines (count-lines (build-files/search-files stats-root-dir "**{_test.clj,_test.cljs,_test.cljc}") slurp)
         clj-src-nb-lines (- clj-total-nb-lines clj-test-nb-lines)]
-    {:clj-test-nb-lines clj-test-nb-lines,
-     :clj-total-nb-lines clj-total-nb-lines,
-     :ratio-in-pct
-       (/ (Math/floor (* 10000 (/ clj-test-nb-lines clj-src-nb-lines))) 100)}))
+    {:clj-test-nb-lines clj-test-nb-lines
+     :clj-total-nb-lines clj-total-nb-lines
+     :ratio-in-pct (/ (Math/floor (* 10000 (/ clj-test-nb-lines clj-src-nb-lines))) 100)}))
 
 (defn stats-to-md
   "Create markdown from stats
@@ -51,10 +44,7 @@
   * `filename` md file that will be generated
   * `line-numbers` result of `line-numbers`"
   [filename line-numbers]
-  (build-log/debug "Generate statistics documentation for the monorepo in "
-                   filename)
-  (build-markdown/create-md
-    filename
-    (concat ["# That statistics counts number of line of code"]
-            (sort (map (fn [[k v]] (str "* " (name k) " - " v))
-                    line-numbers)))))
+  (build-log/debug "Generate statistics documentation for the monorepo in " filename)
+  (build-markdown/create-md filename
+                            (concat ["# That statistics counts number of line of code"]
+                                    (sort (map (fn [[k v]] (str "* " (name k) " - " v)) line-numbers)))))

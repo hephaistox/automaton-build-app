@@ -9,5 +9,4 @@
   [dir]
   (let [deps-edn (build-deps-edn/load-deps-edn dir)
         bb-deps (get-in deps-edn [:aliases :bb-deps :extra-deps])]
-    (build-bb-edn/update-bb-edn dir
-                                (fn [bb-edn] (assoc bb-edn :deps bb-deps)))))
+    (build-bb-edn/update-bb-edn dir (fn [bb-edn] (assoc bb-edn :deps bb-deps)))))

@@ -5,15 +5,15 @@
 
 (defprotocol FileRepo
   (exclude-files [this exclude-files]
-    "Return a `FileRepo` without the files in `excluded-files`\n Params:\n * `exclude-files` sequence of file names that will not be included in the filename")
+   "Return a `FileRepo` without the files in `excluded-files`\n Params:\n * `exclude-files` sequence of file names that will not be included in the filename")
   (file-repo-map [this]
-    "The map associating filepath with their content")
+   "The map associating filepath with their content")
   (nb-files [this]
-    "Return the number of embedded files")
+   "Return the number of embedded files")
   (filter-by-extension [this extensions]
-    "Filter the repo on files matching the extension\n Params: \n * `extensions`")
+   "Filter the repo on files matching the extension\n Params: \n * `extensions`")
   (filter-repo [this filter-fn]
-    "Filter the repo files\n Params: \n * `repo` repository to filter \n * `filter-fn` function taking the pair [filename file-content] as an argument and returning true if we want to keep that file in the repo. If nil is provided, the whole repo is returned"))
+   "Filter the repo files\n Params: \n * `repo` repository to filter \n * `filter-fn` function taking the pair [filename file-content] as an argument and returning true if we want to keep that file in the repo. If nil is provided, the whole repo is returned"))
 
 (defrecord RawFileRepo [_file-repo-map]
   FileRepo

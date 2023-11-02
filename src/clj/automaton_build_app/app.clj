@@ -1,9 +1,7 @@
 (ns automaton-build-app.app
   (:require [automaton-build-app.code-helpers.deps-edn :as build-deps-edn]
-            [automaton-build-app.code-helpers.build-config :as
-             build-build-config]
-            [automaton-build-app.code-helpers.frontend-compiler :as
-             build-frontend-compiler]
+            [automaton-build-app.code-helpers.build-config :as build-build-config]
+            [automaton-build-app.code-helpers.frontend-compiler :as build-frontend-compiler]
             [automaton-build-app.log :as build-log]
             [automaton-build-app.os.files :as build-files]
             [automaton-build-app.schema :as build-schema]))
@@ -11,50 +9,31 @@
 (def cust-app-schema
   "Customer application specific schema"
   [[:publication
-    [:map {:closed true}
-     [:repo [:map {:closed true} [:address :string] [:branch :string]]]
-     [:as-lib {:optional true} :symbol]
+    [:map {:closed true} [:repo [:map {:closed true} [:address :string] [:branch :string]]] [:as-lib {:optional true} :symbol]
      [:major-version {:optional true} :string]
      [:gha-container {:optional true}
-      [:map {:closed true} [:repo-url :string] [:repo-branch :string]
-       [:account :string] [:workflows [:vector :string]]]]
-     [:shadow-cljs {:optional true}
-      [:map {:closed true} [:target-build [:maybe :keyword]]]]
-     [:jar {:optional true}
-      [:map {:closed true} [:class-dir :string]
-       [:excluded-aliases [:set :keyword]] [:target-filename :string]]]]]
-   [:lconnect {:optional true}
-    [:map {:closed true} [:aliases [:vector :keyword]]]]
-   [:ltest {:optional true} [:map {:closed true} [:aliases [:vector :keyword]]]]
-   [:la {:optional true} [:map {:closed true}]]
+      [:map {:closed true} [:repo-url :string] [:repo-branch :string] [:account :string] [:workflows [:vector :string]]]]
+     [:shadow-cljs {:optional true} [:map {:closed true} [:target-build [:maybe :keyword]]]]
+     [:jar {:optional true} [:map {:closed true} [:class-dir :string] [:excluded-aliases [:set :keyword]] [:target-filename :string]]]]]
+   [:lconnect {:optional true} [:map {:closed true} [:aliases [:vector :keyword]]]]
+   [:ltest {:optional true} [:map {:closed true} [:aliases [:vector :keyword]]]] [:la {:optional true} [:map {:closed true}]]
    [:bb-tasks {:optional true}
-    [:map {:closed true} [:exclude-tasks {:optional true} [:set :symbol]]
-     [:select-tasks {:optional true} [:vector :string]]]]
-   [:customer-materials {:optional true}
-    [:map {:closed true} [:html-dir :string] [:dir :string] [:pdf-dir :string]]]
+    [:map {:closed true} [:exclude-tasks {:optional true} [:set :symbol]] [:select-tasks {:optional true} [:vector :string]]]]
+   [:customer-materials {:optional true} [:map {:closed true} [:html-dir :string] [:dir :string] [:pdf-dir :string]]]
    [:container-repo {:optional true} [:map {:closed true} [:account :string]]]
    [:doc {:optional true}
-    [:map {:closed true} [:dir :string]
-     [:archi [:map {:closed true} [:dir :string]]]
-     [:reports
-      [:map {:closed true} [:output-files [:map-of :keyword :string]]
-       [:forbidden-words [:set :string]]]]
+    [:map {:closed true} [:dir :string] [:archi [:map {:closed true} [:dir :string]]]
+     [:reports [:map {:closed true} [:output-files [:map-of :keyword :string]] [:forbidden-words [:set :string]]]]
      [:code-stats [:map {:closed true} [:output-file :string]]]
-     [:code-doc {:optional true}
-      [:map {:closed true} [:dir :string] [:title :string]
-       [:description :string]]]]]
+     [:code-doc {:optional true} [:map {:closed true} [:dir :string] [:title :string] [:description :string]]]]]
    [:clean [:map {:closed true} [:compile-logs-dirs [:vector :string]]]]
    [:templating {:optional true} [:map {:closed true} [:app-title :string]]]])
-
+;;
 (def app-build-config-schema
   "Application schema"
   (into []
-        (concat [:map {:closed true} [:app-name :string]
-                 [:build? {:optional true} :boolean]
-                 [:cust-app? {:optional true} :boolean]
-                 [:everything? {:optional true} :boolean]
-                 [:template-app? {:optional true} :boolean]
-                 [:doc? {:optional true} :boolean]
+        (concat [:map {:closed true} [:app-name :string] [:build? {:optional true} :boolean] [:cust-app? {:optional true} :boolean]
+                 [:everything? {:optional true} :boolean] [:template-app? {:optional true} :boolean] [:doc? {:optional true} :boolean]
                  [:frontend? {:optional true} :boolean]
                  ;; This map is not closed, as monorepo features should not
                  ;; be described here that data are here for convenience
@@ -78,9 +57,9 @@
      ;;is not validated.
      (valid? app-data)
      (assoc app-data
-       :app-dir app-dir
-       :shadow-cljs (build-frontend-compiler/load-shadow-cljs app-dir)
-       :deps-edn (build-deps-edn/load-deps-edn app-dir))))
+            :app-dir app-dir
+            :shadow-cljs (build-frontend-compiler/load-shadow-cljs app-dir)
+            :deps-edn (build-deps-edn/load-deps-edn app-dir))))
   ([] (build-app-data* "")))
 
 (def build-app-data_
@@ -110,13 +89,14 @@
   Params:
   * `app` is the app to get dir from
   * `limit-to-existing?` if "
-  [{:keys [app-dir deps-edn], :as _app} limit-to-existing?]
-  (let [paths (build-deps-edn/extract-paths deps-edn #{} limit-to-existing?)]
-    (apply build-files/sorted-absolutize-dirs app-dir paths)))
+  [{:keys [app-dir deps-edn]
+    :as _app} limit-to-existing?]
+  (let [paths (build-deps-edn/extract-paths deps-edn #{} limit-to-existing?)] (apply build-files/sorted-absolutize-dirs app-dir paths)))
 
 (defn cljs-compiler-classpaths
   "Existing source directories for backend, as strings of absolutized directories"
-  [{:keys [app-dir shadow-cljs], :as _app}]
+  [{:keys [app-dir shadow-cljs]
+    :as _app}]
   (->> shadow-cljs
        build-frontend-compiler/extract-paths
        (apply build-files/sorted-absolutize-dirs app-dir)))

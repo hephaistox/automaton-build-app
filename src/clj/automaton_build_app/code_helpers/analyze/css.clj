@@ -1,6 +1,5 @@
 (ns automaton-build-app.code-helpers.analyze.css
-  (:require [automaton-build-app.code-helpers.analyze.utils :as
-             build-analyze-utils]
+  (:require [automaton-build-app.code-helpers.analyze.utils :as build-analyze-utils]
             [automaton-build-app.file-repo.raw :as build-filerepo-raw]
             [automaton-build-app.file-repo.text :as build-filerepo-text]
             [automaton-build-app.utils.namespace :as build-namespace]
@@ -15,10 +14,9 @@
   * `clj-repo`"
   [clj-repo]
   (build-log/info "Css in code analyzis")
-  (let [regexp-filerepo-matcher
-          (->> ['automaton-build-app.code-helpers.analyze.css-test]
-               (map build-namespace/ns-to-file)
-               (into #{}))
+  (let [regexp-filerepo-matcher (->> ['automaton-build-app.code-helpers.analyze.css-test]
+                                     (map build-namespace/ns-to-file)
+                                     (into #{}))
         matches (-> clj-repo
                     (build-filerepo-raw/exclude-files regexp-filerepo-matcher)
                     (build-filerepo-text/filecontent-to-match css-pattern))]
@@ -31,11 +29,6 @@
   (build-analyze-utils/save-report matches
                                    "List of forbidden css forms"
                                    filename
-                                   (fn [[match filename]]
-                                     (format "%s -> [%s]" match filename))))
+                                   (fn [[match filename]] (format "%s -> [%s]" match filename))))
 
-(defn assert-empty
-  [matches filename]
-  (build-analyze-utils/assert-empty matches
-                                    filename
-                                    "Found forbidden css code"))
+(defn assert-empty [matches filename] (build-analyze-utils/assert-empty matches filename "Found forbidden css code"))

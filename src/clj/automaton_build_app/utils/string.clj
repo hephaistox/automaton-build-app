@@ -1,27 +1,17 @@
-(ns automaton-build-app.utils.string
-  "String manipulation usable both in clj and cljs")
+(ns automaton-build-app.utils.string "String manipulation usable both in clj and cljs")
 
-(defn remove-last-character
-  "Remove the last character of a string"
-  [s]
-  (let [s (str s)] (subs s 0 (max 0 (- (count s) 1)))))
+(defn remove-last-character "Remove the last character of a string" [s] (let [s (str s)] (subs s 0 (max 0 (- (count s) 1)))))
 
 (defn remove-first-last-character
   "Remove the first and last character of a string"
   [s]
-  (let [s (str s)
-        count-s (count s)]
-    (if (< 2 count-s) (subs s 1 (max 0 (- (count s) 1))) "")))
+  (let [s (str s) count-s (count s)] (if (< 2 count-s) (subs s 1 (max 0 (- (count s) 1))) "")))
 
 (def ellipsis "...")
 
 (defn- shrink-string-from-end
   [s prefix suffix limit]
-  (apply str
-    (concat prefix
-            (take (- limit (count ellipsis) (count prefix) (count suffix)) s)
-            ellipsis
-            suffix)))
+  (apply str (concat prefix (take (- limit (count ellipsis) (count prefix) (count suffix)) s) ellipsis suffix)))
 
 (defn limit-length
   "Limit the length of the string
@@ -32,19 +22,11 @@
   ([s limit] (limit-length s limit nil nil identity))
   ([s limit prefix suffix on-ellipsis]
    (let [line (str prefix s suffix)]
-     (if (<= (count line) limit)
-       line
-       (do (on-ellipsis s) (shrink-string-from-end s prefix suffix limit))))))
+     (if (<= (count line) limit) line (do (on-ellipsis s) (shrink-string-from-end s prefix suffix limit))))))
 
 (defn- shrink-string-from-beginning
   [s prefix suffix limit]
-  (apply str
-    (concat prefix
-            ellipsis
-            (subs s
-                  (- (count s)
-                     (- limit (count prefix) (count ellipsis) (count suffix))))
-            suffix)))
+  (apply str (concat prefix ellipsis (subs s (- (count s) (- limit (count prefix) (count ellipsis) (count suffix)))) suffix)))
 
 (defn fix-length
   "Fix the length of the string, meaning it will be add ellipsis at the beginning of the string if needed, or add white spaces otherwise
@@ -56,9 +38,7 @@
   * `on-ellipsis` a function executed when the ellipsis is done"
   [s limit prefix suffix]
   (let [line (str prefix s suffix)]
-    (if (<= (count line) limit)
-      (apply str line (repeat (- limit (count line)) " "))
-      (shrink-string-from-beginning s prefix suffix limit))))
+    (if (<= (count line) limit) (apply str line (repeat (- limit (count line)) " ")) (shrink-string-from-beginning s prefix suffix limit))))
 
 (defn remove-trailing-character
   "Remove last character if it is matching char

@@ -1,7 +1,6 @@
 (ns automaton-build-app.code-helpers.analyze.forbidden-words
   "Search for keywords in the project"
-  (:require [automaton-build-app.code-helpers.analyze.utils :as
-             build-analyze-utils]
+  (:require [automaton-build-app.code-helpers.analyze.utils :as build-analyze-utils]
             [automaton-build-app.file-repo.text :as build-filerepo-text]
             [clojure.string :as str]
             [automaton-build-app.log :as build-log]))
@@ -30,20 +29,8 @@
   (build-log/info "Forbidden words analyzis")
   (let [matches (build-filerepo-text/filecontent-to-match clj-repo regexp)]
     (->> matches
-         (mapv (fn [[filename [_whole-match & matches]]] [filename
-                                                          (vec matches)])))))
+         (mapv (fn [[filename [_whole-match & matches]]] [filename (vec matches)])))))
 
-(defn save-report
-  [matches filename]
-  (build-analyze-utils/save-report
-    matches
-    "List of forbidden words found in the project"
-    filename
-    str))
+(defn save-report [matches filename] (build-analyze-utils/save-report matches "List of forbidden words found in the project" filename str))
 
-(defn assert-empty
-  [matches filename]
-  (build-analyze-utils/assert-empty
-    matches
-    filename
-    "That words should not appear in the project"))
+(defn assert-empty [matches filename] (build-analyze-utils/assert-empty matches filename "That words should not appear in the project"))

@@ -37,10 +37,7 @@
                build-filerepo-raw/file-repo-map
                keys
                count))))
-  (testing "test to optional value :reader"
-    (is (< 30
-           (count (build-filerepo-raw/file-repo-map (sut/make-clj-repo-from-dirs
-                                                      [""])))))))
+  (testing "test to optional value :reader" (is (< 30 (count (build-filerepo-raw/file-repo-map (sut/make-clj-repo-from-dirs [""])))))))
 
 (comment
   (-> (sut/make-clj-repo-from-dirs ["src" "test"] :clj)

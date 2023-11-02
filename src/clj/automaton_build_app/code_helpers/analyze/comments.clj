@@ -2,8 +2,7 @@
   "Analyze all comments in the code, forbid that comments so their publication is controlled"
   (:require [automaton-build-app.file-repo.text :as build-filerepo-text]
             [automaton-build-app.file-repo.raw :as build-filerepo-raw]
-            [automaton-build-app.code-helpers.analyze.utils :as
-             build-analyze-utils]
+            [automaton-build-app.code-helpers.analyze.utils :as build-analyze-utils]
             [automaton-build-app.utils.namespace :as build-namespace]
             [automaton-build-app.log :as build-log]))
 
@@ -28,15 +27,13 @@
   * `clj-repo`"
   [clj-repo]
   (build-log/info "Comments analyzis")
-  (let [regexp-filerepo-matcher
-          (->> ['automaton-build-app.code-helpers.analyze.comments
-                'automaton-build-app.code-helpers.analyze.comments-test]
-               (map build-namespace/ns-to-file)
-               (into #{}))
+  (let [regexp-filerepo-matcher (->> ['automaton-build-app.code-helpers.analyze.comments
+                                      'automaton-build-app.code-helpers.analyze.comments-test]
+                                     (map build-namespace/ns-to-file)
+                                     (into #{}))
         matches (-> clj-repo
                     (build-filerepo-raw/exclude-files regexp-filerepo-matcher)
-                    (build-filerepo-text/filecontent-to-match
-                      comments-pattern))]
+                    (build-filerepo-text/filecontent-to-match comments-pattern))]
     (->> matches
          (map (fn [[filename [_whole-match comment]]] [comment filename]))
          vec)))
@@ -46,11 +43,6 @@
   (build-analyze-utils/save-report matches
                                    (format "List of forbidden comments")
                                    filename
-                                   (fn [[comment filename]]
-                                     (format "%s -> [%s]" comment filename))))
+                                   (fn [[comment filename]] (format "%s -> [%s]" comment filename))))
 
-(defn assert-empty
-  [matches filename]
-  (build-analyze-utils/assert-empty matches
-                                    filename
-                                    (format "Some forbidden words are found")))
+(defn assert-empty [matches filename] (build-analyze-utils/assert-empty matches filename (format "Some forbidden words are found")))

@@ -55,8 +55,6 @@
        build-filerepo-raw/file-repo-map
        (mapcat (fn [[filename file-content]]
                  (->> file-content
-                      (map (fn [file-line] [(build-files/relativize-to-pwd
-                                              filename)
-                                            (search-line pattern file-line)]))
+                      (map (fn [file-line] [(build-files/relativize-to-pwd filename) (search-line pattern file-line)]))
                       (filter (comp not empty? second)))))
        vec))

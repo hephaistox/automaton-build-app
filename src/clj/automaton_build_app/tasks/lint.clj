@@ -6,8 +6,10 @@
 
 (defn lint
   "Linter"
-  [{:keys [min-level], :as _parsed-cli-opts}]
+  [{:keys [min-level]
+    :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
+  (build-log/info-format "Lint code")
   (let [app-dir ""
         app-data (@build-app/build-app-data_ app-dir)]
     (when-not (build-lint/lint false (build-app/src-dirs app-data))

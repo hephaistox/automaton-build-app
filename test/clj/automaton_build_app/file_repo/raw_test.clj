@@ -11,17 +11,14 @@
       (is (map? (sut/file-repo-map res)))
       (is (= (sut/file-repo-map raw-file-repo) (sut/file-repo-map res))))))
 
-(deftest file-repo-map-test
-  (testing "file repo map actually returns the map"
-    (is (map? (sut/file-repo-map raw-file-repo)))))
+(deftest file-repo-map-test (testing "file repo map actually returns the map" (is (map? (sut/file-repo-map raw-file-repo)))))
 
 (deftest filter-repo-test
   (testing "Refusing all files is ok"
     (is (empty? (-> (sut/filter-repo raw-file-repo (constantly false))
                     sut/file-repo-map))))
   (testing "Nil filter function means keep nothing"
-    (is (= sut-raw-impl/raw-file-repo-map
-           (sut/file-repo-map (sut/filter-repo raw-file-repo nil))))))
+    (is (= sut-raw-impl/raw-file-repo-map (sut/file-repo-map (sut/filter-repo raw-file-repo nil))))))
 
 (deftest filter-by-extension-test
   (testing "limit to clj files"

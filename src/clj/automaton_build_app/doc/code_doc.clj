@@ -21,17 +21,14 @@
                        :doc-description doc-description
                        :doc-dir doc-dir)
   (build-log/trace-data app-dirs "Directories search for code are")
-  (build-log/info-format
-    "Build application documentation cust-app `%s` in directory `%s`"
-    doc-title
-    app-name)
+  (build-log/info-format "Build application documentation cust-app `%s` in directory `%s`" doc-title app-name)
   (let [dir (build-files/create-dir-path app-dir doc-dir)]
     (build-files/create-dirs dir)
-    (codox/generate-docs {:name doc-title,
-                          :version "1.0",
-                          :source-paths app-dirs,
-                          :namespaces [#"clj[s|c]?$"],
-                          :output-path dir,
+    (codox/generate-docs {:name doc-title
+                          :version "1.0"
+                          :source-paths app-dirs
+                          :namespaces [#"clj[s|c]?$"]
+                          :output-path dir
                           :description doc-description})
     true))
 

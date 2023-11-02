@@ -1,5 +1,4 @@
-(ns automaton-build-app.utils.comparators
-  "Gathering useful specific comparators")
+(ns automaton-build-app.utils.comparators "Gathering useful specific comparators")
 
 (defn comparator-kw-symbol
   "Comparator to sort keywords and symbol.

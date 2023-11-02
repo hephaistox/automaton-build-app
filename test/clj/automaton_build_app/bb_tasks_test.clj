@@ -37,22 +37,21 @@
                       keys
                       first)]
     (testing "Check if updating is ok"
-      (is (not (-> (sut/update-bb-tasks* sut/registry
-                                         #{task-name}
-                                         (build-bb-edn/read-bb-edn ""))
+      (is (not (-> (sut/update-bb-tasks* sut/registry #{task-name} (build-bb-edn/read-bb-edn ""))
                    :tasks
                    keys
                    set
                    (contains? (symbol task-name)))))
-      (is (-> (sut/update-bb-tasks* sut/registry
-                                    #{(str task-name "-different-task")}
-                                    (build-bb-edn/read-bb-edn ""))
+      (is (-> (sut/update-bb-tasks* sut/registry #{(str task-name "-different-task")} (build-bb-edn/read-bb-edn ""))
               :tasks
               keys
               set
               (contains? (symbol task-name)))))))
 
 (comment
-  (sut/update-bb-tasks "" {'foo {:doc "", :tasks :init}} #{"foo"})
+  (sut/update-bb-tasks ""
+                       {'foo {:doc ""
+                              :tasks :init}}
+                       #{"foo"})
   ;
 )

@@ -3,9 +3,7 @@
   (:require [clojure.string :as str]
             [automaton-build-app.os.files :as build-files]))
 
-(defn update-last
-  [& v]
-  (let [v (vec v)] (when-not (empty? v) (conj (pop v) (str (last v) ".clj")))))
+(defn update-last [& v] (let [v (vec v)] (when-not (empty? v) (conj (pop v) (str (last v) ".clj")))))
 
 (defn ns-to-file
   "Transform a symbol of a namespace to its filename"

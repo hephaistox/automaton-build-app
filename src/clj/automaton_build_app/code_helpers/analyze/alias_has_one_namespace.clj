@@ -1,7 +1,6 @@
 (ns automaton-build-app.code-helpers.analyze.alias-has-one-namespace
   "Search for aliases which are used for many namespaces"
-  (:require [automaton-build-app.code-helpers.analyze.utils :as
-             build-analyze-utils]
+  (:require [automaton-build-app.code-helpers.analyze.utils :as build-analyze-utils]
             [automaton-build-app.file-repo.text :as build-filerepo-text]))
 
 (def alias-pattern
@@ -10,8 +9,7 @@
 (defn- search-alias-with-multiple-namespaces
   [matches]
   (->> matches
-       (group-by (fn [[_filename namespace alias :as _match]] [alias
-                                                               namespace]))
+       (group-by (fn [[_filename namespace alias :as _match]] [alias namespace]))
        (mapv (fn [[k-alias-ns match]] [k-alias-ns (mapv first match)]))
        (group-by ffirst)
        (filter (fn [[_k-alias-ns alias-ns-match]] (> (count alias-ns-match) 1)))
@@ -29,25 +27,12 @@
   (let [matches (-> clj-repo
                     (build-filerepo-text/filecontent-to-match alias-pattern))]
     (->> matches
-         (map (fn [[filename [_whole-match namespace alias _refer?]]] [filename
-                                                                       namespace
-                                                                       alias]))
-         (filter (fn [[_filename namespace alias]]
-                   (not (or (= "sut" alias)
-                            (nil? alias)
-                            (= "clojure.deftest" namespace)))))
+         (map (fn [[filename [_whole-match namespace alias _refer?]]] [filename namespace alias]))
+         (filter (fn [[_filename namespace alias]] (not (or (= "sut" alias) (nil? alias) (= "clojure.deftest" namespace)))))
          search-alias-with-multiple-namespaces)))
 
-(defn save-report
-  [matches filename]
-  (build-analyze-utils/save-report matches
-                                   "List of aliases referencing many namespaces"
-                                   filename
-                                   str))
+(defn save-report [matches filename] (build-analyze-utils/save-report matches "List of aliases referencing many namespaces" filename str))
 
 (defn assert-empty
   [matches filename]
-  (build-analyze-utils/assert-empty
-    matches
-    filename
-    "Some aliases are not consistent over your codebase"))
+  (build-analyze-utils/assert-empty matches filename "Some aliases are not consistent over your codebase"))

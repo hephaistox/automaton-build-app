@@ -4,9 +4,5 @@
 
 (deftest comparator-kw-symbol-test
   (testing "Keywords first" (is (sut/comparator-kw-symbol :a 'foo)))
-  (testing "Keywords alphabetically sorted"
-    (is (sut/comparator-kw-symbol :a :z))
-    (is (not (sut/comparator-kw-symbol :z :a))))
-  (testing "Symbols alphabetically sorted"
-    (is (sut/comparator-kw-symbol 'a 'z))
-    (is (not (sut/comparator-kw-symbol 'z 'a)))))
+  (testing "Keywords alphabetically sorted" (is (sut/comparator-kw-symbol :a :z)) (is (not (sut/comparator-kw-symbol :z :a))))
+  (testing "Symbols alphabetically sorted" (is (sut/comparator-kw-symbol 'a 'z)) (is (not (sut/comparator-kw-symbol 'z 'a)))))

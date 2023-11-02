@@ -8,5 +8,4 @@
   * `debug?`
   * `dirs` list of dirs to lint"
   [debug? dirs]
-  (build-cmds/execute-and-trace
-    (concat ["clj-kondo" "--lint"] dirs (when debug? ["--debug"]))))
+  (build-cmds/execute-and-trace (concat ["clj-kondo" "--lint"] dirs (when debug? ["--debug"]))))

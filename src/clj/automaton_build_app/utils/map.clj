@@ -11,9 +11,5 @@
   (if (empty? kss)
     m
     (let [[ks & rkss] kss]
-      (-> (update-in m
-                     ks
-                     (partial into
-                              (sorted-map-by
-                                build-comparators/comparator-kw-symbol)))
+      (-> (update-in m ks (partial into (sorted-map-by build-comparators/comparator-kw-symbol)))
           (recur rkss)))))

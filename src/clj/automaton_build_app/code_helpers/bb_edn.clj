@@ -4,14 +4,9 @@
             [automaton-build-app.os.files :as build-files]
             [automaton-build-app.log :as build-log]))
 
-(def bb-edn-filename
-  "Should not be used externally except in test namespaces"
-  "bb.edn")
+(def bb-edn-filename "Should not be used externally except in test namespaces" "bb.edn")
 
-(defn bb-edn-filename-fullpath
-  "Return the full path of the bb.edn file"
-  [app-dir]
-  (build-files/create-file-path app-dir bb-edn-filename))
+(defn bb-edn-filename-fullpath "Return the full path of the bb.edn file" [app-dir] (build-files/create-file-path app-dir bb-edn-filename))
 
 (defn read-bb-edn
   "Returns the bb-edn file content"
@@ -20,8 +15,7 @@
         bb-edn (build-edn-utils/read-edn bb-edn-filename-fullpath)]
     (if (and bb-edn-filename-fullpath bb-edn)
       bb-edn
-      (build-log/error-format
-        "Are you sure directory `%s` is an app, no valid bb task in it"))))
+      (build-log/error-format "Are you sure directory `%s` is an app, no valid bb task in it"))))
 
 (defn update-bb-edn
   "Update the `bb-edn` with the mono file with the file parameter, keep :tasks and :init keys and refresh aliases with tasks content
@@ -35,12 +29,11 @@
         bb-edn-content (read-bb-edn app-dir)
         updated-bb-edn (-> bb-edn-content
                            update-bb-edn-fn)]
-    (when-not (= updated-bb-edn bb-edn-content)
-      (build-edn-utils/spit-edn bb-edn-filename-fullpath updated-bb-edn))))
+    (when-not (= updated-bb-edn bb-edn-content) (build-edn-utils/spit-edn bb-edn-filename-fullpath updated-bb-edn))))
 
 (defn task-names
   [app-dir]
   (remove keyword?
-    (-> (read-bb-edn app-dir)
-        :tasks
-        keys)))
+          (-> (read-bb-edn app-dir)
+              :tasks
+              keys)))

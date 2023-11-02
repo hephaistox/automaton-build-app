@@ -1,5 +1,4 @@
-(ns automaton-build-app.os.exit-codes
-  "Constants to have clear and consistent return codes for the application")
+(ns automaton-build-app.os.exit-codes "Constants to have clear and consistent return codes for the application")
 
 (def ok 0)
 
@@ -13,10 +12,7 @@
 
 (def invalid-argument "128: Invalid argument to exit" 128)
 
-(defn fatal-error-signal
-  "128+n: Fatal error signal \"n\""
-  [signal]
-  (+ 128 signal))
+(defn fatal-error-signal "128+n: Fatal error signal \"n\"" [signal] (+ 128 signal))
 
 (def unexpected-exception 129)
 

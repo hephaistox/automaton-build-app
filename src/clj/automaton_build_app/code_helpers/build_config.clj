@@ -20,14 +20,7 @@
   * none
   Returns the list of directories with `build_config.edn` in it"
   ([config-path]
-   (->> (build-files/search-files config-path
-                                  (str "{"
-                                       build-config-filename
-                                       ",*/"
-                                       build-config-filename
-                                       ",*/*/"
-                                       build-config-filename
-                                       "}"))
+   (->> (build-files/search-files config-path (str "{" build-config-filename ",*/" build-config-filename ",*/*/" build-config-filename "}"))
         flatten
         (filter (comp not nil?))))
   ([] (search-for-build-config "")))
@@ -58,13 +51,6 @@
   [key-path default-value]
   (let [value (get-in (read-build-config ".") key-path)]
     (if value
-      (do (build-log/trace-format "Read build configuration key %s, found `%s`"
-                                  key-path
-                                  value)
-          value)
-      (do
-        (build-log/trace-format
-          "Read build configuration key %s, not found, defaulted to value `%s`"
-          key-path
-          default-value)
-        default-value))))
+      (do (build-log/trace-format "Read build configuration key %s, found `%s`" key-path value) value)
+      (do (build-log/trace-format "Read build configuration key %s, not found, defaulted to value `%s`" key-path default-value)
+          default-value))))

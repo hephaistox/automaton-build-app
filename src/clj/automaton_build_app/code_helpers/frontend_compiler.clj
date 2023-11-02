@@ -18,10 +18,7 @@
   * `dir` where npx should be executed
   * `npx-cmd` (Optional, default=npx) parameter to tell the npx command"
   ([dir] (npx-installed?* dir "npx"))
-  ([dir npx-cmd]
-   (every? zero?
-           (mapv first
-             (build-cmds/execute-with-exit-code [npx-cmd "-v" {:dir dir}])))))
+  ([dir npx-cmd] (every? zero? (mapv first (build-cmds/execute-with-exit-code [npx-cmd "-v" {:dir dir}])))))
 
 (def npx-installed? (memoize npx-installed?*))
 
@@ -33,10 +30,7 @@
   * `npx-cmd` (Optional, default=npx) parameter to tell the npx command"
   ([dir] (shadow-installed?* dir "shadow-cljs" "npx"))
   ([dir shadow-cmd npx-cmd]
-   (when (npx-installed? dir)
-     (every? string?
-             (build-cmds/execute-get-string [npx-cmd shadow-cmd "-info"
-                                             {:dir dir}])))))
+   (when (npx-installed? dir) (every? string? (build-cmds/execute-get-string [npx-cmd shadow-cmd "-info" {:dir dir}])))))
 
 (def shadow-installed? (memoize shadow-installed?*))
 
@@ -47,9 +41,7 @@
   * `dir` the frontend root directory"
   [target-alias dir]
   (when (shadow-installed? dir)
-    (build-cmds/execute-and-trace ["npm" "install" {:dir dir}]
-                                  ["npx" "shadow-cljs" "compile" target-alias
-                                   {:dir dir}])))
+    (build-cmds/execute-and-trace ["npm" "install" {:dir dir}] ["npx" "shadow-cljs" "compile" target-alias {:dir dir}])))
 
 (defn test-fe
   "Test the target frontend
@@ -57,10 +49,9 @@
   * `dir` the frontend root directory"
   [dir]
   (shadow-installed? dir)
-  (build-cmds/execute-and-trace
-    ["npm" "install" {:dir dir}]
-    ["npx" "shadow-cljs" "compile" "karma-test" {:dir dir}]
-    ["npx" "karma" "start" "--single-run" {:dir dir}]))
+  (build-cmds/execute-and-trace ["npm" "install" {:dir dir}]
+                                ["npx" "shadow-cljs" "compile" "karma-test" {:dir dir}]
+                                ["npx" "karma" "start" "--single-run" {:dir dir}]))
 
 (defn load-shadow-cljs
   "Read the shadow-cljs of an app
@@ -69,8 +60,7 @@
   Returns the content as data structure"
   [app-dir]
   (let [shadow-filepath (build-files/create-file-path app-dir shadow-cljs-edn)]
-    (when (build-files/is-existing-file? shadow-filepath)
-      (build-edn-utils/read-edn shadow-filepath))))
+    (when (build-files/is-existing-file? shadow-filepath) (build-edn-utils/read-edn shadow-filepath))))
 
 (defn builds
   "List build setup in the application
@@ -89,15 +79,11 @@
   * `target-file` target file"
   [dir target-file]
   (build-log/debug "Generate the size optimization report in " target-file)
-  (cond (not (is-shadow-project? dir))
-          (build-log/debug "No frontend found, skip optimization report")
+  (cond (not (is-shadow-project? dir)) (build-log/debug "No frontend found, skip optimization report")
         (nil? (-> (load-shadow-cljs dir)
                   (get-in [:build :app])))
-          (build-log/debug
-            "no app build target found, skip optimization report")
-        :else (build-cmds/execute-and-trace ["npx" "shadow-cljs" "run"
-                                             "shadow.cljs.build-report" "app"
-                                             target-file {:dir dir}])))
+        (build-log/debug "no app build target found, skip optimization report")
+        :else (build-cmds/execute-and-trace ["npx" "shadow-cljs" "run" "shadow.cljs.build-report" "app" target-file {:dir dir}])))
 
 (defn watch-modifications
   "Watch modification on code on cljs part, from tests or app
@@ -105,10 +91,10 @@
    * `dir` the frontend root directory"
   [dir main-css custom-css compiled-styles-css]
   (build-cmds/execute-and-trace ["npm" "install" {:dir dir}]
-                                ["npx" "tailwindcss" "-i" main-css custom-css
-                                 "-o" compiled-styles-css "--watch" {:dir dir}]
-                                ["npx" "shadow-cljs" "watch" "app" "karma-test"
-                                 "browser-test" {:dir dir, :background? true}]))
+                                ["npx" "tailwindcss" "-i" main-css custom-css "-o" compiled-styles-css "--watch" {:dir dir}]
+                                ["npx" "shadow-cljs" "watch" "app" "karma-test" "browser-test"
+                                 {:dir dir
+                                  :background? true}]))
 
 (defn extract-paths
   "Extract paths from the shadow cljs file content

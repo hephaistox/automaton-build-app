@@ -8,8 +8,7 @@
             [babashka.fs :as fs]
             [clojure.pprint :as pp]
             [clojure.tools.cli :refer [parse-opts]]
-            [automaton-build-app.code-helpers.build-config :as
-             build-build-config]))
+            [automaton-build-app.code-helpers.build-config :as build-build-config]))
 
 (defn- assemble-opts
   "Assemble task specific options and common cli options"
@@ -17,25 +16,18 @@
   (-> (get task-specific-cli-opts *task-name)
       (concat common-cli-opts)))
 
-(defn init-tasks
-  "To be run during the init of tasks"
-  []
-  (prefer-method pp/simple-dispatch
-                 clojure.lang.IPersistentMap
-                 clojure.lang.IDeref))
+(defn init-tasks "To be run during the init of tasks" [] (prefer-method pp/simple-dispatch clojure.lang.IPersistentMap clojure.lang.IDeref))
 
 (def common-cli-opts
-  [["-l" "--log LOG-LEVEL"
-    "Log level, one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"
-    :default :info :parse-fn keyword :validate
+  [["-l" "--log LOG-LEVEL" "Log level, one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`" :default :info :parse-fn keyword
+    :validate
     [(partial contains? #{:trace :debug :fatal :warning :info :error})
-     "Must be one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"]]
-   ["-d" "--details" "Details during logs"] ["-h" "--help" "Help"]])
+     "Must be one of `trace`, `debug`, `info`, `warning`, `error`, `fatal`"]] ["-d" "--details" "Show details and don't ellipsis the log"]
+   ["-h" "--help" "Displays this help message"]])
 
 (def build-app-task-specific-cli-opts
-  {"push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]
-           ["-t" "--tag-message TAG-MESSAGE" "Tag message"]],
-   "gha-container-publish" [["-t" "--tag TAG" "Tag for the publication"]],
+  {"push" [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"] ["-t" "--tag-message TAG-MESSAGE" "Tag message"]]
+   "gha-container-publish" [["-t" "--tag TAG" "Tag for the publication"]]
    "gha" [["-f" "--force" "Force execution on local machine"]]})
 
 (defn enter-tasks
@@ -44,10 +36,7 @@
   Params:
   * `task-specific-cli-opts` app specific cli opts, a map associating a task name as a string to the cli options, as understood by tools.cli"
   [task-name task-specific-cli-opts]
-  (let [cli-opts (->> (assemble-opts common-cli-opts
-                                     (merge build-app-task-specific-cli-opts
-                                            task-specific-cli-opts)
-                                     task-name)
+  (let [cli-opts (->> (assemble-opts common-cli-opts (merge build-app-task-specific-cli-opts task-specific-cli-opts) task-name)
                       (parse-opts *command-line-args*))]
     (build-log/set-min-level! (get-in cli-opts [:options :log]))
     (build-log/set-details? (get-in cli-opts [:options :details]))
@@ -55,15 +44,9 @@
     (build-log/trace-data cli-opts)
     (assoc cli-opts :usage-msg (format "Usage `bb %s`" task-name))))
 
-(defn- cicd?
-  "Is the current execution is in the content of a CICD runner, like github runner"
-  []
-  (System/getenv "CI"))
+(defn- cicd? "Is the current execution is in the content of a CICD runner, like github runner" [] (System/getenv "CI"))
 
-(defn- qualified-name
-  "Return the qualified name of a function"
-  [s]
-  (apply str (interpose "/" ((juxt namespace name) (symbol s)))))
+(defn- qualified-name "Return the qualified name of a function" [s] (apply str (interpose "/" ((juxt namespace name) (symbol s)))))
 
 (defn- run-bb
   "Run the `body-fn` on the current bb environment"
@@ -75,23 +58,18 @@
         _ (require ns)
         resolved-body-fn (resolve body-fn)]
     (if (nil? resolved-body-fn)
-      (build-log/fatal-format "Unknown task `%s` with fn `%s`"
-                              task-name
-                              body-fn)
-      (resolved-body-fn {:command-line-args *command-line-args*,
-                         :min-level (build-log/min-level-kw),
+      (build-log/fatal-format "Unknown task `%s` with fn `%s`" task-name body-fn)
+      (resolved-body-fn {:command-line-args *command-line-args*
+                         :min-level (build-log/min-level-kw)
                          :cli-opts opts}))))
 
 (defn- run-clj
   "Run the `body-fn` on the current full clojure environment"
   [task-name body-fn opts]
   (build-log/trace-format "Run %s task on clj" task-name)
-  (when-not (build-cmds/execute-and-trace
-              ["clojure" "-X:build:bb-deps" (qualified-name body-fn)
-               :command-line-args (or *command-line-args* []) :cli-opts opts
-               :min-level (build-log/min-level-kw) {}])
-    (build-log/trace
-      "The clj command has failed, so the exit code is passed to the bb")
+  (when-not (build-cmds/execute-and-trace ["clojure" "-X:build:bb-deps" (qualified-name body-fn) :command-line-args
+                                           (or *command-line-args* []) :cli-opts opts :min-level (build-log/min-level-kw) {}])
+    (build-log/trace "The clj command has failed, so the exit code is passed to the bb")
     (System/exit build-exit-codes/catch-all)))
 
 (defn- dispatch
@@ -107,8 +85,7 @@
 (defn- update-bb-tasks
   [app-dir]
   (let [bb-tasks-config (build-build-config/read-param [:bb-tasks] nil)
-        select-tasks
-          (get bb-tasks-config :select-tasks build-bb-tasks/all-tasks)
+        select-tasks (get bb-tasks-config :select-tasks build-bb-tasks/all-tasks)
         exclude-tasks (->> (get bb-tasks-config :exclude-tasks #{})
                            (map symbol)
                            (into #{}))
@@ -120,9 +97,7 @@
   Returns true if the bb tasks has been updated and the task needed to be launched again"
   [app-dir]
   (build-update-deps/update-bb-deps app-dir)
-  #_(build-cfg-mgt/spit-hook app-dir
-                             "pre-commit"
-                             "#!/bin/sh\n../pwdbb format\n\n")
+  #_(build-cfg-mgt/spit-hook app-dir "pre-commit" "#!/bin/sh\n../pwdbb format\n\n")
   (update-bb-tasks app-dir))
 
 (defn execute-task
@@ -131,20 +106,19 @@
   * `cli-opts`
   * `body` body to execute
   * `executing-pf` (Optional, default = :bb) could be :bb or :clj, the task will be executed on one or the other"
-  ([task-name cli-opts body-fn {:keys [executing-pf], :or {executing-pf :bb}}]
+  ([task-name cli-opts body-fn
+    {:keys [executing-pf]
+     :or {executing-pf :bb}}]
    (let [app-dir ""]
      (when-not (prepare-task app-dir)
        (try (build-log/info-format "Run %s task" task-name)
             (dispatch task-name body-fn executing-pf cli-opts)
             (catch Exception e
-              (println (format "Error during execution of `%s`, %s`"
-                               task-name
-                               (pr-str (or (ex-message e) e))))
+              (println (format "Error during execution of `%s`, %s`" task-name (pr-str (or (ex-message e) e))))
               (if (cicd?)
                 (println e)
                 (let [file (fs/create-temp-file {:suffix ".edn"})]
-                  (println (format "See details in `%s`"
-                                   (.toString (.toAbsolutePath file))))
+                  (println (format "See details in `%s`" (.toString (.toAbsolutePath file))))
                   (spit (fs/file file) (prn-str e))
                   ""))
               (System/exit build-exit-codes/catch-all))))))

@@ -1,7 +1,6 @@
 (ns automaton-build-app.os.edn-utils
   "Adapter to read an edn file"
-  (:require [automaton-build-app.code-helpers.formatter :as
-             build-code-formatter]
+  (:require [automaton-build-app.code-helpers.formatter :as build-code-formatter]
             [automaton-build-app.os.files :as build-files]
             [automaton-build-app.log :as build-log]
             [clojure.edn :as edn]))
@@ -15,9 +14,9 @@
              edn-content (build-files/read-file edn-filename)]
          (edn/read-string edn-content))
        (catch Exception e
-         (build-log/error-exception
-           (ex-info (format "File `%s` is not an edn" edn-filename)
-                    {:caused-by e, :file-name edn-filename}))
+         (build-log/error-exception (ex-info (format "File `%s` is not an edn" edn-filename)
+                                             {:caused-by e
+                                              :file-name edn-filename}))
          nil)))
 
 (defn spit-edn
@@ -31,27 +30,19 @@
   ([edn-filename content header]
    (try (build-log/trace "Spit edn file:" edn-filename)
         (let [content (doall content)
-              previous-content (when (build-files/is-existing-file?
-                                       edn-filename)
-                                 (read-edn edn-filename))]
+              previous-content (when (build-files/is-existing-file? edn-filename) (read-edn edn-filename))]
           (if (= (hash previous-content) (hash content))
-            (build-log/debug-format
-              "Content of file `%s` is already up to date, spitting is skipped"
-              edn-filename)
+            (build-log/debug-format "Content of file `%s` is already up to date, spitting is skipped" edn-filename)
             (do (build-log/debug "Contents have changed")
-                (build-log/trace-format "content (hash= `%s`, content = `%s`)"
-                                        (hash content)
-                                        content)
-                (build-log/trace-format "content (hash= `%s`, content = `%s`)"
-                                        (hash previous-content)
-                                        previous-content)
+                (build-log/trace-format "content (hash= `%s`, content = `%s`)" (hash content) content)
+                (build-log/trace-format "content (hash= `%s`, content = `%s`)" (hash previous-content) previous-content)
                 (build-files/spit-file edn-filename content)
                 (build-code-formatter/format-file edn-filename header))))
         content
         (catch Exception e
           (throw (ex-info "Impossible to update the .edn file"
-                          {:deps-edn-filename edn-filename,
-                           :exception e,
+                          {:deps-edn-filename edn-filename
+                           :exception e
                            :content content})))))
   ([edn-filename content] (spit-edn edn-filename content nil)))
 

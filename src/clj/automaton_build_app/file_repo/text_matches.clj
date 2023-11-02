@@ -23,5 +23,4 @@
   * `report-filename` where to store the report"
   [matches report-title report-filename]
   (build-log/info-format "Save report `%s`" report-title)
-  (when (and (not (str/blank? report-filename)) (seq matches))
-    (build-edn-utils/spit-edn report-filename matches)))
+  (when (and (not (str/blank? report-filename)) (seq matches)) (build-edn-utils/spit-edn report-filename matches)))

@@ -12,12 +12,9 @@
   * `cmds-to-test` set of tasks to execute"
   [selected-tasks cmds-to-test]
   (let [selected-tasks (set selected-tasks)
-        selected-cmds (filter #(contains? selected-tasks (:cmd-name %))
-                        cmds-to-test)]
+        selected-cmds (filter #(contains? selected-tasks (:cmd-name %)) cmds-to-test)]
     (when (= (count selected-cmds) (count selected-tasks))
-      (build-log/warn-format "Mismatch in tasks, build_config %s, bb.edn %s"
-                             (count selected-tasks)
-                             (count selected-cmds)))
+      (build-log/warn-format "Mismatch in tasks, build_config %s, bb.edn %s" (count selected-tasks) (count selected-cmds)))
     selected-cmds))
 
 (defn- run-cmd
@@ -30,36 +27,28 @@
   * `process-opts` options to pass to process creation"
   [cmd expanded-cmd expected-exit-code cmd-line-args process-opts]
   (let [cmd-with-args (concat cmd cmd-line-args [process-opts])
-        [[exit-code _]] (build-cmds/execute-and-trace-return-exit-codes
-                          cmd-with-args)]
+        [[exit-code _]] (build-cmds/execute-and-trace-return-exit-codes cmd-with-args)]
     (if (= expected-exit-code exit-code)
-      [true
-       #(build-log/info-format "Test `%s` successfully passed" expanded-cmd)]
-      [false
-       #(build-log/error-format "Test `%s` expects `%s` and found `%s`"
-                                expanded-cmd
-                                expected-exit-code
-                                exit-code)])))
+      [true #(build-log/info-format "Test `%s` successfully passed" expanded-cmd)]
+      [false #(build-log/error-format "Test `%s` expects `%s` and found `%s`" expanded-cmd expected-exit-code exit-code)])))
 
 (defn- test-cli-cmd
   "Run the command, print the message
   Params:
   * `cmd-line-args` command line arguments
   * `map-cmd` map of the command to execute"
-  [cmd-line-args [_task-name {:keys [la-test], :as _map-cmd}]]
+  [cmd-line-args
+   [_task-name
+    {:keys [la-test]
+     :as _map-cmd}]]
   (build-log/trace "Test is la-test" la-test)
-  (let [{:keys [skip? process-opts cmd expected-exit-code],
+  (let [{:keys [skip? process-opts cmd expected-exit-code]
          :or {expected-exit-code build-exit-codes/ok}}
-          la-test
+        la-test
         expanded-cmd (build-cmds/expand-cmd cmd)]
     (if skip?
       [true #(build-log/warn-format "Skip `%s` " expanded-cmd)]
-      (do (build-log/info-format "Test cmd `%s`:" expanded-cmd)
-          (run-cmd cmd
-                   expanded-cmd
-                   expected-exit-code
-                   cmd-line-args
-                   process-opts)))))
+      (do (build-log/info-format "Test cmd `%s`:" expanded-cmd) (run-cmd cmd expanded-cmd expected-exit-code cmd-line-args process-opts)))))
 
 (defn- exec-and-return
   "In a command result, execute the display-return-fn and return the value
@@ -75,14 +64,13 @@
   * `cmds-to-test` collection of maps defining the tasks to execute (should comply to automaton-build-app.bb-tasks/registry-schema)
   * `cli-args` arguments of the cli - useful to keep that setup in the called bb tasks"
   [cmds-to-test cli-args]
-  (let [results (mapv (comp exec-and-return (partial test-cli-cmd cli-args))
-                  cmds-to-test)]
+  (let [results (->> cmds-to-test
+                     (mapv (comp exec-and-return (partial test-cli-cmd cli-args))))]
     (build-log/info "Summary")
     (doseq [[_ display-return-fn] results] (display-return-fn))
     (if (every? first results)
       (build-log/info "All tests passed")
-      (do (build-log/error "Errors found")
-          (System/exit build-exit-codes/catch-all)))))
+      (do (build-log/error "Errors found") (System/exit build-exit-codes/catch-all)))))
 
 (comment
   (cli-test build-bb-tasks/registry {})

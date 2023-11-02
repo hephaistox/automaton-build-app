@@ -28,31 +28,25 @@
   [app-dir major-version]
   (if major-version
     (let [version-filename (build-files/create-file-path app-dir "version.edn")
-          {_version :version,
-           older-minor-version :minor-version,
+          {_version :version
+           older-minor-version :minor-version
            older-major-version :major-version}
-            (build-edn-utils/read-edn version-filename)
-          minor-version (when-not (= older-major-version
-                                     (format major-version -1))
-                          (build-log/info "A new major version is detected")
-                          (build-log/trace-format "Older major version is `%s`"
-                                                  older-major-version)
-                          (build-log/trace-format "Newer major version is `%s`"
-                                                  (format major-version -1))
+          (build-edn-utils/read-edn version-filename)
+          minor-version (if-not (= older-major-version (format major-version -1))
+                          (do (build-log/info "A new major version is detected")
+                              (build-log/trace-format "Older major version is `%s`" older-major-version)
+                              (build-log/trace-format "Newer major version is `%s`" (format major-version -1))
+                              -1)
                           older-minor-version)
           new-minor-version (inc (or minor-version -1))
           major-version-only (format major-version -1)
           new-version (format major-version new-minor-version)]
-      (build-log/trace-format "Major version: %s, old minor: %s, new minor %s"
-                              major-version
-                              older-minor-version
-                              minor-version)
-      (build-edn-utils/spit-edn
-        version-filename
-        {:major-version major-version-only,
-         :version new-version,
-         :minor-version new-minor-version}
-        "Last generated version, note a failed push consume a number")
+      (build-log/trace-format "Major version: %s, old minor: %s, new minor %s" major-version older-minor-version minor-version)
+      (build-edn-utils/spit-edn version-filename
+                                {:major-version major-version-only
+                                 :version new-version
+                                 :minor-version new-minor-version}
+                                "Last generated version, note a failed push consume a number")
       new-version)
     (build-log/warn "Major version is missing")))
 

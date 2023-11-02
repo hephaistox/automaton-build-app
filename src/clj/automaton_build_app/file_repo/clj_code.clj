@@ -9,25 +9,22 @@
 
 ;; Match a usage of the code and list all concerned extensions
 (defonce ^:private usage-to-extension
-  {:clj [".clj"],
-   :cljs [".cljs"],
-   :cljc [".cljc"],
-   :edn [".edn"],
-   :clj-compiler [".clj" ".cljc"],
-   :cljs-compiler [".cljc" ".cljs"],
-   :code [".clj" ".cljc" ".cljs"],
+  {:clj [".clj"]
+   :cljs [".cljs"]
+   :cljc [".cljc"]
+   :edn [".edn"]
+   :clj-compiler [".clj" ".cljc"]
+   :cljs-compiler [".cljc" ".cljs"]
+   :code [".clj" ".cljc" ".cljs"]
    :reader [".clj" ".cljc" ".cljs" ".edn"]})
 
-(def all-reader-extensions
-  "All extensions understood by a clojure reader"
-  (get usage-to-extension :reader))
+(def all-reader-extensions "All extensions understood by a clojure reader" (get usage-to-extension :reader))
 
-(defonce ^:private glob-code-extensions
-  (format "**{%s}" (str/join "," (:reader usage-to-extension))))
+(defonce ^:private glob-code-extensions (format "**{%s}" (str/join "," (:reader usage-to-extension))))
 
 (defprotocol CodeRepo
   (filter-by-usage [this usage-kw]
-    "Filter the existing files based on its usage, see `code-extenstions-map` for details"))
+   "Filter the existing files based on its usage, see `code-extenstions-map` for details"))
 
 (defrecord CljCodeFileRepo [file-repo-map*]
   build-filerepo-raw/FileRepo
@@ -40,16 +37,12 @@
     (filter-repo [_ filter-fn]
       (-> (build-raw-impl/filter-repo-map file-repo-map* filter-fn)
           ->CljCodeFileRepo))
-    (filter-by-extension [_ extensions]
-      (build-raw-impl/filter-by-extension file-repo-map* extensions))
+    (filter-by-extension [_ extensions] (build-raw-impl/filter-by-extension file-repo-map* extensions))
   CodeRepo
     (filter-by-usage [_ usage-kw]
       (build-raw-impl/filter-repo-map
-        file-repo-map*
-        (fn [[filename _]]
-          (some some?
-                (map (partial build-files/match-extension? filename)
-                  (get usage-to-extension usage-kw)))))))
+       file-repo-map*
+       (fn [[filename _]] (some some? (map (partial build-files/match-extension? filename) (get usage-to-extension usage-kw)))))))
 
 (defn search-clj-filenames
   "Return the list of clojure code file names
@@ -60,12 +53,8 @@
 
 (defn- match
   [filenames extensions-kw]
-  (let [extensions (mapcat (fn [extension-kw]
-                             (get usage-to-extension extension-kw))
-                     extensions-kw)]
-    (filter (fn [filename]
-              (apply build-files/match-extension? filename extensions))
-      filenames)))
+  (let [extensions (mapcat (fn [extension-kw] (get usage-to-extension extension-kw)) extensions-kw)]
+    (filter (fn [filename] (apply build-files/match-extension? filename extensions)) filenames)))
 
 (defn make-clj-repo-from-dirs
   "Build the repo while searching clj files in the directory `dir`

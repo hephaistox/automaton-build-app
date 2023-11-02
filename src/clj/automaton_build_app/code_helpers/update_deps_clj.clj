@@ -4,6 +4,4 @@
 (defn do-update
   "Update the depenencies"
   [dir]
-  (antq.core/-main "--upgrade" (format "--directory=%s" dir)
-                   "--exclude=cider/cider-nrepl"
-                     "--exclude=refactor-nrepl/refactor-nrepl"))
+  (antq.core/-main "--upgrade" (format "--directory=%s" dir) "--exclude=cider/cider-nrepl" "--exclude=refactor-nrepl/refactor-nrepl"))

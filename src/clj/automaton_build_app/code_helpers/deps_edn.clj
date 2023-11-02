@@ -26,18 +26,14 @@
   * `deps-edn` content the deps edn file to search extract path in
   * `excluded-aliases` (Optional, default #{}) is a collection of aliases to exclude
   * `limit-to-existing?` (Optional, default true) if true remove non existing directories"
-  ([{:keys [paths aliases], :as _deps-edn} excluded-aliases limit-to-existing?]
+  ([{:keys [paths aliases]
+     :as _deps-edn} excluded-aliases limit-to-existing?]
    (let [selected-aliases (apply dissoc aliases excluded-aliases)
-         paths-in-aliases
-           (mapcat (fn [[_alias-name paths]]
-                     (apply concat
-                       (vals (select-keys paths [:extra-paths :paths]))))
-             selected-aliases)]
+         paths-in-aliases (mapcat (fn [[_alias-name paths]] (apply concat (vals (select-keys paths [:extra-paths :paths]))))
+                           selected-aliases)]
      (->> paths-in-aliases
           (concat paths)
-          (filter (fn [file]
-                    (or (not limit-to-existing?)
-                        (build-files/is-existing-dir? file))))
+          (filter (fn [file] (or (not limit-to-existing?) (build-files/is-existing-dir? file))))
           sort
           dedupe
           (into []))))

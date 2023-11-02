@@ -6,7 +6,10 @@
             [clojure.java.io :as io]
             [clojure.string :as str]))
 
-(def default-opts {:in :inherit, :out :inherit, :shutdown p/destroy-tree})
+(def default-opts
+  {:in :inherit
+   :out :inherit
+   :shutdown p/destroy-tree})
 
 (defn- log-a-stream
   "Connect to output and error stream and log them
@@ -27,11 +30,11 @@
   "Map a processus streams to output and error streams
   Params:
   * `proc` the process to listen at"
-  [proc]
-  (future (log-a-stream (fn [& args] (build-log/trace (doall args)))
-                        proc
-                        (:out proc)))
-  (log-a-stream (fn [& args] (build-log/error (doall args))) proc (:err proc)))
+  [proc error-to-std?]
+  (future (log-a-stream (fn [& args] (build-log/trace (doall args))) proc (:out proc)))
+  (log-a-stream (if error-to-std? (fn [& args] (build-log/trace (doall args))) (fn [& args] (build-log/error (doall args))))
+                proc
+                (:err proc)))
 
 (defn- create-process
   "Creates process and execute it according to the params
@@ -40,26 +43,21 @@
   * `trace?` if true, the output and error streams are linked to log
   * `string?` if true, the output and error streams are returned as a string"
   [command trace? string?]
-  (try
-    (let [last-command-elt (last command)
-          [command opts] (if (map? last-command-elt)
-                           [(vec (butlast command))
-                            (merge default-opts last-command-elt)]
-                           [command default-opts])
-          updated-opts (-> opts
-                           (dissoc :background?)
-                           (merge (when string? {:out :string, :err :string}))
-                           (update :dir #(if (str/blank? %) "." %)))
-          _ (build-log/trace-format "Execute `%s` with options = `%s`"
-                                    (str/join " " command)
-                                    (pr-str updated-opts))
-          process (apply p/process updated-opts command)]
-      (when trace? (log-during-execution process))
-      (cond (:background? opts) true
-            :else (let [{:keys [exit out err]} @process] [exit (str out err)])))
-    (catch Exception e
-      (build-log/error-exception e)
-      [-1 (str "Unexpected error during execution of this command" command)])))
+  (try (let [last-command-elt (last command)
+             [command opts]
+             (if (map? last-command-elt) [(vec (butlast command)) (merge default-opts last-command-elt)] [command default-opts])
+             updated-opts (-> opts
+                              (dissoc :background? :error-to-std?)
+                              (merge (when string?
+                                       {:out :string
+                                        :err :string}))
+                              (update :dir #(if (str/blank? %) "." %)))
+             _ (build-log/trace-format "Execute `%s` with options = `%s`" (str/join " " command) (pr-str updated-opts))
+             process (apply p/process updated-opts command)]
+         (when trace? (log-during-execution process (:error-to-std? opts)))
+         (cond (:background? opts) true
+               :else (let [{:keys [exit out err]} @process] [exit (str out err)])))
+       (catch Exception e (build-log/error-exception e) [-1 (str "Unexpected error during execution of this command" command)])))
 
 (defn execute-with-exit-code
   "Execute the commands, returns a vector with, for each command, a pair of exit code and message
