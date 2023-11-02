@@ -72,6 +72,5 @@ Params:
   [& src-paths]
   (when (is-formatter-setup)
     (doseq [file ["bb.edn" "build_config.edn" "deps.edn" "shadow-cljs.edn" "version.edn"]]
-      (when (build-files/is-existing-file? file) (println "ccc") (format-file file)))
-    (println "yytyt")
+      (when (build-files/is-existing-file? file) (format-file file)))
     (apply format-dir src-paths)))
