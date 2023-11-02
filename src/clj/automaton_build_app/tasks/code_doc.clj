@@ -47,8 +47,9 @@
 
 (defn code-doc
   "Generate the code documentation"
-  [{:keys [min-level]
+  [{:keys [min-level details]
     :as _parsed-cli-opts}]
+  (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (let [app-dir ""]
-    (build-log/set-min-level! min-level)
     (when-not ((juxt vizualize-ns vizualize-deps doc-string blog-task mermaid) app-dir) (System/exit build-exit-codes/catch-all))))

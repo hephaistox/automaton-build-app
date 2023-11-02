@@ -24,7 +24,10 @@
   "Build the container, publish the local code
   The gha container is adapted for each application, so this build is tagged with the name of the app and its version.
   The deps files are copied in the docker to preload all deps (for instance all `deps.edn`)"
-  [parsed-cli-opts]
+  [{:keys [min-level details]
+    :as parsed-cli-opts}]
+  (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (build-log/info "Build and publish github container")
   (let [app-dir ""
         {:keys [cli-opts]} parsed-cli-opts

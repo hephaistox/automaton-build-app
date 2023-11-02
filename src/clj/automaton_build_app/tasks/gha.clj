@@ -5,9 +5,10 @@
 
 (defn gha
   "Run the test on github actions"
-  [{:keys [min-level]
+  [{:keys [min-level details]
     :as parsed-cli-opts}]
   (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (let [forced? (get-in parsed-cli-opts [:cli-opts :options :force])]
     (if (or (System/getenv "CI") forced?)
       (build-task-ltest/ltest parsed-cli-opts)

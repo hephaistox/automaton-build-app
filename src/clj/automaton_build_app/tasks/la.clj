@@ -5,9 +5,10 @@
 
 (defn la
   "Local acceptance"
-  [{:keys [min-level]
-    :as parsed-cli-args}]
+  [{:keys [min-level details]
+    :as parsed-cli-opts}]
+  (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (let [task-names-in-bb (build-bb-edn/task-names "")]
-    (build-log/set-min-level! min-level)
     (build-log/trace-format "The following tasks are found in `bb.edn`: %s" task-names-in-bb)
-    (build-la/run task-names-in-bb (get-in parsed-cli-args [:command-line-args]) {})))
+    (build-la/run task-names-in-bb (get-in parsed-cli-opts [:command-line-args]) {})))

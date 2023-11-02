@@ -4,7 +4,8 @@
 
 (defn update-deps
   "Update the dependencies of the project"
-  [{:keys [min-level]
+  [{:keys [min-level details]
     :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (build-update-deps-clj/do-update ""))

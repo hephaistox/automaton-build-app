@@ -7,7 +7,10 @@
   "Local connection to the code
   Params:
   * none"
-  [_parsed-cli-opts]
+  [{:keys [min-level details]
+    :as _parsed-cli-opts}]
+  (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (let [app-dir ""
         app-data (@build-app/build-app-data_ app-dir)
         aliases (get-in app-data [:lconnect :aliases])]

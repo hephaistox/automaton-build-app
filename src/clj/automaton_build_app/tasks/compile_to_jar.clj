@@ -7,9 +7,10 @@
 
 (defn compile-to-jar
   "Compile both backend and frontend (if its setup file exists, e.g. `shadow-cljs.edn`)), in production mode"
-  [{:keys [min-level]
+  [{:keys [min-level details]
     :as _parsed-cli-opts}]
   (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (let [app-dir ""
         {:keys [publication deps-edn]} (@build-app/build-app-data_ app-dir)
         {:keys [as-lib jar major-version shadow-cljs]} publication

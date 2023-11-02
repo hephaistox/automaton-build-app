@@ -17,13 +17,15 @@
 
 (defn gha-lconnect
   "Task to locally connect to github action"
-  [{:keys [cli-opts]
-    :as _parsed-cli-opts}]
+  [{:keys [min-level details]
+    :as parsed-cli-opts}]
+  (build-log/set-min-level! min-level)
+  (build-log/set-details? details)
   (build-log/info "Run and connect to github container locally")
   (let [{:keys [app-name publication]
          :as app-data}
         (@build-app/build-app-data_ "")
-        tag (get-in cli-opts [:options :tag])
+        tag (get-in parsed-cli-opts [:options :tag])
         container-repo-account (get-in app-data [:container-repo :account])
         {:keys [gha-container]} publication
         {:keys [repo-url workflows repo-branch]} gha-container
