@@ -4,9 +4,7 @@
             [automaton-build-app.file-repo.clj-code :as build-clj-code]))
 
 (comment
-  (def build-data
-    (-> ""
-        (@build-app/build-app-data_)))
+  (def build-data (build-app/build-app-data ""))
   (def clj-repo
     (-> build-data
         build-app/src-dirs

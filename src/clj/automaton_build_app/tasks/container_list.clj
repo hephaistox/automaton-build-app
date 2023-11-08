@@ -1,11 +1,8 @@
 (ns automaton-build-app.tasks.container-list
   (:require [automaton-build-app.containers.local-engine :as build-local-engine]
-            [automaton-build-app.log :as build-log]))
+            [automaton-build-app.os.terminal-msg :as build-terminal-msg]))
 
 (defn container-list
   "List all available containers"
-  [{:keys [min-level details]
-    :as _parsed-cli-opts}]
-  (build-log/set-min-level! min-level)
-  (build-log/set-details? details)
-  (println (build-local-engine/container-image-list)))
+  [_task-arg _app-dir _app-data _bb-edn-args]
+  (apply build-terminal-msg/println-msg (build-local-engine/container-image-list)))

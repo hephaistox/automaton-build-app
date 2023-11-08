@@ -17,4 +17,5 @@
 
 (deftest execute-report-test
   (let [clj-repo (build-clj-code/->CljCodeFileRepo {"foo.clj" [(format ";;%s foo is bar" sut/T)]})]
-    (testing "Comment report is returning expected lines" (is (= [[" foo is bar" "foo.clj"]] (sut/comment-matches clj-repo))))))
+    (testing "Comment report is returning expected lines"
+      (is (= [[" foo is bar" "foo.clj" ";;TODO foo is bar"]] (sut/comment-matches clj-repo))))))

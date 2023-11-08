@@ -29,7 +29,7 @@
   (build-log/info "Forbidden words analyzis")
   (let [matches (build-filerepo-text/filecontent-to-match clj-repo regexp)]
     (->> matches
-         (mapv (fn [[filename [_whole-match & matches]]] [filename (vec matches)])))))
+         (mapv (fn [[filename [whole-match & matches]]] [filename (vec matches) whole-match])))))
 
 (defn save-report [matches filename] (build-analyze-utils/save-report matches "List of forbidden words found in the project" filename str))
 

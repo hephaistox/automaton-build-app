@@ -31,14 +31,5 @@
                               :deps {}
                               :tasks {:init "don't touch"
                                       :requires "neither"}})
-      (is (= {:paths []
-              :deps {}
-              :tasks {:init "don't touch"
-                      :requires "neither"}
-              :new-tasks {"foo4" {:cli-params-mode :none
-                                  :doc "Test"
-                                  :exec-task 'bar}
-                          "foo2" {:cli-params-mode :none
-                                  :doc "Test2"
-                                  :exec-task 'bar2}}}
-             (sut/update-bb-edn tmp-bb-dir update-fn))))))
+      (is (not (sut/update-bb-edn tmp-bb-dir update-fn)))
+      (is (sut/update-bb-edn tmp-bb-dir update-fn)))))

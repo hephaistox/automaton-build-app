@@ -1,6 +1,5 @@
 (ns automaton-build-app.tasks.gha-container-publish
-  (:require [automaton-build-app.app :as build-app]
-            [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]
+  (:require [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]
             [automaton-build-app.cicd.server :as build-cicd-server]
             [automaton-build-app.containers :as build-containers]
             [automaton-build-app.containers.github-action :as build-github-action]
@@ -24,15 +23,11 @@
   "Build the container, publish the local code
   The gha container is adapted for each application, so this build is tagged with the name of the app and its version.
   The deps files are copied in the docker to preload all deps (for instance all `deps.edn`)"
-  [{:keys [min-level details]
-    :as parsed-cli-opts}]
-  (build-log/set-min-level! min-level)
-  (build-log/set-details? details)
+  [task-arg app-dir
+   {:keys [app-name publication]
+    :as _app-data} _bb-edn-args]
   (build-log/info "Build and publish github container")
-  (let [app-dir ""
-        {:keys [cli-opts]} parsed-cli-opts
-        tag (get-in cli-opts [:options :tag])
-        {:keys [app-name publication]} (@build-app/build-app-data_ app-dir)
+  (let [tag (get-in task-arg [:options :tag])
         gha-repo-url (get-in publication [:gha-container :repo-url])
         gha-workflows (get-in publication [:gha-container :workflows])
         gha-repo-account (get-in publication [:gha-container :account])
@@ -41,6 +36,6 @@
         container (build-container app-dir app-name gha-repo-account gha-container-dir tag)
         container-root (build-containers/container-root container)]
     (build-cicd-server/show-tag-in-workflows gha-workflows container-root)
-    (cond (str/blank? tag) (do (build-log/error-format "Cli options are missing, check below") (println (get-in cli-opts [:summary])))
+    (cond (str/blank? tag) (do (build-log/error-format "Cli options are missing, check below") (println (get-in task-arg [:summary])))
           (not (and gha-workflows gha-repo-url)) (build-log/warn "Skipped as build_config.edn parameters are not set")
           :else (push-gha-from-local* gha-repo-url gha-container-dir container tag gha-workflows gha-repo-branch))))

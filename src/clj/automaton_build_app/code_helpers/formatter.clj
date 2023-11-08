@@ -6,6 +6,7 @@
             [automaton-build-app.os.commands :as build-cmds]
             [automaton-build-app.os.files :as build-files]
             [automaton-build-app.utils.time :as build-time]
+            [automaton-build-app.cicd.server :as build-cicd-server]
             [clojure.string :as str]))
 
 (def ^:private use-local-zprint-config-parameter #":search-config\?\s*true")
@@ -17,12 +18,14 @@
 Params:
   * `none`"
   []
-  (let [zprintrc-content (build-files/read-file zprint-file)]
-    (if (or (nil? zprintrc-content) (not (re-find use-local-zprint-config-parameter zprintrc-content)))
-      (build-log/error-format "Formatting aborted as the formatter setup must include `%s`\n Please add it to `%s` file"
-                              use-local-zprint-config-parameter
-                              zprint-file)
-      true)))
+  (if (or (build-cicd-server/is-cicd?)
+          (not (some->> (build-files/read-file zprint-file)
+                        (re-find use-local-zprint-config-parameter))))
+    (do (build-log/warn-format "Formatting aborted as the formatter setup must include `%s`\n Please add it to `%s` file"
+                               use-local-zprint-config-parameter
+                               zprint-file)
+        false)
+    true))
 
 (defn format-file
   "Format the `clj` or `edn` file

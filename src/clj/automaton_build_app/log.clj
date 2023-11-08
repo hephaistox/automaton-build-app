@@ -2,7 +2,13 @@
   "Logger for building system
   Is a basic implementation with print
 
-  That log is disabled during test, which is detected with `hephaistox-in-test`"
+  Design decisions:
+  * That log is disabled during test, which is detected with `hephaistox-in-test`
+  * The log designed for the main app is optimized, this one is not, as it is much less used (only during building of the app)
+  * Log levels and default values have two levels of default values:
+     * In this namespace, it is the default level for the repl. As reload of the namespace, like with cider-ns-refresh will lead reload this by-default value
+        * so reload of this namespace will lost any change you did since the previous loading
+     * cli has its own default value, meaning that a user launching this code through the cli will be defaulted to the default values in this namespace"
   (:require [automaton-build-app.os.java-properties :as build-java-properties]
             [automaton-build-app.utils.string :as build-string]
             [clojure.pprint :as pp]))
@@ -17,21 +23,16 @@
   "Is the log-level greater than the reference
   Params:
   * `log-levels` collection of log levels in the order of more detailed to more scarce errors"
-  [& log-levels]
-  (or (empty? log-levels)
-      (->> log-levels
+  [& log-levels-to-compare]
+  (or (empty? log-levels-to-compare)
+      (->> log-levels-to-compare
+           (keep (set log-levels))
            (map log-level-to-idx)
            (apply <=))))
 
-(def min-level "Minimum level to be displayed during log" (atom :info))
+(def min-level (atom :trace))
 
-(def details? (atom false))
-
-(defn set-min-level! "Set the minimum level" [min-level*] (reset! min-level min-level*))
-
-(defn set-details? "If true, the console will limit to the size" [b] (reset! details? b))
-
-(defn min-level-kw [] @min-level)
+(def details? (atom true))
 
 (defmacro print-message
   "Helper function to print the log message"
@@ -48,6 +49,21 @@
            suffix# ""]
        (println (build-string/limit-length (str ~@messages) (if @details? 10000 size-command) prefix# suffix# (constantly nil))))))
 
+(defn set-min-level!
+  "Set the minimum level"
+  [min-level*]
+  (reset! min-level min-level*)
+  (when (compare-log-levels @min-level :debug) (print-message :info (format "Log is initialized with level `%s`" min-level*))))
+
+(defn set-details?
+  "If true, the console will limit to the size"
+  [b]
+  (reset! details? b)
+  (when (compare-log-levels @min-level :debug)
+    (print-message :info (if b "Log details can overflow the line" "Logs are ellipsis if they overflow the line width"))))
+
+(defn min-level-kw [] @min-level)
+
 (defmacro trace [& messages] `(let [printable# (compare-log-levels @min-level :trace)] (when printable# (print-message "T" ~@messages))))
 
 (defmacro debug [& messages] `(let [printable# (compare-log-levels @min-level :debug)] (when printable# (print-message "D" ~@messages))))
@@ -60,29 +76,33 @@
 
 (defmacro fatal [& messages] `(let [printable# (compare-log-levels @min-level :fatal)] (when printable# (print-message "F" ~@messages))))
 
+(defn format-str
+  [fmt & messages]
+  (try (apply format fmt messages) (catch Exception _ (warn "Unexpected error during log formatting") (apply str fmt "-" messages))))
+
 (defmacro trace-format
   [fmt & messages]
-  `(let [printable# (compare-log-levels @min-level :trace)] (when printable# (print-message "T" (format ~fmt ~@messages)))))
+  `(let [printable# (compare-log-levels @min-level :trace)] (when printable# (print-message "T" (format-str ~fmt ~@messages)))))
 
 (defmacro debug-format
   [fmt & messages]
-  `(let [printable# (compare-log-levels @min-level :debug)] (when printable# (print-message "D" (format ~fmt ~@messages)))))
+  `(let [printable# (compare-log-levels @min-level :debug)] (when printable# (print-message "D" (format-str ~fmt ~@messages)))))
 
 (defmacro info-format
   [fmt & messages]
-  `(let [printable# (compare-log-levels @min-level :info)] (when printable# (print-message "I" (format ~fmt ~@messages)))))
+  `(let [printable# (compare-log-levels @min-level :info)] (when printable# (print-message "I" (format-str ~fmt ~@messages)))))
 
 (defmacro warn-format
   [fmt & messages]
-  `(let [printable# (compare-log-levels @min-level :info)] (when printable# (print-message "W" (format ~fmt ~@messages)))))
+  `(let [printable# (compare-log-levels @min-level :info)] (when printable# (print-message "W" (format-str ~fmt ~@messages)))))
 
 (defmacro error-format
   [fmt & messages]
-  `(let [printable# (compare-log-levels @min-level :error)] (when printable# (print-message "E" (format ~fmt ~@messages)))))
+  `(let [printable# (compare-log-levels @min-level :error)] (when printable# (print-message "E" (format-str ~fmt ~@messages)))))
 
 (defmacro fatal-format
   [fmt & messages]
-  `(let [printable# (compare-log-levels @min-level :fatal)] (when printable# (print-message "F" (format ~fmt ~@messages)))))
+  `(let [printable# (compare-log-levels @min-level :fatal)] (when printable# (print-message "F" (format-str ~fmt ~@messages)))))
 
 (defmacro trace-exception [e] `(let [printable# (compare-log-levels @min-level :trace)] (when printable# (print-message "T" (pr-str ~e)))))
 

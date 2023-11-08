@@ -29,11 +29,4 @@
         bb-edn-content (read-bb-edn app-dir)
         updated-bb-edn (-> bb-edn-content
                            update-bb-edn-fn)]
-    (when-not (= updated-bb-edn bb-edn-content) (build-edn-utils/spit-edn bb-edn-filename-fullpath updated-bb-edn))))
-
-(defn task-names
-  [app-dir]
-  (remove keyword?
-          (-> (read-bb-edn app-dir)
-              :tasks
-              keys)))
+    (if (= updated-bb-edn bb-edn-content) bb-edn-content (do (build-edn-utils/spit-edn bb-edn-filename-fullpath updated-bb-edn) false))))

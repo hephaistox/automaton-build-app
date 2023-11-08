@@ -11,8 +11,10 @@
 ;; ***********************
 ;; Manipulate file path (need no access)
 ;; ***********************
-(def file-separator "Symbol to separate directories.
-  Is usually `/` on linux based OS And `\\` on windows based ones" fs/file-separator)
+(def directory-separator
+  "Symbol to separate directories.
+  Is usually `/` on linux based OS And `\\` on windows based ones"
+  fs/file-separator)
 
 (defn change-extension "Change the extension" [file-name new-extension] (str (fs/strip-ext file-name) new-extension))
 
@@ -20,7 +22,7 @@
   "If exists, remove the trailing separator in a path, remove unwanted spaces either"
   [path]
   (let [path (str/trim path)]
-    (if (= (str file-separator) (str (last path)))
+    (if (= (str directory-separator) (str (last path)))
       (->> (dec (count path))
            (subs path 0)
            remove-trailing-separator)
@@ -35,8 +37,8 @@
     (when dir
       (let [old-dir dir
             dir (-> dir
-                    (str/replace (str file-separator file-separator) (str file-separator))
-                    (str/replace (str file-separator "." file-separator) file-separator))]
+                    (str/replace (str directory-separator directory-separator) (str directory-separator))
+                    (str/replace (str directory-separator "." directory-separator) directory-separator))]
         (if (= old-dir dir) dir (recur dir))))))
 
 (defn create-file-path
@@ -50,7 +52,7 @@
                  (mapv str)
                  (filter #(not (str/blank? %)))
                  (mapv remove-trailing-separator)
-                 (interpose file-separator)
+                 (interpose directory-separator)
                  (apply str))
             "./")
         remove-useless-path-elements
@@ -60,13 +62,13 @@
   "Creates a path with the list of parameters.
   Removes the empty strings, add needed separators, including the trailing ones"
   [& dirs]
-  (let [dir (apply create-file-path dirs)] (if (str/blank? dir) "" (str dir file-separator))))
+  (let [dir (apply create-file-path dirs)] (if (str/blank? dir) "" (str dir directory-separator))))
 
 (defn create-absolute-dir-path
   "Creates an absolute path with the list of parameters.
   Removes the empty strings, add needed separators, including the trailing ones"
   [& dirs]
-  (str (apply create-file-path file-separator dirs) file-separator))
+  (str (apply create-file-path directory-separator dirs) directory-separator))
 
 (defn match-extension?
   "Returns true if the filename match the at least one of the extensions
@@ -89,7 +91,7 @@
   Params:
   * `filename`"
   [filename]
-  (= (str file-separator) (str (first filename))))
+  (= (str directory-separator) (str (first filename))))
 
 (defn extract-path
   "Extract if the filename is a file, return the path that contains it,
@@ -98,14 +100,14 @@
   * `filename`"
   [filename]
   (when-not (str/blank? filename)
-    (if (fs/directory? filename)
+    (if (or (fs/directory? filename) (= directory-separator (str (last filename))))
       filename
       (let [filepath (->> filename
                           fs/components
                           butlast
                           (mapv str))]
         (cond (= [] filepath) ""
-              (is-absolute? filename) (apply create-dir-path file-separator filepath)
+              (is-absolute? filename) (apply create-dir-path directory-separator filepath)
               :else (apply create-dir-path filepath))))))
 
 ;; ***********************
@@ -172,7 +174,7 @@
   "Return current dir"
   []
   (-> (fs/cwd)
-      (str file-separator)))
+      (str directory-separator)))
 
 (defn relativize-to-pwd
   "Remove the current pwd to the filename"
@@ -185,6 +187,13 @@
       (if (str/blank? res) "." res))))
 
 (defn directory-exists? "Check directory existance" [directory-path] (and (fs/exists? directory-path) (fs/directory? directory-path)))
+
+(defn ensure-directory-exists
+  "Check we can save the file called filename
+  Params:
+  * `dir` directory to check if the directories exist"
+  [dir]
+  (try (when-not (directory-exists? dir) (fs/create-dirs (extract-path dir))) dir (catch Exception _ nil)))
 
 (defn is-existing-file?
   "Check if this the path exist and is not a directory
@@ -278,7 +287,7 @@
                           :exception e})))))
 
 (defn create-temp-dir
-  "Creates a temorary directory managed by the system
+  "Creates a temporary directory managed by the system
   Params:
   * `sub-dirs` is an optional list of strings, each one is a sub directory
   Returns the string of the directory path"
@@ -286,9 +295,9 @@
   (let [tmp-dir (apply create-dir-path
                        (-> (fs/create-temp-dir)
                            str)
-                       sub-dirs)]
-    (create-dirs tmp-dir)
-    tmp-dir))
+                       sub-dirs
+                       directory-separator)]
+    (ensure-directory-exists tmp-dir)))
 
 (defn filter-existing-dir
   "Filter only existing dirs

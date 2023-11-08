@@ -5,14 +5,19 @@
             [automaton-build-app.log :as build-log]
             [clojure.edn :as edn]))
 
+(defn parse-edn
+  "Parse an `edn` string,
+  Params:
+  * `edn-filename` name of the edn file to load"
+  [s]
+  (try (edn/read-string s) (catch Exception e (build-log/warn-format "Unable to parse string `%s`" s) (build-log/trace-exception e) nil)))
+
 (defn read-edn
   "Read the `.edn` file,
   Params:
   * `edn-filename` name of the edn file to load"
   [edn-filename]
-  (try (let [edn-filename (build-files/absolutize edn-filename)
-             edn-content (build-files/read-file edn-filename)]
-         (edn/read-string edn-content))
+  (try (let [edn-filename (build-files/absolutize edn-filename) edn-content (build-files/read-file edn-filename)] (parse-edn edn-content))
        (catch Exception e
          (build-log/error-exception (ex-info (format "File `%s` is not an edn" edn-filename)
                                              {:caused-by e
@@ -34,8 +39,8 @@
           (if (= (hash previous-content) (hash content))
             (build-log/debug-format "Content of file `%s` is already up to date, spitting is skipped" edn-filename)
             (do (build-log/debug "Contents have changed")
-                (build-log/trace-format "content (hash= `%s`, content = `%s`)" (hash content) content)
-                (build-log/trace-format "content (hash= `%s`, content = `%s`)" (hash previous-content) previous-content)
+                (build-log/trace-format "new      content (hash= `%s`, content = `%s`)" (hash content) content)
+                (build-log/trace-format "previous content (hash= `%s`, content = `%s`)" (hash previous-content) previous-content)
                 (build-files/spit-file edn-filename content)
                 (build-code-formatter/format-file edn-filename header))))
         content

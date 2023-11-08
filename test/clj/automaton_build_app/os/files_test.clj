@@ -16,14 +16,15 @@
   (testing "Absolute path is ok" (is (= "/tmp/foo.mov" (sut/change-extension "/tmp/foo.bar" ".mov")))))
 
 (deftest remove-trailing-separator-test
-  (let [base-dir (str sut/file-separator "tmp" sut/file-separator "foo")]
+  (let [base-dir (str sut/directory-separator "tmp" sut/directory-separator "foo")]
     (testing "Accept directories with no trailing separator" (is (= base-dir (sut/remove-trailing-separator base-dir))))
-    (testing "Remove one trailing separator" (is (= base-dir (sut/remove-trailing-separator (str base-dir sut/file-separator)))))
+    (testing "Remove one trailing separator" (is (= base-dir (sut/remove-trailing-separator (str base-dir sut/directory-separator)))))
     (testing "Remove one trailing separator"
-      (is (= base-dir (sut/remove-trailing-separator (str base-dir sut/file-separator sut/file-separator)))))
-    (testing "Remove one trailing separator" (is (= base-dir (sut/remove-trailing-separator (str base-dir sut/file-separator " ")))))
-    (testing "Remove one trailing separator" (is (= base-dir (sut/remove-trailing-separator (str " " base-dir sut/file-separator)))))
-    (testing "Remove one trailing separator" (is (= base-dir (sut/remove-trailing-separator (str " " base-dir sut/file-separator " ")))))))
+      (is (= base-dir (sut/remove-trailing-separator (str base-dir sut/directory-separator sut/directory-separator)))))
+    (testing "Remove one trailing separator" (is (= base-dir (sut/remove-trailing-separator (str base-dir sut/directory-separator " ")))))
+    (testing "Remove one trailing separator" (is (= base-dir (sut/remove-trailing-separator (str " " base-dir sut/directory-separator)))))
+    (testing "Remove one trailing separator"
+      (is (= base-dir (sut/remove-trailing-separator (str " " base-dir sut/directory-separator " ")))))))
 
 (deftest remove-useless-path-elements-test
   (testing "Remove double separators"
@@ -35,16 +36,17 @@
   (testing "No path" (is (= "" (sut/remove-useless-path-elements ""))) (is (nil? (sut/remove-useless-path-elements nil)))))
 
 (deftest create-file-path-test
-  (let [expected-result (str sut/file-separator "tmp" sut/file-separator "foo" sut/file-separator "bar")]
-    (testing "Creates a simple path" (is (= expected-result (sut/create-file-path sut/file-separator "tmp" "foo" "bar"))))
+  (let [expected-result (str sut/directory-separator "tmp" sut/directory-separator "foo" sut/directory-separator "bar")]
+    (testing "Creates a simple path" (is (= expected-result (sut/create-file-path sut/directory-separator "tmp" "foo" "bar"))))
     (testing "No dir provided returns no path" (is (nil? (sut/create-file-path))) (is (= "" (sut/create-file-path ""))))
     (testing "Don't add path separator if already there"
-      (is (= expected-result (sut/create-file-path sut/file-separator (str) "tmp" "foo" "bar"))))
-    (testing "Empty strings are filtered" (is (= expected-result (sut/create-file-path sut/file-separator (str) "tmp" "" "foo" "bar"))))
+      (is (= expected-result (sut/create-file-path sut/directory-separator (str) "tmp" "foo" "bar"))))
+    (testing "Empty strings are filtered"
+      (is (= expected-result (sut/create-file-path sut/directory-separator (str) "tmp" "" "foo" "bar"))))
     (testing "Trailing separator is not added if already there"
-      (is (= expected-result (sut/create-file-path sut/file-separator "tmp" "foo" "bar"))))
+      (is (= expected-result (sut/create-file-path sut/directory-separator "tmp" "foo" "bar"))))
     (testing "Relative path are working also"
-      (is (= (str "tmp" sut/file-separator "foo" sut/file-separator "bar")
+      (is (= (str "tmp" sut/directory-separator "foo" sut/directory-separator "bar")
              (sut/relativize-to-pwd (sut/create-file-path "tmp" "foo" "bar")))))))
 
 (deftest create-dir-path-test
@@ -134,16 +136,17 @@
             sut/directory-exists?))))
 
 (deftest create-dir-path
-  (let [expected-result (str sut/file-separator "tmp" sut/file-separator "foo" sut/file-separator "bar" sut/file-separator)]
-    (testing "Creates a simple path" (is (= expected-result (sut/create-dir-path sut/file-separator "tmp" "foo" "bar"))))
+  (let [expected-result
+        (str sut/directory-separator "tmp" sut/directory-separator "foo" sut/directory-separator "bar" sut/directory-separator)]
+    (testing "Creates a simple path" (is (= expected-result (sut/create-dir-path sut/directory-separator "tmp" "foo" "bar"))))
     (testing "Don't add path separator if already there"
-      (is (= expected-result (sut/create-dir-path (str) sut/file-separator "tmp" "foo" "bar"))))
-    (testing "Empty strings are filtered" (is (= expected-result (sut/create-dir-path (str) sut/file-separator "tmp" "" "foo" "bar"))))
+      (is (= expected-result (sut/create-dir-path (str) sut/directory-separator "tmp" "foo" "bar"))))
+    (testing "Empty strings are filtered" (is (= expected-result (sut/create-dir-path (str) sut/directory-separator "tmp" "" "foo" "bar"))))
     (testing "nil path returns current dir" (is (string? (sut/create-dir-path))))
     (testing "Trailing separator is not added if already there"
-      (is (= expected-result (sut/create-dir-path sut/file-separator "tmp" "foo" "bar"))))
+      (is (= expected-result (sut/create-dir-path sut/directory-separator "tmp" "foo" "bar"))))
     (testing "Relative path are working also"
-      (is (= (str "tmp" sut/file-separator "foo" sut/file-separator "bar" sut/file-separator)
+      (is (= (str "tmp" sut/directory-separator "foo" sut/directory-separator "bar" sut/directory-separator)
              (sut/relativize-to-pwd (sut/create-dir-path "tmp" "foo" "bar")))))))
 
 (deftest filename-test (testing "Extract file name" (is (= "baz" (sut/filename "/foo/bar/baz")))))

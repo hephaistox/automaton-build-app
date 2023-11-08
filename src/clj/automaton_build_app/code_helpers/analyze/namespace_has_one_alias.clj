@@ -30,11 +30,14 @@
   (let [matches (-> clj-repo
                     (build-filerepo-text/filecontent-to-match alias-pattern))]
     (->> matches
-         (map (fn [[filename [_whole-match namespace alias _refer?]]] [filename namespace alias]))
+         (map (fn [[filename [whole-match namespace alias _refer?]]] [filename namespace alias whole-match]))
          (filter (fn [[_filename namespace alias]] (not (or (= "sut" alias) (nil? alias) (= "clojure.deftest" namespace)))))
-         search-alias-with-multiple-namespaces)))
+         search-alias-with-multiple-namespaces
+         (into {}))))
 
-(defn save-report [matches filename] (build-analyze-utils/save-report matches "List of namespaces referenced by many aliases" filename str))
+(defn save-report
+  [matches filename]
+  (build-analyze-utils/save-report matches "List of namespaces referenced by many aliases" filename identity))
 
 (defn assert-empty
   [matches filename]

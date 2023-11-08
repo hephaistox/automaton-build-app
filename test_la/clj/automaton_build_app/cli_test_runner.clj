@@ -1,21 +1,8 @@
-(ns automaton-build-app.cli-test
+(ns automaton-build-app.cli-test-runner
   "Test all the cli that they returns `0` exit code"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
-            [automaton-build-app.bb-tasks :as build-bb-tasks]
             [automaton-build-app.os.exit-codes :as build-exit-codes]))
-
-(defn select-tasks
-  "Select the tasks executed by a cli - as each app may have its varians
-  Params:
-  * `selected-tasks` set of tasks name that are selected (must match `cmd-name` argument)
-  * `cmds-to-test` set of tasks to execute"
-  [selected-tasks cmds-to-test]
-  (let [selected-tasks (set selected-tasks)
-        selected-cmds (filter #(contains? selected-tasks (:cmd-name %)) cmds-to-test)]
-    (when (= (count selected-cmds) (count selected-tasks))
-      (build-log/warn-format "Mismatch in tasks, build_config %s, bb.edn %s" (count selected-tasks) (count selected-cmds)))
-    selected-cmds))
 
 (defn- run-cmd
   "Run a command
@@ -46,33 +33,29 @@
          :or {expected-exit-code build-exit-codes/ok}}
         la-test
         expanded-cmd (build-cmds/expand-cmd cmd)]
-    (if skip?
+    (if (or (empty? la-test) skip?)
       [true #(build-log/warn-format "Skip `%s` " expanded-cmd)]
       (do (build-log/info-format "Test cmd `%s`:" expanded-cmd) (run-cmd cmd expanded-cmd expected-exit-code cmd-line-args process-opts)))))
 
 (defn- exec-and-return
   "In a command result, execute the display-return-fn and return the value
   Params:
-  * ``"
+  * "
   [[passed? display-return-fn]]
   (display-return-fn)
   [passed? display-return-fn])
 
 (defn cli-test
-  "Test cli commands (through bb commands for instance)
+  "Test cli commands
   Params:
-  * `cmds-to-test` collection of maps defining the tasks to execute (should comply to automaton-build-app.bb-tasks/registry-schema)
+  * `task-registry`
   * `cli-args` arguments of the cli - useful to keep that setup in the called bb tasks"
-  [cmds-to-test cli-args]
-  (let [results (->> cmds-to-test
+  [task-registry cli-args]
+  (let [results (->> task-registry
+                     (filter (fn [[_ task-map]] (:la-test task-map)))
                      (mapv (comp exec-and-return (partial test-cli-cmd cli-args))))]
     (build-log/info "Summary")
-    (doseq [[_ display-return-fn] results] (display-return-fn))
+    (doseq [[_ returned-value-fn] results] (returned-value-fn))
     (if (every? first results)
       (build-log/info "All tests passed")
       (do (build-log/error "Errors found") (System/exit build-exit-codes/catch-all)))))
-
-(comment
-  (cli-test build-bb-tasks/registry {})
-  ;
-)

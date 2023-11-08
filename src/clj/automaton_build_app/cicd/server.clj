@@ -9,7 +9,7 @@
             [clojure.string :as str]
             [automaton-build-app.log :as build-log]))
 
-(def github-env-var "CI")
+(def ^:private github-env-var "CI")
 
 (defn is-cicd?* "Tells if the local instance runs in CICD" [] (boolean (System/getenv github-env-var)))
 

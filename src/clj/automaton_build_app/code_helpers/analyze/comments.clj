@@ -27,15 +27,14 @@
   * `clj-repo`"
   [clj-repo]
   (build-log/info "Comments analyzis")
-  (let [regexp-filerepo-matcher (->> ['automaton-build-app.code-helpers.analyze.comments
-                                      'automaton-build-app.code-helpers.analyze.comments-test]
-                                     (map build-namespace/ns-to-file)
-                                     (into #{}))
+  (let [ns-to-exclude (->> ['automaton-build-app.code-helpers.analyze.comments 'automaton-build-app.code-helpers.analyze.comments-test]
+                           (map build-namespace/ns-to-file)
+                           (into #{}))
         matches (-> clj-repo
-                    (build-filerepo-raw/exclude-files regexp-filerepo-matcher)
+                    (build-filerepo-raw/exclude-files ns-to-exclude)
                     (build-filerepo-text/filecontent-to-match comments-pattern))]
     (->> matches
-         (map (fn [[filename [_whole-match comment]]] [comment filename]))
+         (map (fn [[filename [whole-match comment]]] [comment filename whole-match]))
          vec)))
 
 (defn save-report
@@ -43,6 +42,6 @@
   (build-analyze-utils/save-report matches
                                    (format "List of forbidden comments")
                                    filename
-                                   (fn [[comment filename]] (format "%s -> [%s]" comment filename))))
+                                   (fn [[comment filename match]] (format "%s -> [%s] -> %s" comment filename match))))
 
 (defn assert-empty [matches filename] (build-analyze-utils/assert-empty matches filename (format "Some forbidden words are found")))

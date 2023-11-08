@@ -10,15 +10,10 @@
   "Local tests
   All that tests should be runnable on github action
   `rlwrap` is not on the container image, so `clojure` should be used instead of `clj`"
-  [{:keys [min-level details]
-    :as _parsed-cli-opts}]
-  (build-log/set-min-level! min-level)
-  (build-log/set-details? details)
-  (let [app-dir ""
-        {:keys [ltest shadow-cljs]
-         :as app-data}
-        (@build-app/build-app-data_ app-dir)
-        aliases (get ltest :aliases)]
+  [_task-arg app-dir
+   {:keys [ltest shadow-cljs]
+    :as app-data} _bb-edn-args]
+  (let [aliases (get ltest :aliases)]
     (when-not (and (build-lint/lint false (build-app/src-dirs app-data))
                    (build-cmds/execute-and-trace ["clojure" (apply str "-M" aliases)])
                    (or (not shadow-cljs)

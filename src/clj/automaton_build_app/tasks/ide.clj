@@ -5,5 +5,5 @@
 
 (defn ide
   "All code for ide"
-  [parsed-cli-opts]
-  ((juxt build-reports/reports build-format/format-files build-task-lint/lint) parsed-cli-opts))
+  [task-arg app-dir app-data bb-edn-args]
+  ((juxt build-reports/reports build-format/format-files build-task-lint/lint) task-arg app-dir app-data bb-edn-args))

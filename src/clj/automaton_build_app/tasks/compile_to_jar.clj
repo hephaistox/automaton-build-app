@@ -1,18 +1,12 @@
 (ns automaton-build-app.tasks.compile-to-jar
-  (:require [automaton-build-app.app :as build-app]
-            [automaton-build-app.code-helpers.compiler :as build-compiler]
+  (:require [automaton-build-app.code-helpers.compiler :as build-compiler]
             [automaton-build-app.code-helpers.frontend-compiler :as build-frontend-compiler]
-            [automaton-build-app.os.exit-codes :as build-exit-codes]
-            [automaton-build-app.log :as build-log]))
+            [automaton-build-app.os.exit-codes :as build-exit-codes]))
 
 (defn compile-to-jar
   "Compile both backend and frontend (if its setup file exists, e.g. `shadow-cljs.edn`)), in production mode"
-  [{:keys [min-level details]
-    :as _parsed-cli-opts}]
-  (build-log/set-min-level! min-level)
-  (build-log/set-details? details)
-  (let [app-dir ""
-        {:keys [publication deps-edn]} (@build-app/build-app-data_ app-dir)
+  [_task-arg app-dir app-data _bb-edn-args]
+  (let [{:keys [publication deps-edn]} app-data
         {:keys [as-lib jar major-version shadow-cljs]} publication
         {:keys [excluded-aliases target-filename class-dir]} jar
         {:keys [target-build]} shadow-cljs

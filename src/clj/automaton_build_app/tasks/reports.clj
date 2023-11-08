@@ -8,7 +8,6 @@
             [automaton-build-app.code-helpers.code-stats :as build-code-stats]
             [automaton-build-app.code-helpers.frontend-compiler :as build-frontend-compiler]
             [automaton-build-app.file-repo.clj-code :as build-clj-code]
-            [automaton-build-app.log :as build-log]
             [automaton-build-app.os.exit-codes :as build-exit-codes]))
 
 (defn- code-stats
@@ -61,16 +60,12 @@
 
 (defn reports
   "Build all the reports"
-  [{:keys [min-level details]
-    :as _parsed-cli-opts}]
-  (build-log/set-min-level! min-level)
-  (build-log/set-details? details)
-  (let [app-dir ""
-        build-data (@build-app/build-app-data_ app-dir)
-        clj-repo (-> build-data
+  [_task-arg app-dir build-data _bb-edn-args]
+  (let [clj-repo (-> build-data
                      build-app/src-dirs
-                     build-clj-code/make-clj-repo-from-dirs)
-        _ (code-stats build-data)
-        _ (shadow-report app-dir build-data)
-        res (map boolean ((juxt comment-report css-report alias-report namespace-report keyword-report) [build-data clj-repo]))]
-    (when (some true? res) (System/exit build-exit-codes/rules-broken))))
+                     build-clj-code/make-clj-repo-from-dirs)]
+    (code-stats build-data)
+    (shadow-report app-dir build-data)
+    (when (->> (map boolean ((juxt comment-report css-report alias-report namespace-report keyword-report) [build-data clj-repo]))
+               (some true?))
+      (System/exit build-exit-codes/rules-broken))))

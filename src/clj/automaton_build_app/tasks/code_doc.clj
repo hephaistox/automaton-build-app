@@ -7,22 +7,20 @@
             [automaton-build-app.log :as build-log]))
 
 (defn- vizualize-ns
-  [app-dir]
-  (-> (@build-app/build-app-data_ app-dir)
+  [_app-dir app-data]
+  (-> app-data
       (get-in [:doc :reports :output-files :deps-ns] "docs/code/deps-ns.svg")
       app-code-doc/vizualize-ns))
 
 (defn- vizualize-deps
-  [app-dir]
-  (-> (@build-app/build-app-data_ app-dir)
+  [_app-dir app-data]
+  (-> app-data
       (get-in [:doc :reports :output-files :deps] "docs/code/deps.svg")
       app-code-doc/vizualize-deps))
 
 (defn- doc-string
-  [app-dir]
-  (let [{:keys [app-name]
-         :as app-data}
-        (@build-app/build-app-data_ app-dir)
+  [app-dir app-data]
+  (let [{:keys [app-name]} app-data
         code-doc (get-in app-data [:doc :code-doc] {})
         {:keys [title description dir]} code-doc
         app-dirs (build-app/src-dirs app-data)]
@@ -31,8 +29,8 @@
       (app-code-doc/build-doc app-dir app-name app-dirs title description dir))))
 
 (defn- blog-task
-  [app-dir]
-  (let [{:keys [customer-materials]} (@build-app/build-app-data_ app-dir)
+  [_app-dir app-data]
+  (let [{:keys [customer-materials]} app-data
         {:keys [dir html-dir pdf-dir]} customer-materials]
     (if (nil? customer-materials)
       (do (build-log/debug "Blog is skipped as no parameters are found") true)
@@ -40,16 +38,12 @@
     true))
 
 (defn- mermaid
-  [app-dir]
-  (-> (@build-app/build-app-data_ app-dir)
+  [_app-dir app-data]
+  (-> app-data
       (get-in [:doc :archi :dir] "doc/archi/dir")
       build-mermaid/build-all-files))
 
 (defn code-doc
   "Generate the code documentation"
-  [{:keys [min-level details]
-    :as _parsed-cli-opts}]
-  (build-log/set-min-level! min-level)
-  (build-log/set-details? details)
-  (let [app-dir ""]
-    (when-not ((juxt vizualize-ns vizualize-deps doc-string blog-task mermaid) app-dir) (System/exit build-exit-codes/catch-all))))
+  [_task-arg app-dir app-data _bb-edn-args]
+  (when-not ((juxt vizualize-ns vizualize-deps doc-string blog-task mermaid) app-dir app-data) (System/exit build-exit-codes/catch-all)))

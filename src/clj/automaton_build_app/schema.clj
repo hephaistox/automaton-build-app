@@ -6,7 +6,8 @@
             [malli.error :as me]))
 
 (defn valid?
-  "Return true if the data is not matching the schema
+  "Returns data if the data is not matching the schema
+  Return nil otherwise
   Params:
   * `schema` schema to match
   * `data` data to check appliance to schema"
