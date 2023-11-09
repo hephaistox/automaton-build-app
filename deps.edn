@@ -34,8 +34,6 @@
         io.dominic/vizns {:git/url "https://github.com/SevereOverfl0w/vizns.git"
                           :sha "34706190d41cb243f6270fe5a7324601a8404d30"}
         io.github.clojure/tools.build {:mvn/version "0.9.6"}
-        io.github.clojure/tools.deps.graph {:git/url "https://github.com/clojure/tools.deps.graph.git"
-                                            :sha "df0bc056061306014be72dbe961d3eb6649500cc"}
         markdown-clj/markdown-clj #:mvn{:version "1.11.7"}
         metosin/malli {:mvn/version "0.13.0"}
         zprint/zprint {:mvn/version "1.2.8"}}

@@ -1,6 +1,7 @@
 (ns automaton-build-app.tasks.launcher.cli-opts
   "Cli options for tasks"
   (:require [automaton-build-app.log :as build-log]
+            [clojure.string :as str]
             [clojure.tools.cli :refer [parse-opts]]))
 
 (defn- cli-opts-spec-register
@@ -15,6 +16,25 @@
    :tag [["-t" "--tag TAG-MESSAGE" "Tag for the publication"]]
    :commit [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]]})
 
+(defn print-error-message
+  "Print the error message, tell what's expected"
+  ([cli-opts msg]
+   (println (format (cond (str/blank? msg) "The cli arguments are invalid"
+                          :else msg)))
+   (some-> (:errors cli-opts)
+           println)
+   (println (:summary cli-opts)))
+  ([cli-opts] (print-error-message cli-opts "")))
+
+(defn mandatory-option
+  "Print an error message if the option is not found
+  It is a choice not to use log just to be sure it is printed on the terminal, without any ellipsis and prefix"
+  [cli-opts ks]
+  (let [ks (vec (concat [:options] ks))]
+    (if-let [v (get-in cli-opts ks)]
+      v
+      (print-error-message cli-opts (format "The argument %s is mandatory" ks)))))
+
 (defn do-common-opts
   "Do what common cli opts should do
   Params:
@@ -25,7 +45,7 @@
   (build-log/set-min-level! (get-in cli-opts [:options :log]))
   (build-log/set-details? (get-in cli-opts [:options :details]))
   (cond (get-in cli-opts [:options :help]) (:summary cli-opts)
-        (:errors cli-opts) (do (build-log/fatal-format "The cli arguments are invalid\n%s" (:summary cli-opts)) nil)))
+        (:errors cli-opts) (do (print-error-message cli-opts) (:errors cli-opts))))
 
 (defn- cli-opts-spec
   "For given `cli-opts-spec-kw`s, creates the cli options specifications
@@ -45,9 +65,7 @@
   [cli-opts-spec-kw]
   (let [cli-opts-specs (cli-opts-spec cli-opts-spec-kw)
         cli-opts (parse-opts *command-line-args* cli-opts-specs)]
-    (if-let [non-compliance-message (do-common-opts cli-opts)]
-      (do (println (format "Invalid option\n%s" non-compliance-message)) nil)
-      cli-opts)))
+    (when-not (do-common-opts cli-opts) cli-opts)))
 
 (comment
   (cli-opts-spec [:force :tag])

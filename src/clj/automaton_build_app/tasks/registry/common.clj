@@ -11,10 +11,10 @@
     :la-test {:cmd ["bb" "clean-hard"]
               :process-opts {:in "q"}}
     :task-fn 'automaton-build-app.tasks.clean-hard/clean-hard}
-   'code-doc {:doc "Create the documentation of the app"
-              :la-test {:cmd ["bb" "code-doc"]}
-              :pf :clj
-              :task-fn 'automaton-build-app.tasks.code-doc/code-doc}
+   'blog {:doc "Generate the blog files"
+          :la-test {:cmd ["bb" "blog"]}
+          :pf :clj
+          :task-fn 'automaton-build-app.tasks.blog/blog}
    'compile-to-jar {:doc "Compile that code to a jar"
                     :pf :clj
                     :la-test {:cmd ["bb" "compile-to-jar"]}
@@ -26,15 +26,13 @@
    'container-list {:doc "List all available containers"
                     :la-test {:cmd ["bb" "container-list"]}
                     :task-fn 'automaton-build-app.tasks.container-list/container-list}
+   'docstring {:doc "Generate the documentation based on docstring"
+               :la-test {:cmd ["bb" "docstring"]}
+               :pf :clj
+               :task-fn 'automaton-build-app.tasks.docstring/doc-string}
    'format {:doc "Format the whole documentation"
             :la-test {:cmd ["bb" "format"]}
             :task-fn 'automaton-build-app.tasks.format-files/format-files}
-   'gha {:doc "Github action command - launched is automatically by github"
-         :la-test {:cmd ["bb" "gha" "-f"]
-                   :skip? true}
-         :specific-cli-opts-kws [:force]
-         :pf :clj
-         :task-fn 'automaton-build-app.tasks.gha/gha}
    'gha-container-publish {:doc "Update the gha container to run that app"
                            :la-test {:cmd ["bb" "gha-container-publish"]
                                      :skip? true}
@@ -45,22 +43,28 @@
                             :skip? true
                             :process-opts {:in "exit\n"}}
                   :task-fn 'automaton-build-app.tasks.gha-lconnect/gha-lconnect}
+   'is-cicd {:doc "Is runned on cicd"
+             :la-test {:cmd ["bb" "is-cicd" "-f"]}
+             :specific-cli-opts-kws [:commit :force]
+             :task-fn 'automaton-build-app.tasks.is-cicd/is-cicd}
    'la {:doc "Local acceptance test"
         :la-test {:cmd ["bb" "la"]
                   :skip? true}
         :task-fn 'automaton-build-app.tasks.la/la}
-   'lconnect {:doc "Local connect - repl"
-              :la-test {:cmd ["bb" "lconnect"]
-                        :skip? true}
-              :task-fn 'automaton-build-app.tasks.lconnect/lconnect}
    'lint {:doc "linter"
           :la-test {:cmd ["bb" "lint"]}
           :task-fn 'automaton-build-app.tasks.lint/lint}
-   'ltest {:doc "Local test"
-           :la-test {:cmd ["bb" "ltest"]}
-           :task-fn 'automaton-build-app.tasks.ltest/ltest}
+   'lbe-test {:doc "Local Backend test"
+              :la-test {:cmd ["bb" "lbe-test"]}
+              :task-fn 'automaton-build-app.tasks.lbe-test/lbe-test}
+   'lfe-test {:doc "Local frontend test"
+              :la-test {:cmd ["bb" "lfe-test"]}
+              :task-fn 'automaton-build-app.tasks.lfe-test/lfe-test}
+   'mermaid {:doc "Build all mermaid files"
+             :la-test {:cmd ["bb" "mermaid"]}
+             :task-fn 'automaton-build-app.tasks.mermaid/mermaid}
    'push-local-dir-to-repo {:doc "Push this repo "
-                            :la-test {:cmd ["bb" "push" "-m" "la" "-t" "la"]
+                            :la-test {:cmd ["bb" "push-local-dir-to-repo" "-m" "la" "-t" "la"]
                                       :skip? true}
                             :specific-cli-opts-kws [:commit :tag]
                             :pf :clj
@@ -69,15 +73,29 @@
             :la-test {:cmd ["bb" "report"]}
             :task-fn 'automaton-build-app.tasks.reports/reports}
    'update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
-                 :la-test {:cmd ["bb" "updated-deps"]
+                 :la-test {:cmd ["bb" "update-deps"]
                            :skip? true}
                  :pf :clj
                  :task-fn 'automaton-build-app.tasks.update-deps/update-deps}
+   'vizualise-deps {:doc "Vizualise the dependencies in a graph"
+                    :la-test {:cmd ["bb" "vizualise-deps"]}
+                    :pf :clj
+                    :task-fn 'automaton-build-app.tasks.vizualise-deps/vizualise-deps}
+   'vizualise-ns {:doc "Vizualise the namespace in graph"
+                  :la-test {:cmd ["bb" "vizualise-ns"]}
+                  :pf :clj
+                  :task-fn 'automaton-build-app.tasks.vizualise-ns/vizualise-ns}
    'wf-6 {:doc "Push the local version - create gha docker image - push to the repo"
           :group :wf
           :step 6
           :task-fn 'automaton-build-app.tasks.workflow.composer/composer
-          :wk-tasks ['clean 'clean]}
+          :wk-tasks ['clean 'lint 'lbe-test 'lfe-test 'report 'blog 'mermaid #_'vizualise-deps 'vizualise-ns 'format 'gha-container-publish
+                     'push-local-dir-to-repo]}
+   'gha {:doc "Github action tests - launched is automatically by github"
+         :group :gha
+         :step 1
+         :wk-tasks ['is-cicd 'lint 'lbe-test]
+         :task-fn 'automaton-build-app.tasks.workflow.composer/composer}
    'ide {:doc "Quick tests to use during IDE usage"
          :group :ide
          :step 1

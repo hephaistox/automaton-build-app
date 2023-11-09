@@ -47,7 +47,8 @@
   * `tag` the tag
   * `container-name`"
   [updates tag container-name]
-  (doseq [filename updates] (update-workflow filename container-name tag)))
+  (->> (for [filename updates] (update-workflow filename container-name tag))
+       (every? true?)))
 
 (defn show-tag-in-workflow
   "Show the tag used in workflow file

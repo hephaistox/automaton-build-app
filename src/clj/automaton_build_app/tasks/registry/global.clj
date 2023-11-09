@@ -3,6 +3,7 @@
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.schema :as build-schema]
             [automaton-build-app.tasks.registry.common :as build-tasks-common]
+            [automaton-build-app.tasks.workflow.workflow-to-task :as build-task-workflow-to-task]
             [automaton-build-app.tasks.registry.specific-task :as build-specific-task-registry]))
 
 (def ^:private schema
@@ -19,6 +20,7 @@
   It gather the data from the cust-app and common registry"
   [app-dir]
   (let [tasks-registry-map (->> (merge (build-tasks-common/tasks) (build-specific-task-registry/read-specific-tasks app-dir))
+                                build-task-workflow-to-task/update-registry-workflow-entries
                                 (into (sorted-map)))]
     (when-not (build-schema/valid? schema tasks-registry-map) (build-log/error "The bb task registry does not comply the schema"))
     tasks-registry-map))

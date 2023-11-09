@@ -1,13 +1,11 @@
-(ns automaton-build-app.doc.code-doc
+(ns automaton-build-app.doc.docstring
   "Code documentation creation
   Proxy to codox"
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.files :as build-files]
-            [io.dominic.vizns.core :as vizns]
-            [clojure.tools.deps.graph :as tools-deps-graph]
             [codox.main :as codox]))
 
-(defn build-doc
+(defn docstring
   "Generate the documentation
   Params:
   * `doc-title` title of the document
@@ -31,21 +29,3 @@
                           :output-path dir
                           :description doc-description})
     true))
-
-(defn vizualize-ns
-  "Vizualise all namespaces relations"
-  [deps-filename]
-  (build-log/info "Graph of ns - deps link")
-  (build-log/trace-format "Graph stored in `%s`" deps-filename)
-  (build-files/create-parent-dirs deps-filename)
-  (vizns/-main "single" "-o" deps-filename "-f" "svg")
-  true)
-
-(defn vizualize-deps
-  "Vizualize the dependencies between deps"
-  [output-filename]
-  (build-log/info "Graph of deps")
-  (build-log/trace-format "Graph stored in `%s`" output-filename)
-  (build-files/create-parent-dirs output-filename)
-  (tools-deps-graph/graph {:output output-filename})
-  true)

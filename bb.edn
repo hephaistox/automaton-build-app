@@ -12,29 +12,27 @@
                                                       task-fn
                                                       argv)))
   :requires [[babashka.process :as babahska-process] [automaton-build-app.tasks.launcher.bb-entrypoint :as build-task-bb-entrypoint]]
+  blog {:doc "Generate the blog files"
+        :task (execute-build-app-task (quote automaton-build-app.tasks.blog/blog))}
   clean {:doc "Clean cache files for compiles, and logs"
          :task (execute-build-app-task (quote automaton-build-app.tasks.clean/clean))}
   clean-hard
   {:doc
    "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)"
    :task (execute-build-app-task (quote automaton-build-app.tasks.clean-hard/clean-hard))}
-  code-doc {:doc "Create the documentation of the app"
-            :task (execute-build-app-task (quote automaton-build-app.tasks.code-doc/code-doc))}
   compile-to-jar {:doc "Compile that code to a jar"
                   :task (execute-build-app-task (quote automaton-build-app.tasks.compile-to-jar/compile-to-jar))}
   container-clear {:doc "Clear all local containers"
                    :task (execute-build-app-task (quote automaton-build-app.tasks.container-clear/container-clear))}
   container-list {:doc "List all available containers"
                   :task (execute-build-app-task (quote automaton-build-app.tasks.container-list/container-list))}
-  emergency-repl {:doc "Repl in case build_app is failing"
-                  :task (try (babahska-process/shell "clojure" "-M:common-test:env-development-repl:build")
-                             (catch Exception e
-                               (println "Emergency repl failed also - erro during repl startup" (ex-message e))
-                               (println "Use jack-in as work around")))}
+  docstring {:doc "Generate the documentation based on docstring"
+             :task (execute-build-app-task (quote automaton-build-app.tasks.docstring/doc-string))}
   format {:doc "Format the whole documentation"
           :task (execute-build-app-task (quote automaton-build-app.tasks.format-files/format-files))}
-  gha {:doc "Github action command - launched is automatically by github"
-       :task (execute-build-app-task (quote automaton-build-app.tasks.gha/gha))}
+  gha {:doc "Github action tests - launched is automatically by github"
+       :task
+       (execute-build-app-task (quote automaton-build-app.tasks.workflow.composer/composer) (quote is-cicd) (quote lint) (quote lbe-test))}
   gha-container-publish {:doc "Update the gha container to run that app"
                          :task (execute-build-app-task (quote automaton-build-app.tasks.gha-container-publish/gha-container-publish))}
   gha-lconnect {:doc "Connect to a local container running this code"
@@ -42,19 +40,45 @@
   ide {:doc "Quick tests to use during IDE usage"
        :task
        (execute-build-app-task (quote automaton-build-app.tasks.workflow.composer/composer) (quote report) (quote format) (quote lint))}
+  is-cicd {:doc "Is runned on cicd"
+           :task (execute-build-app-task (quote automaton-build-app.tasks.is-cicd/is-cicd))}
   la {:doc "Local acceptance test"
       :task (execute-build-app-task (quote automaton-build-app.tasks.la/la))}
-  lconnect {:doc "Local connect - repl"
-            :task (execute-build-app-task (quote automaton-build-app.tasks.lconnect/lconnect))}
+  lbe-test {:doc "Local Backend test"
+            :task (execute-build-app-task (quote automaton-build-app.tasks.lbe-test/lbe-test))}
+  lconnect {:doc "Repl in case build_app is failing"
+            :task (try (babahska-process/shell "clojure" "-M:common-test:env-development-repl:build")
+                       (catch Exception e
+                         (println "Emergency repl failed also - erro during repl startup" (ex-message e))
+                         (println "Use jack-in as work around")))}
+  lfe-test {:doc "Local frontend test"
+            :task (execute-build-app-task (quote automaton-build-app.tasks.lfe-test/lfe-test))}
   lint {:doc "linter"
         :task (execute-build-app-task (quote automaton-build-app.tasks.lint/lint))}
   ltest {:doc "Local test"
          :task (execute-build-app-task (quote automaton-build-app.tasks.ltest/ltest))}
+  mermaid {:doc "Build all mermaid files"
+           :task (execute-build-app-task (quote automaton-build-app.tasks.mermaid/mermaid))}
   push-local-dir-to-repo {:doc "Push this repo "
                           :task (execute-build-app-task (quote automaton-build-app.tasks.push-local-dir-to-repo/push-local-dir-to-repo))}
   report {:doc "Creates the reports of code analyzis"
           :task (execute-build-app-task (quote automaton-build-app.tasks.reports/reports))}
   update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
                :task (execute-build-app-task (quote automaton-build-app.tasks.update-deps/update-deps))}
+  vizualise-deps {:doc "Vizualise the dependencies in a graph"
+                  :task (execute-build-app-task (quote automaton-build-app.tasks.vizualise-deps/vizualise-deps))}
+  vizualise-ns {:doc "Vizualise the namespace in graph"
+                :task (execute-build-app-task (quote automaton-build-app.tasks.vizualise-ns/vizualise-ns))}
   wf-6 {:doc "Push the local version - create gha docker image - push to the repo"
-        :task (execute-build-app-task (quote automaton-build-app.tasks.workflow.composer/composer) (quote clean) (quote clean))}}}
+        :task (execute-build-app-task (quote automaton-build-app.tasks.workflow.composer/composer)
+                                      (quote clean)
+                                      (quote lint)
+                                      (quote lbe-test)
+                                      (quote lfe-test)
+                                      (quote report)
+                                      (quote blog)
+                                      (quote mermaid)
+                                      (quote vizualise-ns)
+                                      (quote format)
+                                      (quote gha-container-publish)
+                                      (quote push-local-dir-to-repo))}}}

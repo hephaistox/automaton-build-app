@@ -11,9 +11,9 @@
             [automaton-build-app.os.exit-codes :as build-exit-codes]))
 
 (defn- code-stats
-  [build-data]
+  [build-data app-dir]
   (let [filename (get-in build-data [:doc :code-stats :output-file] "docs/code/stats.md")]
-    (->> (build-code-stats/line-numbers "")
+    (->> (build-code-stats/line-numbers app-dir)
          (build-code-stats/stats-to-md filename))))
 
 (defn- comment-report
@@ -64,7 +64,7 @@
   (let [clj-repo (-> build-data
                      build-app/src-dirs
                      build-clj-code/make-clj-repo-from-dirs)]
-    (code-stats build-data)
+    (code-stats build-data app-dir)
     (shadow-report app-dir build-data)
     (when (->> (map boolean ((juxt comment-report css-report alias-report namespace-report keyword-report) [build-data clj-repo]))
                (some true?))

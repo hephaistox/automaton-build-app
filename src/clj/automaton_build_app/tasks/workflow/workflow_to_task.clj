@@ -13,13 +13,18 @@
 (defn- workflow-to-task
   "Transform one workflow item to a real task, with all necessary fields set"
   [task-registry
-   {:keys [wk-tasks]
+   {:keys [wk-tasks specific-cli-opts-kws]
     :as workflow-item}]
+  (when-not (empty? specific-cli-opts-kws)
+    (build-log/warn-format "Workflow item `%s` has cli options, it will be ignored, the ones of the wk-tasks will be used instead"
+                           workflow-item))
   (let [tasks-in-workflow (build-task-registry-find/task-selection task-registry wk-tasks)
-        specific-cli-opts-kw (mapv :specific-cli-opts-kws tasks-in-workflow)]
+        specific-cli-opts-kws (->> (mapcat :specific-cli-opts-kws tasks-in-workflow)
+                                   (filter some?)
+                                   dedupe)]
     (assoc workflow-item
            :pf (if (every? #(or (nil? %) (= :bb %)) (mapv :pf tasks-in-workflow)) :bb :clj)
-           :specific-cli-opts-kw specific-cli-opts-kw)))
+           :specific-cli-opts-kws (vec specific-cli-opts-kws))))
 
 (defn update-registry-workflow-entries
   "Transform the workflow task in the registry to a classical bb-tasks registry
@@ -29,9 +34,6 @@
   [task-registry]
   (->> task-registry
        (map (fn [[task-name
-                  {:keys [wk-tasks specific-cli-opts-kws]
+                  {:keys [wk-tasks]
                    :as workflow-item}]]
-              (when specific-cli-opts-kws
-                (build-log/warn-format
-                 "Cli options have been found on workflow task %s, it will be ignored, the ones of the wk-tasks will be used instead"))
               [task-name (if wk-tasks (workflow-to-task task-registry workflow-item) workflow-item)]))))

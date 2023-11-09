@@ -9,9 +9,7 @@
     (is (= [0 -1] (mapv first (sut/execute-with-exit-code ["echo" "foo"] ["arg"]))))))
 
 (deftest execute-and-trace-test
-  (testing "Executing pwd is sucessfull"
-    (is (sut/execute-and-trace ["pwd" {:out :string}]))
-    (is (sut/execute-and-trace ["pwd" {:out :string}] ["pwd" {:out :string}])))
+  (testing "Executing pwd is sucessfull" (is (sut/execute-and-trace ["pwd"])) (is (sut/execute-and-trace ["pwd"] ["pwd"])))
   (testing "failing command are detected"
     (is (not (sut/execute-and-trace ["this-command-does-not-exist"])))
     (is (not (sut/execute-and-trace ["pwd" {:out :string}] ["this-command-does-not-exist"] ["pwd" {:out :string}])))))

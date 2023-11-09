@@ -7,7 +7,7 @@
             [automaton-build-app.code-helpers.bb-edn.updater :as build-bb-updater]
             [automaton-build-app.log :as build-log]
             [automaton-build-app.os.exit-codes :as build-exit-codes]
-            [automaton-build-app.tasks.launcher.cli-opts :as build-cli-opts]
+            [automaton-build-app.tasks.launcher.cli-opts :as build-tasks-cli-opts]
             [automaton-build-app.tasks.launcher.pf-dispatcher :as build-pf-dispatcher]
             [automaton-build-app.tasks.launcher.print-or-spit :as build-print-or-spit]
             [automaton-build-app.tasks.registry.find :as build-task-registry-find]
@@ -28,7 +28,7 @@
          :as task-map}
         (build-task-registry-find/find-one task-registry task-name)]
     (build-log/info-format "Run %s task on pf `%s`" task-name (get task-map :pf :bb))
-    (if-let [cli-opts (build-cli-opts/cli-opts specific-cli-opts-kws)]
+    (if-let [cli-opts (build-tasks-cli-opts/cli-opts specific-cli-opts-kws)]
       (build-pf-dispatcher/dispatch task-map app-dir cli-opts (first body-fn-args))
       (System/exit build-exit-codes/catch-all))))
 
