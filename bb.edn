@@ -1,63 +1,93 @@
-{:paths ["src/clj"]
- :deps {metosin/malli {:mvn/version "0.13.0"}}
- :tasks {:requires [[babashka.process :as p]
-                    [automaton-build-app.tasks.clean :as build-clean]
-                    [automaton-build-app.tasks.publication :as build-publication]
-                    [automaton-build-app.tasks.test :as build-test]
-                    [automaton-build-app.tasks.code-helpers :as build-code-helpers]
-                    [babashka.fs :as fs]]
-
-         :init (do
-                 (defn- cicd?
-                   []
-                   (System/getenv "CI"))
-
-                 (defn wrap-fn
-                   "Run the function and manage
-                    Params:
-                    * `body` body to execute"
-                   [body-fn]
-                   (try
-                     (body-fn)
-                     (catch Exception e
-                       (println (format "Error during execution of `%s`, %s`" (:name (current-task)) (pr-str (ex-message e))))
-                       (if (cicd?)
-                         (println e)
-                         (let [file (fs/create-temp-file {:suffix ".edn"})]
-                           (println (format "See details in `%s`" (.toString (.toAbsolutePath file))))
-                           (spit (fs/file file) (prn-str e))
-                           ""))
-                       (System/exit 1))))
-
-                 (defn ltest []
-                   (build-test/ltest :env-development-test
-                                     :common-test))
-                 (defn lint []
-                   (build-code-helpers/lint (= "-d" (first *command-line-args*))
-                                            "src/clj"
-                                            "test/clj"))
-                 (defn repl []
-                   (build-code-helpers/repl :common-test :env-development-repl))
-
-                 (defn push []
-                   (build-publication/push (first *command-line-args*))))
-
-         clean-hard {:doc "Clean hard"
-                     :task (wrap-fn build-clean/clean-hard)}
-
-         ltest {:doc "Local test"
-                :task (wrap-fn ltest)}
-
-         lint {:doc "Lint (option -d will print details of file linted)"
-               :task (wrap-fn lint)}
-
-         repl {:doc "Repl"
-               :task (wrap-fn repl)}
-
-         push {:doc "Push this repo"
-               :task (wrap-fn push)}
-
-         gha {:doc "Github action command - is launched automatically by github"
-              :task (do
-                      (lint)
-                      (ltest))}}}
+;; The file is updated automatically Fri Nov 17 01:27:40 CET 2023 
+{:deps {io.github.clojure/tools.build {:mvn/version "0.9.6"}
+        metosin/malli {:mvn/version "0.13.0"}
+        org.clojure/tools.cli {:mvn/version "1.0.219"}}
+ :paths ["src/clj" "test_la/clj"]
+ :tasks
+ {-error {:doc "On purpose run an error"
+          :task (execute-build-app-task (quote automaton-build-app.tasks.error/error))}
+  -is-cicd {:doc "Is runned on cicd"
+            :task (execute-build-app-task (quote automaton-build-app.tasks.is-cicd/is-cicd))}
+  :enter (do (def cust-app-task-registy {})
+             (defn execute-build-app-task
+               [task-fn & argv]
+               (build-task-bb-entrypoint/execute-task (-> (current-task)
+                                                          :name
+                                                          str)
+                                                      task-fn
+                                                      argv)))
+  :requires [[babashka.process :as babahska-process] [automaton-build-app.tasks.launcher.bb-entrypoint :as build-task-bb-entrypoint]]
+  blog {:doc "Generate the blog files"
+        :task (execute-build-app-task (quote automaton-build-app.tasks.blog/blog))}
+  clean {:doc "Clean cache files for compiles, and logs"
+         :task (execute-build-app-task (quote automaton-build-app.tasks.clean/clean))}
+  clean-hard
+  {:doc
+   "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)"
+   :task (execute-build-app-task (quote automaton-build-app.tasks.clean-hard/clean-hard))}
+  compile-to-jar {:doc "Compile that code to a jar"
+                  :task (execute-build-app-task (quote automaton-build-app.tasks.compile-to-jar/compile-to-jar))}
+  container-clear {:doc "Clear all local containers"
+                   :task (execute-build-app-task (quote automaton-build-app.tasks.container-clear/container-clear))}
+  container-list {:doc "List all available containers"
+                  :task (execute-build-app-task (quote automaton-build-app.tasks.container-list/container-list))}
+  docstring {:doc "Generate the documentation based on docstring"
+             :task (execute-build-app-task (quote automaton-build-app.tasks.docstring/docstring))}
+  format-code {:doc "Format the whole documentation"
+               :task (execute-build-app-task (quote automaton-build-app.tasks.format-code/format-code))}
+  gha {:doc "Github action tests - launched is automatically by github"
+       :task
+       (execute-build-app-task (quote automaton-build-app.tasks.workflow.composer/composer) (quote -is-cicd) (quote lint) (quote lbe-test))}
+  gha-container-publish {:doc "Update the gha container to run that app"
+                         :task (execute-build-app-task (quote automaton-build-app.tasks.gha-container-publish/gha-container-publish))}
+  gha-lconnect {:doc "Connect to a local container running this code"
+                :task (execute-build-app-task (quote automaton-build-app.tasks.gha-lconnect/gha-lconnect))}
+  ide {:doc "Quick tests to use during IDE usage"
+       :task
+       (execute-build-app-task (quote automaton-build-app.tasks.workflow.composer/composer) (quote report) (quote format) (quote lint))}
+  is-cicd {:doc "Is runned on cicd"
+           :task (execute-build-app-task (quote automaton-build-app.tasks.is-cicd/is-cicd))}
+  la {:doc "Local acceptance test"
+      :task (execute-build-app-task (quote automaton-build-app.tasks.la/la))}
+  lbe-test {:doc "Local Backend test"
+            :task (execute-build-app-task (quote automaton-build-app.tasks.lbe-test/lbe-test))}
+  lconnect {:doc "Repl in case build_app is failing"
+            :task (try (babahska-process/shell "clojure" "-M:common-test:env-development-repl:build")
+                       (catch Exception e
+                         (println "Emergency repl failed also - error during repl startup" (ex-message e))
+                         (println "Use jack-in as work around")))}
+  lfe-test {:doc "Local frontend test"
+            :task (execute-build-app-task (quote automaton-build-app.tasks.lfe-test/lfe-test))}
+  lint {:doc "linter"
+        :task (execute-build-app-task (quote automaton-build-app.tasks.lint/lint))}
+  ltest {:doc "Local test"
+         :task (execute-build-app-task (quote automaton-build-app.tasks.ltest/ltest))}
+  mermaid {:doc "Build all mermaid files"
+           :task (execute-build-app-task (quote automaton-build-app.tasks.mermaid/mermaid))}
+  push-local-dir-to-repo {:doc "Push this repo "
+                          :task (execute-build-app-task (quote automaton-build-app.tasks.push-local-dir-to-repo/push-local-dir-to-repo))}
+  reports {:doc "Creates the reports of code analyzis"
+           :task (execute-build-app-task (quote automaton-build-app.tasks.reports/reports))}
+  update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
+               :task (execute-build-app-task (quote automaton-build-app.tasks.update-deps/update-deps))}
+  vizualise-deps {:doc "Vizualise the dependencies in a graph"
+                  :task (execute-build-app-task (quote automaton-build-app.tasks.vizualise-deps/vizualise-deps))}
+  vizualise-ns {:doc "Vizualise the namespace in graph"
+                :task (execute-build-app-task (quote automaton-build-app.tasks.vizualise-ns/vizualise-ns))}
+  wf-2
+  {:doc "Quick verifications and formatting for IDE usage"
+   :task
+   (execute-build-app-task (quote automaton-build-app.tasks.workflow.composer/composer) (quote reports) (quote format-code) (quote lint))}
+  wf-6 {:doc "Push the local version - create gha docker image - push to the repo"
+        :task (execute-build-app-task (quote automaton-build-app.tasks.workflow.composer/composer)
+                                      (quote clean)
+                                      (quote lint)
+                                      (quote lbe-test)
+                                      (quote lfe-test)
+                                      (quote reports)
+                                      (quote blog)
+                                      (quote mermaid)
+                                      (quote vizualise-ns)
+                                      (quote format-code)
+                                      (quote gha-container-publish)
+                                      (quote push-local-dir-to-repo))}}}

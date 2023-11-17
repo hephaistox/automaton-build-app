@@ -1,10 +1,9 @@
 (ns automaton-build-app.code-helpers.formatter-test
-  (:require
-   [automaton-build-app.code-helpers.formatter :as sut]))
+  (:require [automaton-build-app.code-helpers.formatter :as sut]))
 
 (comment
-  ;; This test works only if some modifications are done in the bb.edn or in the task
-  ;; Note that it will remove the comment line
+  ;; This test works only if some modifications are done in the bb.edn or
+  ;; in the task. Note that it will remove the comment line
   (sut/format-file "bb.edn")
-;
-  )
+  ;
+)
