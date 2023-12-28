@@ -14,7 +14,7 @@
    :tag {:spec [["-t" "--tag TAG-MESSAGE" "Tag for the publication"]]
          :mandatory? true}
    :message {:spec [["-m" "--message COMMIT-MESSAGE" "Mandatory: Commit message"]]
-            :mandatory? true}})
+             :mandatory? true}})
 
 (defn- print-error-message
   [cli-opts msg]

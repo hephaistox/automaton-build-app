@@ -67,6 +67,9 @@
    'mermaid-watch {:doc "Watch mermaid files modifications"
                    :shared [:mermaid-dir]
                    :la-test {:skip? true}}
+   'publish-to-clojars {:doc "Publish project to clojars"
+                        :shared [:publication]
+                        :la-test {:skip? true}}
    'push-local-dir-to-repo {:doc "Push this repo"
                             :la-test {:skip? true}
                             :shared [:publication]
