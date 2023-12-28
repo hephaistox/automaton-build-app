@@ -22,6 +22,5 @@
   [_task-map app-data]
   (when (production-shadow-cljs-compilation app-data)
     (if (production-clj-compilation app-data "prod")
-      (do
-        (build-compiler/publish-to-clojars)
-        build-exit-codes/ok) build-exit-codes/catch-all)))
+      build-exit-codes/ok
+      build-exit-codes/catch-all)))
