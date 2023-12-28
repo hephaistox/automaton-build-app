@@ -1,9 +1,7 @@
 (ns automaton-build-app.code-helpers.build-config-test
-  (:require
-   [automaton-build-app.code-helpers.build-config :as sut]
-   [clojure.test :refer [deftest is testing]]))
+  (:require [automaton-build-app.app.build-config :as sut]
+            [clojure.test :refer [deftest is testing]]))
 
-(deftest search-for-build-config-test
-  (testing "At least current project should be found"
-    (is (> (count (sut/search-for-build-config))
-           0))))
+(deftest read-build-config-test
+  (testing "Read the current build config" (is (map? (sut/read-build-config ""))))
+  (testing "Read the current build config" (is (nil? (sut/read-build-config "non-existing-dir")))))

@@ -1,41 +1,33 @@
 (ns automaton-build-app.cicd.cfg-mgt-test
-  (:require
-   [automaton-build-app.cicd.cfg-mgt :as sut]
-   [automaton-build-app.cicd.server :as build-cicd-server]
-   [automaton-build-app.os.commands :as build-cmds]
-   [clojure.test :refer [deftest is testing]]))
+  (:require [automaton-build-app.cicd.cfg-mgt :as sut]
+            [automaton-build-app.cicd.server :as build-cicd-server]
+            [clojure.test :refer [deftest is testing]]
+            [automaton-build-app.os.files :as build-files]
+            [clojure.string :as str]))
 
 (deftest git-installed?*-test
-  (when-not (build-cicd-server/is-cicd?)
-    (testing "Is able to detect non working git"
-      (is (not (sut/git-installed?* "non-git-command"))))))
+  (when-not (build-cicd-server/is-cicd?) (testing "Is able to detect non working git" (is (not (sut/git-installed?* "non-git-command"))))))
 
 (comment
-  (zero?
-   (ffirst
-    (build-cmds/execute ["git" "-v"
-                         {:out :string
-                          :dir "."}])))
+  (sut/clean-hard "")
+  (let [tmp-dir (build-files/create-temp-dir "test")]
+    (build-files/create-dirs tmp-dir)
+    (sut/clone-repo-branch tmp-dir "git@github.com:hephaistox/automaton-foobar.git" "main")
+    (sut/create-and-switch-to-branch tmp-dir "test-branch")
+    (println "branch is correct?:" (= "test-branch" (sut/current-branch tmp-dir))))
+  (try (sut/push-local-dir-to-repo "/Users/anthonycaumond/Dev/hephaistox/monorepo/clojure/automaton/automaton_core"
+                                   "git@github.com:hephaistox/automaton-foobar.git" "main"
+                                   "caumond/feature/core-is-autonomous_2" "Manual test"
+                                   "Manual test" "v-test-1.%s")
+       (catch Exception e (println e)))
+  (try (sut/extract-app-from-repo "git@github.com:hephaistox/monorepo.git"
+                                  "git@github.com:hephaistox/automaton-foobar.git" "caumond/feature/core-is-autonomous_2"
+                                  "clojure/automaton/automaton_core" "Manual test"
+                                  "Manual test" "0.0.0")
+       (catch Exception e (println e)))
+  ;
+)
 
-  (try
-    (sut/push-local-dir-to-repo "/Users/anthonycaumond/Dev/hephaistox/monorepo/clojure/automaton/automaton_core"
-                                "git@github.com:hephaistox/automaton-core.git"
-                                "main"
-                                "caumond/feature/core-is-autonomous_2"
-                                "Manual test")
-    (catch Exception e
-      (println e)))
-
-  (try
-    (sut/extract-app-from-repo "git@github.com:hephaistox/monorepo.git"
-                               "git@github.com:hephaistox/automaton-core.git"
-                               "caumond/feature/core-is-autonomous_2"
-                               "clojure/automaton/automaton_core"
-                               "Manual test")
-    (catch Exception e
-      (println e)))
-
-  (build-cmds/execute ["git" "commit" "-m" "test"
-                       {:dir "/var/folders/fz/zf0944w113b5pj984_ywtb1m0000gn/T/898b096d-0f8b-4b9f-95b8-7c92af78b11d15756115773096826491"}])
-;
-  )
+(deftest find-git-repo-test
+  (testing "The current code should be in a git repo"
+    (when-not (build-cicd-server/is-cicd?) (is (not (str/blank? (sut/find-git-repo "")))))))
