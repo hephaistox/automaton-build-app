@@ -1,5 +1,6 @@
 {:aliases {:bb-deps {:extra-deps {djblue/portal {:mvn/version "0.50.0"}
                                   io.github.clojure/tools.build {:mvn/version "0.9.6"}
+                                  slipset/deps-deploy {:mvn/version "0.2.2"}
                                   metosin/malli {:mvn/version "0.13.0"}
                                   org.clojure/tools.cli {:mvn/version "1.0.219"}}}
            :build {:extra-deps {}}
