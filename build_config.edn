@@ -1,12 +1,12 @@
 {:app-name "automaton-build-app"
  :task-shared {:gha {}
                :mermaid-dir "docs/code/"
-               :publication {:address "git@github.com:hephaistox/automaton-build-app.git"
-                             :as-lib org.clojars.hephaistox/automaton-build-app
-                             :jar-path "target/prod/automaton-build-app.jar"
-                             :pom-path "target/prod/class/META-INF/maven/org.clojars.hephaistox/automaton-build-app/pom.xml"
+               :publication {:as-lib org.clojars.hephaistox/automaton-build-app
                              :branch "main"
-                             :major-version "0.0.%d"}
+                             :jar-path "target/prod/automaton-build-app.jar"
+                             :major-version "0.0.%d"
+                             :pom-path "target/prod/class/META-INF/maven/org.clojars.hephaistox/automaton-build-app/pom.xml"
+                             :repo "git@github.com:hephaistox/automaton-build-app.git"}
                :repl-aliases [:common-test :env-development-repl :build]
                :storage-datomic {:datomic-ver "1.0.7021"}}
  :tasks {:clean {:dirs [".cpcache/" ".clj-kondo/.cache/" "tmp/" "target/" "node_modules/" ".shadow-cljs/builds/"]}

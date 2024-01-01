@@ -11,10 +11,10 @@
   [_task-map
    {:keys [app-dir publication message]
     :as _app-data}]
-  (let [{:keys [address branch major-version]} publication]
+  (let [{:keys [repo branch major-version]} publication]
     (when (build-files/is-existing-file? "version.edn")
       (println (format "Current version is `%s`" (build-edn-utils/read-edn "version.edn"))))
     (build-log/debug-format "Push local `%s` " message)
-    (if (true? (build-cfg-mgt/push-local-dir-to-repo app-dir address branch message message major-version))
+    (if (true? (build-cfg-mgt/push-local-dir-to-repo app-dir repo branch message message major-version))
       build-exit-codes/ok
       build-exit-codes/catch-all)))

@@ -51,47 +51,10 @@
            (sut/hephaistox-deps {:deps {'hephaistox/automaton-build-app {}
                                         'clojure.core {}}})))))
 
-(deftest update-dep-local-root-test
-  (testing "Not concerned deps are unchanged"
-    (is (= {} (sut/update-dep-local-root "" {})))
-    (is (= nil (sut/update-dep-local-root "" nil)))
-    (is (= {:foo :bar} (sut/update-dep-local-root "" {:foo :bar}))))
-  (testing "local roots are updated"
-    (is (= {:local/root "../../automaton/"} (sut/update-dep-local-root ".." {:local/root "../automaton"})))
-    (is (= {:local/root "../../automaton/"
-            :foo :bar}
-           (sut/update-dep-local-root ".."
-                                      {:local/root "../automaton"
-                                       :foo :bar})))))
-
-(deftest update-alias-local-root-test
-  (testing "No modification if the alias contains no local/root"
-    (is (= {:extra-deps {}
-            :deps {}}
-           (sut/update-alias-local-root ".."
-                                        {:extra-deps {}
-                                         :deps {}})))
-    (is (= {:deps {}} (sut/update-alias-local-root ".." {:deps {}})))
-    (is (= {:extra-deps {}} (sut/update-alias-local-root ".." {:extra-deps {}}))))
-  (testing "deps and extra-deps local-root's are updated "
-    (is (= {:deps {'my-lib1 {:local/root "../../my-lib1/"
-                             :foo :bar}}
-            :extra-deps {'my-lib2 {:local/root "../../my-lib2/"
-                                   :bar :foo}}}
-           (sut/update-alias-local-root ".."
-                                        {:deps {'my-lib1 {:local/root "../my-lib1"
-                                                          :foo :bar}}
-                                         :extra-deps {'my-lib2 {:local/root "../my-lib2"
-                                                                :bar :foo}}})))))
-
-(deftest update-aliases-local-root-test
-  (testing "All aliases are updated"
-    (is (= {:alias-1 {:extra-deps {'lib1 {:local/root "../../lib1/"}}
-                      :deps {'lib2 {:local/root "../../lib2/"}}}
-            :alias-2 {:extra-deps {'lib2 {:local/root "../../lib2/"}}
-                      :deps {'lib3 {:local/root "../../../lib3/"}}}}
-           (sut/update-aliases-local-root ".."
-                                          {:alias-1 {:extra-deps {'lib1 {:local/root "../lib1"}}
-                                                     :deps {'lib2 {:local/root "../lib2"}}}
-                                           :alias-2 {:extra-deps {'lib2 {:local/root "../lib2"}}
-                                                     :deps {'lib3 {:local/root "../../lib3"}}}})))))
+(deftest compare-deps-test
+  (testing "First one is lower"
+    (is (= {:mvn/version "0.1.3"} (sut/compare-deps {:mvn/version "0.1.2"} {:mvn/version "0.1.3"})))
+    (is (= {:mvn/version "0.2.0"} (sut/compare-deps {:mvn/version "0.1.2"} {:mvn/version "0.2.0"})))
+    (is (= {:mvn/version "1.0.0"} (sut/compare-deps {:mvn/version "0.1.2"} {:mvn/version "1.0.0"}))))
+  (testing "Are identical" (is (= {:mvn/version "0.1.2"} (sut/compare-deps {:mvn/version "0.1.2"} {:mvn/version "0.1.2"}))))
+  (testing "Second one is lower" (is (= {:mvn/version "0.1.4"} (sut/compare-deps {:mvn/version "0.1.4"} {:mvn/version "0.1.3"})))))

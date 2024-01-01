@@ -21,7 +21,8 @@
 (defn- code-stats-report
   [{:keys [stats-outputfilename]} app-dir]
   (->> (build-code-stats/line-numbers app-dir)
-       (build-code-stats/stats-to-md stats-outputfilename)))
+       (build-code-stats/stats-to-md stats-outputfilename))
+  nil)
 
 (defn- comments-report
   [{:keys [comments-outputfilename]} code-repo]

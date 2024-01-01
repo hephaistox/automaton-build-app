@@ -189,6 +189,7 @@
       (str directory-separator)))
 
 (defn relativize
+  "Turn the `path` into a relative directory starting from `root-dir`"
   [path root-dir]
   (let [path (-> path
                  remove-trailing-separator
@@ -316,9 +317,10 @@
   * `header`(optional) header that should be added to file (e.g. 'File automatically modified, do not edit')"
   ([filename content header]
    (build-log/trace-format "Writing file `%s`" filename)
-   (let [content-with-header (if (str/blank? header) content (str (with-out-str println header) content))]
+   (let [content-with-header (if (str/blank? header) content (str (with-out-str (println header)) content))]
      (try (create-parent-dirs filename)
           (spit filename content-with-header)
+          content-with-header
           (catch Exception e
             (throw (ex-info "Impossible to write the file"
                             {:target-filename filename

@@ -5,8 +5,7 @@
             [automaton-build-app.app.deps-edn :as build-deps-edn]
             [automaton-build-app.app.package-json :as build-package-json]
             [automaton-build-app.code-helpers.frontend-compiler :as build-frontend-compiler]
-            [automaton-build-app.log :as build-log]
-            [automaton-build-app.os.files :as build-files]))
+            [automaton-build-app.log :as build-log]))
 
 (defn build
   "Gather data describing the application stored in `app-dir`
@@ -23,10 +22,3 @@
      :shadow-cljs (build-frontend-compiler/load-shadow-cljs app-dir)
      :package-json (build-package-json/load-package-json app-dir)
      :deps-edn (build-deps-edn/load-deps-edn app-dir)}))
-
-(defn apps-dirs
-  "Search for all apps directories within `dir`.
-   It's based on the location of build_config.edn file."
-  [dir]
-  (->> (build-build-config/search-for-build-configs-paths dir)
-       (map build-files/extract-path)))

@@ -47,7 +47,8 @@
                 (build-log/debug-format "Spit of file `%s` skipped, as it is already up to date:" edn-filename)
                 (some? content) (do (build-log/debug-format "Spit of file `%s` is updating with new content." edn-filename)
                                     (build-files/spit-file edn-filename content header)
-                                    (build-code-formatter/format-file edn-filename)))
+                                    (build-code-formatter/format-file edn-filename))
+                :else (build-log/warn "Content is empty"))
           content)
         (catch Exception e
           (build-log/error-data {:deps-edn-filename edn-filename
