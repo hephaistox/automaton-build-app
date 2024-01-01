@@ -21,7 +21,7 @@
         (build-edn-utils/spit-edn filename
                                   (->> matches
                                        (matches-to-output-lines match-to-output-line))
-                                  report-title)
+                                  (str ";;" report-title))
         matches)))
 
 (defn assert-empty

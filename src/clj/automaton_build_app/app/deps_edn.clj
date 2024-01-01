@@ -5,6 +5,8 @@
 
 (def deps-edn "deps.edn")
 
+(defn compare-deps [deps1 deps2] (if (pos? (compare (:mvn/version deps1) (:mvn/version deps2))) deps1 deps2))
+
 (defn get-deps-filename
   "Get the deps-file of the application
   Params:
@@ -80,35 +82,16 @@
          (concat deps)
          (map (fn [[deps-name deps-map]] [deps-name deps-map])))))
 
-(defn update-dep-local-root
-  "Update the local root directories in a dependency map (of one lib)
-  After the update, the local root path will be relative and starting from `base-dir`
 
-  Params:
-  * `base-dir` is the directory where you look at that app from
-  * `dep-map` dep is a dependency map (of one lib)"
-  [base-dir dep-map]
-  (if (contains? dep-map :local/root) (update dep-map :local/root (partial build-files/create-dir-path base-dir)) dep-map))
+(defn local-deps
+  [deps-to-replace deps]
+  (reduce (fn [acc dep] (if (contains? acc (first dep)) (assoc acc (first dep) (second dep)) acc)) deps deps-to-replace))
 
-(defn update-alias-local-root
-  "Update the local root directories in an alias
-  After the update, the local root path will be relative and starting from `base-dir`
-
-  Params:
-  * `base-dir` is the directory where you look at that app from
-  * `alias-map` is the content of the alias as found in the `deps.edn` file"
-  [base-dir alias-map]
+(defn update-to-local-deps
+  [deps-to-replace alias-map]
   (cond-> alias-map
-    (contains? alias-map :extra-deps) (update :extra-deps #(update-vals % (partial update-dep-local-root base-dir)))
-    (contains? alias-map :deps) (update :deps #(update-vals % (partial update-dep-local-root base-dir)))))
-
-(defn update-aliases-local-root
-  "Update all aliases local root to be relative starting from base-dir
-  Params:
-  * `base-dir`
-  * `aliases-map` the map describing the alias as seen in deps.edn"
-  [base-dir aliases-map]
-  (update-vals aliases-map (partial update-alias-local-root base-dir)))
+    (contains? alias-map :extra-deps) (update :extra-deps (partial local-deps deps-to-replace))
+    (contains? alias-map :deps) (update :deps (partial local-deps deps-to-replace))))
 
 (defn spit-deps-edn
   "Spit `content` in the filename path
@@ -117,3 +100,9 @@
   * `content`"
   ([app-dir content header] (build-edn-utils/spit-edn (get-deps-filename app-dir) content header))
   ([app-dir content] (spit-deps-edn app-dir content nil)))
+
+(defn update-test-alias-with-paths
+  [test-paths aliases]
+  (update-in aliases [:env-development-test :main-opts] #(concat % (interleave (repeat "-d") test-paths))))
+
+(defn get-bb-deps [deps-edn] (get-in deps-edn [:aliases :bb-deps :extra-deps]))

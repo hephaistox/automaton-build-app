@@ -1,8 +1,9 @@
 (ns automaton-build-app.app.bb-edn
   "Adapter for `bb.edn`"
-  (:require [automaton-build-app.os.edn-utils :as build-edn-utils]
-            [automaton-build-app.os.files :as build-files]
-            [automaton-build-app.log :as build-log]))
+  (:require [automaton-build-app.app.deps-edn :as build-deps-edn]
+            [automaton-build-app.log :as build-log]
+            [automaton-build-app.os.edn-utils :as build-edn-utils]
+            [automaton-build-app.os.files :as build-files]))
 
 (def bb-edn-filename "Should not be used externally except in test namespaces" "bb.edn")
 
@@ -23,9 +24,12 @@
 
   Params:
   * `app`"
-  [{:keys [app-dir bb-edn]
+  [{:keys [app-dir]
     :as app}]
-  (build-edn-utils/spit-edn (bb-edn-filename-fullpath app-dir) bb-edn "The file is updated automatically")
+  (if-let [bb-edn (->> (build-deps-edn/get-bb-deps (:deps-edn app))
+                       (assoc (:bb-edn app) :deps))]
+    (build-edn-utils/spit-edn (bb-edn-filename-fullpath app-dir) bb-edn ";;The file is updated automatically")
+    (build-log/error "Can't proceed with update of `bb.edn` update as `:bb-deps` in `deps.edn` is empty"))
   app)
 
 (defn tasks

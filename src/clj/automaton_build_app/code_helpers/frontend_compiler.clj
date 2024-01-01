@@ -43,11 +43,25 @@
   * `dir` the frontend root directory"
   [target-alias dir]
   (when (shadow-installed? dir)
-    (-> (build-cmds/execute-and-trace (npm-install-cmd dir)
-                                      ["npx" "shadow-cljs" "compile" target-alias
-                                       {:dir dir
-                                        :error-to-std? true}])
+    (-> (build-cmds/execute-with-exit-code (npm-install-cmd dir)
+                                           ["npx" "shadow-cljs" "compile" target-alias
+                                            {:dir dir
+                                             :error-to-std? true}])
         build-cmds/first-cmd-failing)))
+
+(defn compile-release
+  "Compile the target given as a parameter, in dev mode
+  Params:
+  * `target-alias` the name of the alias in `shadow-cljs.edn` to compile
+  * `dir` the frontend root directory"
+  [target-alias dir]
+  (when (shadow-installed? dir)
+    (-> (build-cmds/execute-with-exit-code (npm-install-cmd dir)
+                                           ["npx" "shadow-cljs" "release" target-alias
+                                            {:dir dir
+                                             :error-to-std? true}])
+        build-cmds/first-cmd-failing)))
+
 
 (defn load-shadow-cljs
   "Read the shadow-cljs of an app

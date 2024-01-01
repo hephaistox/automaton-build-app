@@ -46,7 +46,7 @@
                                 {:major-version major-version-only
                                  :version new-version
                                  :minor-version new-minor-version}
-                                "Last generated version, note a failed push consume a number")
+                                ";;Last generated version, note a failed push consume a number")
       new-version)
     (build-log/warn "Major version is missing")))
 

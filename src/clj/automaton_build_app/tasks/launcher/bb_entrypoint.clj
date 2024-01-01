@@ -1,7 +1,6 @@
 (ns automaton-build-app.tasks.launcher.bb-entrypoint
   "Function to be called from the bb tasks"
   (:require [automaton-build-app.app.bb-edn :as build-bb-edn]
-            [automaton-build-app.app.bb-edn.deps-updater :as bb-edn-deps-updater]
             [automaton-build-app.app.build :as build-app-build]
             [automaton-build-app.log :as build-log]
             [automaton-build-app.os.exit-codes :as build-exit-codes]
@@ -35,9 +34,8 @@
        (if (build-cli-task-agnostic-opts/common-opts! cli-args task-name)
          build-exit-codes/ok
          (let [app-dir ""
-               app (->> (build-app-build/build app-dir)
-                        bb-edn-deps-updater/update-bb-deps
-                        build-bb-edn/update-bb-edn)]
+               app (build-app-build/build app-dir)]
+           (build-bb-edn/update-bb-edn app)
            (if (nil? task-name)
              (do (build-log/fatal "The task name is missing, please use `bb heph-task task` where task is the name of the task to call")
                  build-exit-codes/invalid-argument)

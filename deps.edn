@@ -1,6 +1,5 @@
-{:aliases {:bb-deps {:extra-deps {djblue/portal {:mvn/version "0.50.0"}
+{:aliases {:bb-deps {:extra-deps {djblue/portal {:mvn/version "0.51.0"}
                                   io.github.clojure/tools.build {:mvn/version "0.9.6"}
-                                  slipset/deps-deploy {:mvn/version "0.2.2"}
                                   metosin/malli {:mvn/version "0.13.0"}
                                   org.clojure/tools.cli {:mvn/version "1.0.219"}}}
            :build {:extra-deps {}}
@@ -27,7 +26,7 @@
            :user/vizns {:deps {io.dominic/vizns {:git/url "https://github.com/SevereOverfl0w/vizns.git"
                                                  :sha "34706190d41cb243f6270fe5a7324601a8404d30"}}
                         :main-opts ["-m" "io.dominic.vizns.core"]}}
- :deps {babashka/fs {:mvn/version "0.4.19"}
+ :deps {babashka/fs {:mvn/version "0.5.20"}
         djblue/portal {:mvn/version "0.50.0"} ;; developer tooling lib
         babashka/process {:mvn/version "0.5.21"}
         clj-htmltopdf/clj-htmltopdf {:mvn/version "0.2.1"}

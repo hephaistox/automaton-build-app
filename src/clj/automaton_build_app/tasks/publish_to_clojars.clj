@@ -9,6 +9,4 @@
    {:keys [publication]
     :as _app-data}]
   (let [{:keys [pom-path jar-path]} publication]
-    (if (build-compiler/publish-to-clojars jar-path pom-path)
-      build-exit-codes/ok
-      build-exit-codes/catch-all)))
+    (if (build-compiler/publish-to-clojars jar-path pom-path) build-exit-codes/ok build-exit-codes/catch-all)))

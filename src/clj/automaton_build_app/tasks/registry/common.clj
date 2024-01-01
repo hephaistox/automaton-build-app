@@ -17,11 +17,18 @@
    {:doc
     "Clean all files which are not under version control (it doesn't remove untracked file or staged files if there are eligible to `git add .`)"
     :la-test {:process-opts {:in "q"}}}
-   'compile-to-jar {:doc "Compile that code to a jar"
-                    :pf :clj
-                    :shared [:publication]
-                    :build-configs [[:aliases {:default [:run]} [:vector :keyword]] [:class-dir {:default "target/classes/"} :string]
-                                    [:target-alias {:default :app} :keyword] [:target-filename {:default "%s-s%s.jar"} :string]]}
+   'compile-library {:doc "Compiles project to jar to be used as library"
+                     :pf :clj
+                     :la-test {:skip? true}
+                     :shared [:publication]
+                     :build-configs [[:aliases {:default [:run]} [:vector :keyword]] [:class-dir {:default "target/classes/"} :string]
+                                     [:target-filename {:default "%s-s%s.jar"} :string]]}
+   'compile-app {:doc "Compile project to to uberjar to be used as a runnable application"
+                 :pf :clj
+                 :la-test {:skip? true}
+                 :shared [:publication]
+                 :build-configs [[:aliases {:default [:run]} [:vector :keyword]] [:class-dir {:default "target/classes/"} :string]
+                                 [:target-filename {:default "%s-s%s.jar"} :string]]}
    'container-clear {:doc "Clear all local containers"
                      :la-test {:skip? true}}
    'container-list {:doc "List all available containers"}
@@ -68,6 +75,7 @@
                    :shared [:mermaid-dir]
                    :la-test {:skip? true}}
    'publish-to-clojars {:doc "Publish project to clojars"
+                        :pf :clj
                         :shared [:publication]
                         :la-test {:skip? true}}
    'push-local-dir-to-repo {:doc "Push this repo"

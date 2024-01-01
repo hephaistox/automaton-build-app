@@ -20,11 +20,12 @@
      [:storage-datomic
       [:map [:datomic-root-dir {:default "~/.datomic/"} :string] [:datomic-dir-pattern {:default "datomic-pro-%s/"} :string]
        [:datomic-transactor-bin-path {:default "bin/transactor"} :string] [:datomic-ver :string]]]
-     [:publication
+     [:publication {:optional true}
       [:map {:closed true} [:as-lib :symbol] [:class-dir {:default "target/%s/class/"} :string]
-       [:target-filename {:default "target/%s/%s.jar"} :string] [:major-version :string] [:repo :string]
+       [:target-filename {:default "target/%s/%s.jar"} :string] [:major-version :string] [:repo :string] [:branch :string]
+       [:jar-path :string] [:jar-main {:optional true} :string] [:pom-path :string]
        [:frontend {:optional true}
-        [:map {:closed true} [:run-aliases {:optional true} [:vector :keyword]]
+        [:map {:closed true} [:run-aliases {:optional true} [:vector :keyword]] [:deploy-alias {:optional true} :keyword]
          [:compiled-styles-css {:default "resources/public/css/compiled/styles.css"} :string]
          [:custom-css {:default "resources/css/custom.css"} :string] [:main-css {:default "resources/css/main.css"} :string]
          [:tailwind-config {:default ["tailwind.config.js"]} [:vector :string]]]]]]]] [:tasks task-map]])
