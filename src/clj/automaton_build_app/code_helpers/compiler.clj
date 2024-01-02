@@ -62,7 +62,7 @@
   (let [{:keys [as-lib major-version class-dir target-filename jar-main]} publication
         class-dir (format class-dir env)
         target-filename (format target-filename env app-name)
-        basis (clj-build-api/create-basis {:project build-deps-edn/deps-edn})
+        basis (clj-build-api/create-basis)
         app-paths (build-deps-edn/extract-paths deps-edn #{:env-development-repl :env-development-test :common-test})
         version (build-version/version-to-push app-dir major-version)
         jar-file (format target-filename (name as-lib) version)
@@ -85,7 +85,8 @@
            (build-log/debug-format "Jar is built `%s`" jar-file)
            (clj-build-api/compile-clj {:basis basis
                                        :src-dirs ["src"]
-                                       :class-dir class-dir})
+                                       :class-dir class-dir
+                                       :java-opts ["-Dheph-conf=config.edn,common_config.edn"]})
            (clj-build-api/uber {:class-dir class-dir
                                 :uber-file jar-file
                                 :basis basis
