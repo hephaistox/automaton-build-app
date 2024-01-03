@@ -103,8 +103,9 @@
                    :hidden? true}
    'tasks {:doc "List all tasks."}
    'update-deps {:doc "Update the dependencies, cider-nrepl and refactor are to be updated manually"
-                 :build-configs [[:exclude-libs {:default #{"cider/cider-nrepl" "com.taoensso/encore" "refactor-nrepl/refactor-nrepl"}}
-                                  [:set :string]]]
+                 :build-configs [[:exclude-libs
+                                  {:default #{"cider/cider-nrepl" "com.taoensso/encore" "refactor-nrepl/refactor-nrepl"
+                                              "com.github.liquidz/antq"}} [:set :string]]]
                  :la-test {:skip? true}
                  :pf :clj}
    'vizualise-deps {:doc "Vizualise the dependencies in a graph"
