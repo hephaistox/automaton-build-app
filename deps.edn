@@ -31,7 +31,7 @@
         babashka/process {:mvn/version "0.5.21"}
         clj-htmltopdf/clj-htmltopdf {:mvn/version "0.2.1"}
         codox/codox {:mvn/version "0.10.8"}
-        com.github.liquidz/antq {:mvn/version "2.8.1165"}
+        com.github.liquidz/antq {:mvn/version "2.7.1133"}
         dev.weavejester/medley {:mvn/version "1.7.0"}
         hiccup/hiccup {:mvn/version "2.0.0-RC2"}
         io.dominic/vizns {:git/url "https://github.com/SevereOverfl0w/vizns.git"

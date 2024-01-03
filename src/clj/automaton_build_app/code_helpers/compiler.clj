@@ -84,7 +84,7 @@
                                           (build-files/create-file-path class-dir app-name "resources"))
            (build-log/debug-format "Jar is built `%s`" jar-file)
            (clj-build-api/compile-clj {:basis basis
-                                       :src-dirs ["src"]
+                                       :src-dirs ["src" "env/production/src"]
                                        :class-dir class-dir
                                        :java-opts ["-Dheph-conf=config.edn,common_config.edn"]})
            (clj-build-api/uber {:class-dir class-dir
