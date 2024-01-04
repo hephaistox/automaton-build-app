@@ -208,7 +208,7 @@
   * `repo-address` the address of the repo where to push
   * `base-branch-name` if branch-name does not exist, it will be created based on `base-branch-name`
   * `force?` (optional default false) if false, will refuse to push on master or main branches"
-  ([source-dir repo-address base-branch-name commit-msg tag-msg major-version force?]
+  ([source-dir repo-address base-branch-name commit-msg version tag-msg force?]
    (when (git-installed?)
      (build-log/info "Pushing from local directory to repository")
      (let [branch-name (current-branch ".")]
@@ -224,38 +224,9 @@
          (let [tmp-dir (build-files/create-temp-dir)]
            (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name branch-name)
              (build-log/debug "Pushing from local directory to repository - repo is ready")
-             (let [version (build-version/version-to-push source-dir major-version)]
-               (squash-local-files-and-push tmp-dir source-dir commit-msg tag-msg version))))))))
-  ([source-dir repo-address base-branch-name commit-msg tag-msg major-version]
-   (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg tag-msg major-version false)))
-
-(defn extract-app-from-repo
-  "Use that function to push the last commit of monorepo for branch `branch-name`
-  Params:
-  * `monorepo-address` adress of the monorepo
-  * `app-repo-address` the address of the repo where to push
-  * `branch-name` the branch where to push
-  * `sub-dir` directory in monorepo cloned repo which will be copied to app-repo
-  * `commit-msg` commit message
-  * `tag-msg` tag message
-  * `force?` (optional default false) if false, will refuse to push on master or main branches"
-  ([monorepo-address app-repo-address branch-name sub-dir commit-msg tag-msg major-version]
-   (extract-app-from-repo monorepo-address app-repo-address branch-name sub-dir commit-msg tag-msg major-version false))
-  ([monorepo-address app-repo-address branch-name sub-dir commit-msg tag-msg major-version force?]
-   (build-log/debug-format "Extract the app from repo on branch `%s`" branch-name)
-   (when (git-installed?)
-     (when (validate-branch-name force? branch-name)
-       (let [monorepo-tmp-dir (build-files/create-temp-dir)
-             version (build-version/version-to-push sub-dir major-version)]
-         (build-log/trace-format "Clone monorepo in directory `%s`" monorepo-tmp-dir)
-         (when (clone-repo-branch monorepo-tmp-dir monorepo-address branch-name)
-           (let [app-tmp-dir (build-files/create-temp-dir)]
-             (when (clone-repo-branch app-tmp-dir app-repo-address branch-name)
-               (squash-local-files-and-push app-tmp-dir
-                                            (build-files/create-dir-path monorepo-tmp-dir sub-dir)
-                                            commit-msg
-                                            tag-msg
-                                            version)))))))))
+             (squash-local-files-and-push tmp-dir source-dir commit-msg tag-msg version)))))))
+  ([source-dir repo-address base-branch-name commit-msg version tag-msg]
+   (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg version tag-msg false)))
 
 (defn find-git-repo
   "Search in the parent directories if

@@ -21,12 +21,12 @@
   * `publication`
   * `env` - environment to compile"
   [app-name app-dir deps-edn publication env]
-  (let [{:keys [as-lib major-version class-dir target-filename]} publication
+  (let [{:keys [as-lib class-dir target-filename]} publication
         class-dir (format class-dir env)
         target-filename (format target-filename env app-name)
         basis (clj-build-api/create-basis {:project build-deps-edn/deps-edn})
         app-paths (build-deps-edn/extract-paths deps-edn #{})
-        version (build-version/version-to-push app-dir major-version)
+        version (build-version/current-version app-dir)
         jar-file (format target-filename (name as-lib) version)
         app-source-paths (->> app-paths
                               (filter #(re-find #"src" %)))]
@@ -60,12 +60,12 @@
   * `publication`
   * `env` - environment to compile"
   [app-name app-dir deps-edn publication env]
-  (let [{:keys [as-lib major-version class-dir target-filename jar-main]} publication
+  (let [{:keys [as-lib class-dir target-filename jar-main]} publication
         class-dir (format class-dir env)
         target-filename (format target-filename env app-name)
         basis (clj-build-api/create-basis)
         app-paths (build-deps-edn/extract-paths deps-edn #{:env-development-repl :env-development-test :common-test})
-        version (build-version/version-to-push app-dir major-version)
+        version (build-version/current-version app-dir)
         jar-file (format target-filename (name as-lib) version)
         app-source-paths (->> app-paths
                               (filter #(re-find #"src" %)))]
