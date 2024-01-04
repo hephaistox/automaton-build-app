@@ -82,7 +82,7 @@
                  :pf :clj
                  :shared [:publication]
                  :la-test {:skip? true}}
-   'push-local-dir-to-repo {:doc "Push this repo"
+   'push-local {:doc "Push this repo"
                             :la-test {:skip? true}
                             :shared [:publication]
                             :task-cli-opts-kws [:force :message :tag]

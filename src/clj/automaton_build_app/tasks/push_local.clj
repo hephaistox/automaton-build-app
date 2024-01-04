@@ -1,4 +1,4 @@
-(ns automaton-build-app.tasks.push-local-dir-to-repo
+(ns automaton-build-app.tasks.push-local
   (:require [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]
             [automaton-build-app.log :as build-log]
             [automaton-build-app.os.exit-codes :as build-exit-codes]
@@ -11,7 +11,7 @@
    {:keys [app-dir publication message force?]
     :as _app-data}]
   (let [{:keys [repo branch major-version]} publication]
-    (when-let [version (if true #_(= (build-cfg-mgt/current-branch ".") branch)
+    (when-let [version (if (= (build-cfg-mgt/current-branch ".") branch)
                          (if (build-version/confirm-version? force?)
                            (build-version/version-to-push app-dir major-version)
                            (build-log/warn "Abort, as to continnue user permission is needed"))

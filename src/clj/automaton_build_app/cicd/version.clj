@@ -16,6 +16,7 @@
   * each `bb push` increases the minor version
   * changing the major version is done through"
   (:require [automaton-build-app.log :as build-log]
+            [automaton-build-app.os.cli-input :as build-cli-input]
             [automaton-build-app.os.edn-utils :as build-edn-utils]
             [clojure.tools.build.api :as clj-build-api]
             [automaton-build-app.os.files :as build-files]))
@@ -33,7 +34,7 @@
                             content
                             ";;Last generated version, note a failed push consume a number"))
 
-(defn version-from-edn-to-push
+(defn update-version
   "Build the string of the version to be pushed (the next one)
   Params:
   * `app-dir` directory of the version to count
@@ -61,6 +62,7 @@
       new-version)
     (build-log/warn "Major version is missing")))
 
+
 (defn current-version [app-dir] (:version (read-version-file app-dir)))
 
 (defn version-from-git-revs-to-push
@@ -77,12 +79,8 @@
       new-version)
     (build-log/warn "Major version is missing")))
 
-(def version-to-push "Router to the chosen strategy" version-from-edn-to-push)
+(def version-to-push "Router to the chosen strategy" update-version)
 
 (defn confirm-version?
   [force?]
-  (if force?
-    true
-    (do (build-log/warn "Your change will affect the main branch of the project, are you sure you want to continue? y/n")
-        (flush)
-        (contains? #{'y 'Y 'yes 'Yes 'YES} (read)))))
+  (build-cli-input/yes-question "Your change will affect the main branch of the project, are you sure you want to continue? y/n" force?))
