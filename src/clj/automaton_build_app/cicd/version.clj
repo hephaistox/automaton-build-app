@@ -22,14 +22,16 @@
 
 (def version-file "version.edn")
 
-(defn read-version-file [app-dir]
+(defn read-version-file
+  [app-dir]
   (let [version-filename (build-files/create-file-path app-dir version-file)]
     (when (build-files/is-existing-file? version-filename) (build-edn-utils/read-edn version-filename))))
 
-(defn save-version-file [app-dir content]
+(defn save-version-file
+  [app-dir content]
   (build-edn-utils/spit-edn (build-files/create-file-path app-dir version-file)
-                                 content
-                                ";;Last generated version, note a failed push consume a number"))
+                            content
+                            ";;Last generated version, note a failed push consume a number"))
 
 (defn version-from-edn-to-push
   "Build the string of the version to be pushed (the next one)
@@ -40,7 +42,8 @@
   (if major-version
     (let [{_version :version
            older-minor-version :minor-version
-           older-major-version :major-version} (read-version-file app-dir)
+           older-major-version :major-version}
+          (read-version-file app-dir)
           minor-version (if-not (= older-major-version (format major-version -1))
                           (do (build-log/info "A new major version is detected")
                               (build-log/trace-format "Older major version is `%s`" older-major-version)
@@ -51,14 +54,14 @@
           major-version-only (format major-version -1)
           new-version (format major-version new-minor-version)]
       (build-log/trace-format "Major version: %s, old minor: %s, new minor %s" major-version older-minor-version minor-version)
-      (save-version-file app-dir {:major-version major-version-only
-                                 :version new-version
-                                 :minor-version new-minor-version})
+      (save-version-file app-dir
+                         {:major-version major-version-only
+                          :version new-version
+                          :minor-version new-minor-version})
       new-version)
     (build-log/warn "Major version is missing")))
 
-(defn current-version [app-dir]
-  (:version (read-version-file app-dir)))
+(defn current-version [app-dir] (:version (read-version-file app-dir)))
 
 (defn version-from-git-revs-to-push
   "Build the string of the version to be pushed (the next one)
@@ -75,3 +78,11 @@
     (build-log/warn "Major version is missing")))
 
 (def version-to-push "Router to the chosen strategy" version-from-edn-to-push)
+
+(defn confirm-version?
+  [force?]
+  (if force?
+    true
+    (do (build-log/warn "Your change will affect the main branch of the project, are you sure you want to continue? y/n")
+        (flush)
+        (contains? #{'y 'Y 'yes 'Yes 'YES} (read)))))

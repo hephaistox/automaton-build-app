@@ -2,8 +2,7 @@
   "Adapter for configuration management
 
   Proxy to git"
-  (:require [automaton-build-app.cicd.version :as build-version]
-            [automaton-build-app.log :as build-log]
+  (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
             [automaton-build-app.os.files :as build-files]
             [clojure.string :as str]))
@@ -212,19 +211,19 @@
    (when (git-installed?)
      (build-log/info "Pushing from local directory to repository")
      (let [branch-name (current-branch ".")]
-       (build-log/trace-map "Push local directories"
-                            :source-dir source-dir
-                            :repo-address repo-address
-                            :base-branch-name base-branch-name
-                            :branch-name branch-name
-                            :commit-msg commit-msg
-                            :tag-msg tag-msg
-                            :force? force?)
-       (when (validate-branch-name force? branch-name)
-         (let [tmp-dir (build-files/create-temp-dir)]
-           (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name branch-name)
-             (build-log/debug "Pushing from local directory to repository - repo is ready")
-             (squash-local-files-and-push tmp-dir source-dir commit-msg tag-msg version)))))))
+           (build-log/trace-map "Push local directories"
+                                :source-dir source-dir
+                                :repo-address repo-address
+                                :base-branch-name base-branch-name
+                                :branch-name branch-name
+                                :commit-msg commit-msg
+                                :tag-msg tag-msg
+                                :force? force?)
+           (when (validate-branch-name force? branch-name)
+             (let [tmp-dir (build-files/create-temp-dir)]
+               (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name branch-name)
+                 (build-log/debug "Pushing from local directory to repository - repo is ready")
+                 (squash-local-files-and-push tmp-dir source-dir commit-msg tag-msg version)))))))
   ([source-dir repo-address base-branch-name commit-msg version tag-msg]
    (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg version tag-msg false)))
 
