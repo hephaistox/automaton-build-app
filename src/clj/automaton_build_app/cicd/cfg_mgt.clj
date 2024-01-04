@@ -45,20 +45,23 @@
   "Clone one branch of a remote repository to the `target-dir`
   Params:
   * `target-dir` is the directory where the repository should be cloned
+  * `repo-dir-name` (optional) name of cloned directory
   * `repo-address` the remote url where the repository is stored
   * `branch-name` is the name of the branch to download
   Return true if succesfull"
-  [target-dir repo-address branch-name]
-  (build-log/debug-format "Clone in repo `%s`, branch `%s` in `%s` " repo-address branch-name target-dir)
-  (when (git-installed?)
-    (let [[exit-code message] (->> (build-cmds/execute-with-exit-code ["git" "clone" repo-address target-dir "--single-branch" "-b"
-                                                                       branch-name "--depth" "1" {:dir target-dir}])
-                                   first)]
-      (cond (zero? exit-code) true
-            (re-find #"Could not find remote branch" message)
-            (do (build-log/error-format "Branch `%s` does not exists in repo `%s`" branch-name repo-address) false)
-            (re-find #"Repository not found" message) (do (build-log/error-format "Repository `%s` not found" repo-address) false)
-            :else (do (build-log/error "Unexpected error during clone repo: " message) false)))))
+  ([target-dir repo-dir-name repo-address branch-name]
+   (build-log/debug-format "Clone in repo `%s`, branch `%s` in `%s` " repo-address branch-name target-dir)
+   (when (git-installed?)
+     (let [[exit-code message] (->> (build-cmds/execute-with-exit-code ["git" "clone" repo-address repo-dir-name "--single-branch" "-b"
+                                                                        branch-name "--depth" "1" {:dir target-dir}])
+                                    first)]
+       (cond (zero? exit-code) true
+             (re-find #"Could not find remote branch" message)
+             (do (build-log/error-format "Branch `%s` does not exists in repo `%s`" branch-name repo-address) false)
+             (re-find #"Repository not found" message) (do (build-log/error-format "Repository `%s` not found" repo-address) false)
+             :else (do (build-log/error "Unexpected error during clone repo: " message) false)))))
+  ([target-dir repo-address branch-name] (clone-repo-branch target-dir target-dir repo-address branch-name)))
+
 
 (defn create-and-switch-to-branch
   "In an existing repo stored in `dir`, creates a branch called `branch-name` and switch to it

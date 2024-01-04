@@ -7,7 +7,8 @@
             [automaton-build-app.os.files :as build-files]
             [clojure.tools.build.api :as clj-build-api]
             [deps-deploy.deps-deploy :as deps-deploy]
-            [automaton-build-app.configuration :as build-conf]))
+            [automaton-build-app.configuration :as build-conf]
+            [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]))
 
 (defn clj-compiler
   "Compile the application.
@@ -95,7 +96,7 @@
            jar-file)
          (catch Exception e (build-log/error-exception (ex-info "Compilation failed" {:exception e})) nil))))
 
-(defn publish-to-clojars
+(defn publish-library
   "Publish the jar [](https://github.com/slipset/deps-deploy)"
   [jar-path pom-path]
   (deps-deploy/deploy {:installer :remote
@@ -106,3 +107,11 @@
                                                :username (build-conf/read-param [:clojars-username])
                                                :password (build-conf/read-param [:clojars-password])}}})
   true)
+
+(defn publish-app
+  [app-uri]
+  (build-files/delete-files [".clever/repo"])
+  (build-files/ensure-directory-exists ".clever/repo")
+  (build-cfg-mgt/clone-repo-branch ".clever" "repo" app-uri "master")
+  (build-files/copy-files-or-dir ["target"] ".clever/repo/target")
+  (build-cfg-mgt/commit-and-push ".clever/repo" nil "master"))
