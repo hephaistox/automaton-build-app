@@ -8,7 +8,11 @@
             [clojure.tools.build.api :as clj-build-api]
             [deps-deploy.deps-deploy :as deps-deploy]
             [automaton-build-app.configuration :as build-conf]
-            [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]))
+            [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]
+            [babashka.fs :as fs]))
+(defn eclipse-license []
+  [:license [:name "Eclipse Public License 1.0"] [:url "https://opensource.org/license/epl-1-0/"]])
+
 
 (defn clj-compiler
   "Compile the application.
@@ -37,9 +41,13 @@
                               :version version
                               :basis basis
                               :src-dirs app-source-paths
-                              :pom-data [[:licenses
-                                          [:license [:name "Eclipse Public License 1.0"] [:url "https://opensource.org/license/epl-1-0/"]
-                                           [:distribution "https://github.com/hephaistox/automaton-build-app"]]]]})
+                              :pom-data [[:licenses (eclipse-license)]]})
+    (clj-build-api/write-pom {:target app-dir 
+                              :lib as-lib
+                              :version version
+                              :basis basis
+                              :src-dirs app-source-paths
+                              :pom-data [[:licenses (eclipse-license)]]})
     (build-log/debug-format "Copy files from `%s` to `%s`" app-paths class-dir)
     (try (when (build-files/copy-files-or-dir app-paths class-dir)
            (build-log/debug-format "Jar is built `%s`" jar-file)
@@ -75,10 +83,13 @@
                               :lib as-lib
                               :version version
                               :basis basis
+                              :src-dirs app-source-paths})
+    (clj-build-api/write-pom {:target app-dir 
+                              :lib as-lib
+                              :version version
+                              :basis basis
                               :src-dirs app-source-paths
-                              :pom-data [[:licenses
-                                          [:license [:name "Eclipse Public License 1.0"] [:url "https://opensource.org/license/epl-1-0/"]
-                                           [:distribution "https://github.com/hephaistox/automaton-build-app"]]]]})
+                              :pom-data [[:licenses (eclipse-license)]]})
     (build-log/debug-format "Copy files from `%s` to `%s`" app-paths class-dir)
     (try (when (build-files/copy-files-or-dir app-paths class-dir)
            (build-files/copy-files-or-dir ["env/common_config.edn" "env/production/resources/"]

@@ -8,7 +8,7 @@
 (defn exec
   "Compile both backend and frontend (if its setup file exists, e.g. `shadow-cljs.edn`)), in production mode"
   [_task-map
-   {:keys [app-name app-dir _aliases deps-edn publication]
+   {:keys [app-name app-dir deps-edn publication]
     :as _app-data}]
   (build-log/info "Start library compilation to jar.")
   (if (and (build-frontend-compiler/is-shadow-project? app-dir) (get-in publication [:frontend :deploy-alias]))
