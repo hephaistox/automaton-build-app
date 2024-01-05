@@ -91,7 +91,7 @@
   (clj-compiler :uber-jar publication env app-name deps-edn #{:env-development-repl :env-development-test :common-test} app-dir nil))
 
 (defn publish-library
-  "Publish the jar [](https://github.com/slipset/deps-deploy)"
+  "Publish the jar to clojars [](https://github.com/slipset/deps-deploy)"
   [jar-path pom-path]
   (deps-deploy/deploy {:installer :remote
                        :artifact jar-path
@@ -103,6 +103,7 @@
   true)
 
 (defn publish-app
+  "Publish uber-jar to Clever Cloud. [](https://developers.clever-cloud.com/doc/cli/)"
   ([repo-uri app-dir]
    (let [clever-dir (build-files/create-dir-path app-dir ".clever")
          clever-repo-dir (build-files/create-dir-path clever-dir "repo")]
