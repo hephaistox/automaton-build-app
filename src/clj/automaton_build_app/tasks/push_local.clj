@@ -18,6 +18,6 @@
                          (build-version/current-version app-dir))]
       (build-log/info-format "Current version is `%s`" version)
       (build-log/debug-format "Push local `%s` " message)
-      (if (true? (build-cfg-mgt/push-local-dir-to-repo app-dir repo branch message version message))
+      (if (true? (build-cfg-mgt/push-local-dir-to-repo app-dir repo branch message version message force?))
         build-exit-codes/ok
         build-exit-codes/catch-all))))

@@ -83,10 +83,10 @@
                  :shared [:publication]
                  :la-test {:skip? true}}
    'push-local {:doc "Push this repo"
-                            :la-test {:skip? true}
-                            :shared [:publication]
-                            :task-cli-opts-kws [:force :message :tag]
-                            :pf :clj}
+                :la-test {:skip? true}
+                :shared [:publication]
+                :task-cli-opts-kws [:force :message :tag]
+                :pf :clj}
    'reports {:doc "Creates the reports of code analysis"
              :build-configs [[:alias-outputfilename {:default "docs/code/alias.edn"} :string]
                              [:comments-outputfilename {:default "docs/code/comments.edn"} :string]

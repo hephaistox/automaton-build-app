@@ -7,6 +7,8 @@
             [automaton-build-app.os.files :as build-files]
             [clojure.string :as str]))
 
+(defn latest-commit-message [] (first (build-cmds/execute-get-string ["git log -1 --pretty=format:%B | cat"])))
+
 (defn git-installed?*
   "Returns true if git is properly installed
   Params:
@@ -60,7 +62,6 @@
              (re-find #"Repository not found" message) (do (build-log/error-format "Repository `%s` not found" repo-address) false)
              :else (do (build-log/error "Unexpected error during clone repo: " message) false)))))
   ([target-dir repo-address branch-name] (clone-repo-branch target-dir target-dir repo-address branch-name)))
-
 
 (defn create-and-switch-to-branch
   "In an existing repo stored in `dir`, creates a branch called `branch-name` and switch to it
@@ -207,25 +208,26 @@
   * `repo-address` the address of the repo where to push
   * `base-branch-name` if branch-name does not exist, it will be created based on `base-branch-name`
   * `force?` (optional default false) if false, will refuse to push on master or main branches"
-  ([source-dir repo-address base-branch-name commit-msg version tag-msg force?]
+  ([source-dir repo-address base-branch-name commit-msg version tag-msg force? target-branch]
    (when (git-installed?)
      (build-log/info "Pushing from local directory to repository")
-     (let [branch-name (current-branch ".")]
-       (build-log/trace-map "Push local directories"
-                            :source-dir source-dir
-                            :repo-address repo-address
-                            :base-branch-name base-branch-name
-                            :branch-name branch-name
-                            :commit-msg commit-msg
-                            :tag-msg tag-msg
-                            :force? force?)
-       (when (validate-branch-name force? branch-name)
-         (let [tmp-dir (build-files/create-temp-dir)]
-           (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name branch-name)
-             (build-log/debug "Pushing from local directory to repository - repo is ready")
-             (squash-local-files-and-push tmp-dir source-dir commit-msg tag-msg version)))))))
+     (build-log/trace-map "Push local directories"
+                          :source-dir source-dir
+                          :repo-address repo-address
+                          :base-branch-name base-branch-name
+                          :branch-name target-branch
+                          :commit-msg commit-msg
+                          :tag-msg tag-msg
+                          :force? force?)
+     (when (validate-branch-name force? target-branch)
+       (let [tmp-dir (build-files/create-temp-dir)]
+         (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name target-branch)
+           (build-log/debug "Pushing from local directory to repository - repo is ready")
+           (squash-local-files-and-push tmp-dir source-dir commit-msg tag-msg version))))))
   ([source-dir repo-address base-branch-name commit-msg version tag-msg]
-   (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg version tag-msg false)))
+   (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg version tag-msg false (current-branch ".")))
+  ([source-dir repo-address base-branch-name commit-msg version tag-msg force?]
+   (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg version tag-msg force? (current-branch "."))))
 
 (defn find-git-repo
   "Search in the parent directories if

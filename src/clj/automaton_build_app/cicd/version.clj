@@ -82,5 +82,8 @@
 (def version-to-push "Router to the chosen strategy" update-version)
 
 (defn confirm-version?
-  [force?]
-  (build-cli-input/yes-question "Your change will affect the main branch of the project, are you sure you want to continue? y/n" force?))
+  ([force?] (confirm-version? force? ""))
+  ([force? project-name]
+   (build-cli-input/yes-question
+    (format "Your change will affect the main branch of the project `%s`, are you sure you want to continue? y/n" project-name)
+    force?)))

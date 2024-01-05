@@ -109,9 +109,12 @@
   true)
 
 (defn publish-app
-  [app-uri]
-  (build-files/delete-files [".clever/repo"])
-  (build-files/ensure-directory-exists ".clever/repo")
-  (build-cfg-mgt/clone-repo-branch ".clever" "repo" app-uri "master")
-  (build-files/copy-files-or-dir ["target"] ".clever/repo/target")
-  (build-cfg-mgt/commit-and-push ".clever/repo" nil "master"))
+  ([repo-uri app-dir]
+   (let [clever-dir (build-files/create-dir-path app-dir ".clever")
+         clever-repo-dir (build-files/create-dir-path clever-dir "repo")]
+     (build-files/delete-files [clever-repo-dir])
+     (build-files/ensure-directory-exists clever-repo-dir)
+     (build-cfg-mgt/clone-repo-branch clever-dir "repo" repo-uri "master")
+     (build-files/copy-files-or-dir ["target"] (build-files/create-dir-path clever-repo-dir "target"))
+     (build-cfg-mgt/commit-and-push clever-repo-dir nil "master")))
+  ([repo-uri] (publish-app repo-uri ".")))
