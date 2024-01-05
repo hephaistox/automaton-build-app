@@ -17,4 +17,4 @@
       (build-log/info "frontend compiled - starting backend compilation")
       res)
     (build-log/info "Frontend compilation skipped"))
-  (if (build-compiler/clj-compiler app-name app-dir deps-edn publication "prod") build-exit-codes/ok build-exit-codes/catch-all))
+  (if (build-compiler/lib-clj-compiler app-name app-dir deps-edn publication "prod") build-exit-codes/ok build-exit-codes/catch-all))

@@ -8,13 +8,63 @@
             [clojure.tools.build.api :as clj-build-api]
             [deps-deploy.deps-deploy :as deps-deploy]
             [automaton-build-app.configuration :as build-conf]
-            [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]
-            [babashka.fs :as fs]))
-(defn eclipse-license []
-  [:license [:name "Eclipse Public License 1.0"] [:url "https://opensource.org/license/epl-1-0/"]])
+            [automaton-build-app.cicd.cfg-mgt :as build-cfg-mgt]))
 
+(defn eclipse-license [] [:license [:name "Eclipse Public License 1.0"] [:url "https://opensource.org/license/epl-1-0/"]])
+
+(defn compile-jar
+  [class-dir jar-file]
+  (clj-build-api/jar {:class-dir class-dir
+                      :jar-file jar-file}))
+
+(defn compile-uber-jar
+  [basis class-dir jar-file jar-main]
+  (clj-build-api/compile-clj {:basis basis
+                              :src-dirs ["src" "env/production/src"]
+                              :class-dir class-dir
+                              :java-opts ["-Dheph-conf=config.edn,common_config.edn"]})
+  (clj-build-api/uber {:class-dir class-dir
+                       :uber-file jar-file
+                       :basis basis
+                       :main jar-main}))
 
 (defn clj-compiler
+  "Compile code to jar or uber-jar based on `jar-type`."
+  [jar-type publication env app-name deps-edn excluded-aliases app-dir pom-data]
+  (let [{:keys [as-lib class-dir target-filename jar-main]} publication
+        class-dir (format class-dir env)
+        target-filename (format target-filename env app-name)
+        basis (clj-build-api/create-basis)
+        app-paths (build-deps-edn/extract-paths deps-edn excluded-aliases)
+        version (build-version/current-version app-dir)
+        jar-file (format target-filename (name as-lib) version)
+        app-source-paths (->> app-paths
+                              (filter #(re-find #"src" %)))]
+    (build-log/info "Launch clj compilation")
+    (build-log/debug "Write POM files")
+    (clj-build-api/write-pom (merge {:class-dir class-dir
+                                     :lib as-lib
+                                     :version version
+                                     :basis basis
+                                     :src-dirs app-source-paths}
+                                    (when pom-data pom-data)))
+    (clj-build-api/write-pom (merge {:target app-dir
+                                     :lib as-lib
+                                     :version version
+                                     :basis basis
+                                     :src-dirs app-source-paths}
+                                    (when pom-data {:pom-data pom-data})))
+    (build-log/debug-format "Copy files from `%s` to `%s`" app-paths class-dir)
+    (try (when (build-files/copy-files-or-dir app-paths class-dir)
+           (build-log/debug-format "Jar is built `%s`" jar-file)
+           (case jar-type
+             :jar (compile-uber-jar basis class-dir jar-file jar-main)
+             :uber-jar (compile-jar class-dir jar-file))
+           (build-log/info-format "Compilation ending successfully: `%s`" jar-file)
+           jar-file)
+         (catch Exception e (build-log/error-exception (ex-info "Compilation failed" {:exception e})) nil))))
+
+(defn lib-clj-compiler
   "Compile the application.
   Returns the local jar filename which has been generated
 
@@ -25,37 +75,7 @@
   * `publication`
   * `env` - environment to compile"
   [app-name app-dir deps-edn publication env]
-  (let [{:keys [as-lib class-dir target-filename]} publication
-        class-dir (format class-dir env)
-        target-filename (format target-filename env app-name)
-        basis (clj-build-api/create-basis {:project build-deps-edn/deps-edn})
-        app-paths (build-deps-edn/extract-paths deps-edn #{})
-        version (build-version/current-version app-dir)
-        jar-file (format target-filename (name as-lib) version)
-        app-source-paths (->> app-paths
-                              (filter #(re-find #"src" %)))]
-    (build-log/info "Launch clj compilation")
-    (build-log/debug "Write POM files")
-    (clj-build-api/write-pom {:class-dir class-dir
-                              :lib as-lib
-                              :version version
-                              :basis basis
-                              :src-dirs app-source-paths
-                              :pom-data [[:licenses (eclipse-license)]]})
-    (clj-build-api/write-pom {:target app-dir 
-                              :lib as-lib
-                              :version version
-                              :basis basis
-                              :src-dirs app-source-paths
-                              :pom-data [[:licenses (eclipse-license)]]})
-    (build-log/debug-format "Copy files from `%s` to `%s`" app-paths class-dir)
-    (try (when (build-files/copy-files-or-dir app-paths class-dir)
-           (build-log/debug-format "Jar is built `%s`" jar-file)
-           (clj-build-api/jar {:class-dir class-dir
-                               :jar-file jar-file})
-           (build-log/info-format "Compilation ending successfully: `%s`" jar-file)
-           jar-file)
-         (catch Exception e (build-log/error-exception (ex-info "Compilation failed" {:exception e})) nil))))
+  (clj-compiler :jar publication env app-name deps-edn #{} app-dir [[:licenses (eclipse-license)]]))
 
 (defn app-clj-compiler
   "Compile the application.
@@ -68,44 +88,7 @@
   * `publication`
   * `env` - environment to compile"
   [app-name app-dir deps-edn publication env]
-  (let [{:keys [as-lib class-dir target-filename jar-main]} publication
-        class-dir (format class-dir env)
-        target-filename (format target-filename env app-name)
-        basis (clj-build-api/create-basis)
-        app-paths (build-deps-edn/extract-paths deps-edn #{:env-development-repl :env-development-test :common-test})
-        version (build-version/current-version app-dir)
-        jar-file (format target-filename (name as-lib) version)
-        app-source-paths (->> app-paths
-                              (filter #(re-find #"src" %)))]
-    (build-log/info "Launch clj compilation")
-    (build-log/debug "Write POM files")
-    (clj-build-api/write-pom {:class-dir class-dir
-                              :lib as-lib
-                              :version version
-                              :basis basis
-                              :src-dirs app-source-paths})
-    (clj-build-api/write-pom {:target app-dir 
-                              :lib as-lib
-                              :version version
-                              :basis basis
-                              :src-dirs app-source-paths
-                              :pom-data [[:licenses (eclipse-license)]]})
-    (build-log/debug-format "Copy files from `%s` to `%s`" app-paths class-dir)
-    (try (when (build-files/copy-files-or-dir app-paths class-dir)
-           (build-files/copy-files-or-dir ["env/common_config.edn" "env/production/resources/"]
-                                          (build-files/create-file-path class-dir app-name "resources"))
-           (build-log/debug-format "Jar is built `%s`" jar-file)
-           (clj-build-api/compile-clj {:basis basis
-                                       :src-dirs ["src" "env/production/src"]
-                                       :class-dir class-dir
-                                       :java-opts ["-Dheph-conf=config.edn,common_config.edn"]})
-           (clj-build-api/uber {:class-dir class-dir
-                                :uber-file jar-file
-                                :basis basis
-                                :main jar-main})
-           (build-log/info-format "Compilation ending successfully: `%s`" jar-file)
-           jar-file)
-         (catch Exception e (build-log/error-exception (ex-info "Compilation failed" {:exception e})) nil))))
+  (clj-compiler :uber-jar publication env app-name deps-edn #{:env-development-repl :env-development-test :common-test} app-dir nil))
 
 (defn publish-library
   "Publish the jar [](https://github.com/slipset/deps-deploy)"

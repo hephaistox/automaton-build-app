@@ -5,7 +5,8 @@
   (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
             [automaton-build-app.os.files :as build-files]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [automaton-build-app.os.exit-codes :as build-exit-codes]))
 
 (defn latest-commit-message [] (first (build-cmds/execute-get-string ["git log -1 --pretty=format:%B | cat"])))
 
@@ -102,10 +103,11 @@
                                                           ["git" "commit" "-m" msg {:dir dir}]
                                                           ["git" "push" "--set-upstream" "origin" branch-name {:dir dir}])]
         (case (first (build-cmds/first-cmd-failing commit-res))
-          nil (do (build-log/info "Successfully pushed") true)
-          1 (do (build-log/debug "Nothing to commit, skip the push") false)
-          2 (do (build-log/debug "Push has failed") false)
-          :else (do (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res)) false))))))
+          nil (do (build-log/info "Successfully pushed") build-exit-codes/ok)
+          1 (do (build-log/debug "Nothing to commit, skip the push") build-exit-codes/ok)
+          2 (do (build-log/debug "Push has failed") build-exit-codes/catch-all)
+          :else (do (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res))
+                    build-exit-codes/unexpected-exception))))))
 
 (defn current-commit-sha
   "Returns the current commit sha in the directory `dir`

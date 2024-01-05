@@ -23,7 +23,8 @@
      [:publication {:optional true}
       [:map {:closed true} [:as-lib {:optional true} :symbol] [:class-dir {:default "target/%s/class/"} :string]
        [:target-filename {:default "target/%s/%s.jar"} :string] [:major-version :string] [:repo :string] [:branch :string]
-       [:jar-path {:optional true} :string] [:jar-main {:optional true} :string] [:deploy-to {:optional true} :keyword] [:clever-uri {:optional true} :string] [:pom-path {:optional true} :string]
+       [:jar-path {:optional true} :string] [:jar-main {:optional true} :string] [:deploy-to {:optional true} :keyword]
+       [:clever-uri {:optional true} :string] [:pom-path {:optional true} :string]
        [:frontend {:optional true}
         [:map {:closed true} [:run-aliases {:optional true} [:vector :keyword]] [:deploy-alias {:optional true} :keyword]
          [:compiled-styles-css {:default "resources/public/css/compiled/styles.css"} :string]
