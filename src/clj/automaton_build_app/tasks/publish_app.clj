@@ -3,7 +3,7 @@
 
 #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn exec
-  "Publish your project"
+  "Publish project as a runnable app (uber-jar) to clever cloud."
   [_task-map
    {:keys [publication]
     :as _app-data}]

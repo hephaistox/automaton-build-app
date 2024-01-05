@@ -4,7 +4,7 @@
 
 #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
 (defn exec
-  "Publish your project"
+  "Publish project as a library (jar) to clojars."
   [_task-map
    {:keys [publication]
     :as _app-data}]
