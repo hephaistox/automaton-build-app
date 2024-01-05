@@ -83,15 +83,20 @@
          (map (fn [[deps-name deps-map]] [deps-name deps-map])))))
 
 
-(defn local-deps
+(defn replace-deps
+  "Replace for existing keys, values in `deps` map with values from map `deps-to-replace`
+   Params:
+   * `deps` - map with dependencies
+   * `deps-to-replace` a map with deps and it's new values"
   [deps-to-replace deps]
   (reduce (fn [acc dep] (if (contains? acc (first dep)) (assoc acc (first dep) (second dep)) acc)) deps deps-to-replace))
 
-(defn update-to-local-deps
+(defn replace-deps-aliases
+  "Replace deps from deps-edn `alias-map` based on `deps-to-replace` map where key is a dep to replace and value is a new value for that key. If the dep doesn't exist in alias-map, it won't get added."
   [deps-to-replace alias-map]
   (cond-> alias-map
-    (contains? alias-map :extra-deps) (update :extra-deps (partial local-deps deps-to-replace))
-    (contains? alias-map :deps) (update :deps (partial local-deps deps-to-replace))))
+    (contains? alias-map :extra-deps) (update :extra-deps (partial replace-deps deps-to-replace))
+    (contains? alias-map :deps) (update :deps (partial replace-deps deps-to-replace))))
 
 (defn spit-deps-edn
   "Spit `content` in the filename path
@@ -105,4 +110,4 @@
   [test-paths aliases]
   (update-in aliases [:env-development-test :main-opts] #(concat % (interleave (repeat "-d") test-paths))))
 
-(defn get-bb-deps [deps-edn] (get-in deps-edn [:aliases :bb-deps :extra-deps]))
+(defn get-bb-deps "Returns extra deps from deps-edn map" [deps-edn] (get-in deps-edn [:aliases :bb-deps :extra-deps]))

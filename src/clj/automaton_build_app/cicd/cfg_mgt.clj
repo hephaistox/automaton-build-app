@@ -2,11 +2,13 @@
   "Adapter for configuration management
 
   Proxy to git"
-  (:require [automaton-build-app.cicd.version :as build-version]
-            [automaton-build-app.log :as build-log]
+  (:require [automaton-build-app.log :as build-log]
             [automaton-build-app.os.commands :as build-cmds]
             [automaton-build-app.os.files :as build-files]
-            [clojure.string :as str]))
+            [clojure.string :as str]
+            [automaton-build-app.os.exit-codes :as build-exit-codes]))
+
+(defn latest-commit-message [] (first (build-cmds/execute-get-string ["git log -1 --pretty=format:%B | cat"])))
 
 (defn git-installed?*
   "Returns true if git is properly installed
@@ -45,20 +47,22 @@
   "Clone one branch of a remote repository to the `target-dir`
   Params:
   * `target-dir` is the directory where the repository should be cloned
+  * `repo-dir-name` (optional) name of cloned directory
   * `repo-address` the remote url where the repository is stored
   * `branch-name` is the name of the branch to download
   Return true if succesfull"
-  [target-dir repo-address branch-name]
-  (build-log/debug-format "Clone in repo `%s`, branch `%s` in `%s` " repo-address branch-name target-dir)
-  (when (git-installed?)
-    (let [[exit-code message] (->> (build-cmds/execute-with-exit-code ["git" "clone" repo-address target-dir "--single-branch" "-b"
-                                                                       branch-name "--depth" "1" {:dir target-dir}])
-                                   first)]
-      (cond (zero? exit-code) true
-            (re-find #"Could not find remote branch" message)
-            (do (build-log/error-format "Branch `%s` does not exists in repo `%s`" branch-name repo-address) false)
-            (re-find #"Repository not found" message) (do (build-log/error-format "Repository `%s` not found" repo-address) false)
-            :else (do (build-log/error "Unexpected error during clone repo: " message) false)))))
+  ([target-dir repo-dir-name repo-address branch-name]
+   (build-log/debug-format "Clone in repo `%s`, branch `%s` in `%s` " repo-address branch-name target-dir)
+   (when (git-installed?)
+     (let [[exit-code message] (->> (build-cmds/execute-with-exit-code ["git" "clone" repo-address repo-dir-name "--single-branch" "-b"
+                                                                        branch-name "--depth" "1" {:dir target-dir}])
+                                    first)]
+       (cond (zero? exit-code) true
+             (re-find #"Could not find remote branch" message)
+             (do (build-log/error-format "Branch `%s` does not exists in repo `%s`" branch-name repo-address) false)
+             (re-find #"Repository not found" message) (do (build-log/error-format "Repository `%s` not found" repo-address) false)
+             :else (do (build-log/error "Unexpected error during clone repo: " message) false)))))
+  ([target-dir repo-address branch-name] (clone-repo-branch target-dir target-dir repo-address branch-name)))
 
 (defn create-and-switch-to-branch
   "In an existing repo stored in `dir`, creates a branch called `branch-name` and switch to it
@@ -99,10 +103,11 @@
                                                           ["git" "commit" "-m" msg {:dir dir}]
                                                           ["git" "push" "--set-upstream" "origin" branch-name {:dir dir}])]
         (case (first (build-cmds/first-cmd-failing commit-res))
-          nil (do (build-log/info "Successfully pushed") true)
-          1 (do (build-log/debug "Nothing to commit, skip the push") false)
-          2 (do (build-log/debug "Push has failed") false)
-          :else (do (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res)) false))))))
+          nil (do (build-log/info "Successfully pushed") build-exit-codes/ok)
+          1 (do (build-log/debug "Nothing to commit, skip the push") build-exit-codes/ok)
+          2 (do (build-log/debug "Push has failed") build-exit-codes/catch-all)
+          :else (do (build-log/error "Unexpected error during commit-and-push : " (into [] commit-res))
+                    build-exit-codes/unexpected-exception))))))
 
 (defn current-commit-sha
   "Returns the current commit sha in the directory `dir`
@@ -205,54 +210,26 @@
   * `repo-address` the address of the repo where to push
   * `base-branch-name` if branch-name does not exist, it will be created based on `base-branch-name`
   * `force?` (optional default false) if false, will refuse to push on master or main branches"
-  ([source-dir repo-address base-branch-name commit-msg tag-msg major-version force?]
+  ([source-dir repo-address base-branch-name commit-msg version tag-msg force? target-branch]
    (when (git-installed?)
      (build-log/info "Pushing from local directory to repository")
-     (let [branch-name (current-branch ".")]
-       (build-log/trace-map "Push local directories"
-                            :source-dir source-dir
-                            :repo-address repo-address
-                            :base-branch-name base-branch-name
-                            :branch-name branch-name
-                            :commit-msg commit-msg
-                            :tag-msg tag-msg
-                            :force? force?)
-       (when (validate-branch-name force? branch-name)
-         (let [tmp-dir (build-files/create-temp-dir)]
-           (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name branch-name)
-             (build-log/debug "Pushing from local directory to repository - repo is ready")
-             (let [version (build-version/version-to-push source-dir major-version)]
-               (squash-local-files-and-push tmp-dir source-dir commit-msg tag-msg version))))))))
-  ([source-dir repo-address base-branch-name commit-msg tag-msg major-version]
-   (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg tag-msg major-version false)))
-
-(defn extract-app-from-repo
-  "Use that function to push the last commit of monorepo for branch `branch-name`
-  Params:
-  * `monorepo-address` adress of the monorepo
-  * `app-repo-address` the address of the repo where to push
-  * `branch-name` the branch where to push
-  * `sub-dir` directory in monorepo cloned repo which will be copied to app-repo
-  * `commit-msg` commit message
-  * `tag-msg` tag message
-  * `force?` (optional default false) if false, will refuse to push on master or main branches"
-  ([monorepo-address app-repo-address branch-name sub-dir commit-msg tag-msg major-version]
-   (extract-app-from-repo monorepo-address app-repo-address branch-name sub-dir commit-msg tag-msg major-version false))
-  ([monorepo-address app-repo-address branch-name sub-dir commit-msg tag-msg major-version force?]
-   (build-log/debug-format "Extract the app from repo on branch `%s`" branch-name)
-   (when (git-installed?)
-     (when (validate-branch-name force? branch-name)
-       (let [monorepo-tmp-dir (build-files/create-temp-dir)
-             version (build-version/version-to-push sub-dir major-version)]
-         (build-log/trace-format "Clone monorepo in directory `%s`" monorepo-tmp-dir)
-         (when (clone-repo-branch monorepo-tmp-dir monorepo-address branch-name)
-           (let [app-tmp-dir (build-files/create-temp-dir)]
-             (when (clone-repo-branch app-tmp-dir app-repo-address branch-name)
-               (squash-local-files-and-push app-tmp-dir
-                                            (build-files/create-dir-path monorepo-tmp-dir sub-dir)
-                                            commit-msg
-                                            tag-msg
-                                            version)))))))))
+     (build-log/trace-map "Push local directories"
+                          :source-dir source-dir
+                          :repo-address repo-address
+                          :base-branch-name base-branch-name
+                          :branch-name target-branch
+                          :commit-msg commit-msg
+                          :tag-msg tag-msg
+                          :force? force?)
+     (when (validate-branch-name force? target-branch)
+       (let [tmp-dir (build-files/create-temp-dir)]
+         (when (prepare-cloned-repo-on-branch tmp-dir repo-address base-branch-name target-branch)
+           (build-log/debug "Pushing from local directory to repository - repo is ready")
+           (squash-local-files-and-push tmp-dir source-dir commit-msg tag-msg version))))))
+  ([source-dir repo-address base-branch-name commit-msg version tag-msg]
+   (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg version tag-msg false (current-branch ".")))
+  ([source-dir repo-address base-branch-name commit-msg version tag-msg force?]
+   (push-local-dir-to-repo source-dir repo-address base-branch-name commit-msg version tag-msg force? (current-branch "."))))
 
 (defn find-git-repo
   "Search in the parent directories if
