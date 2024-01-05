@@ -3,6 +3,7 @@
                :mermaid-dir "docs/code/"
                :publication {:as-lib org.clojars.hephaistox/automaton-build-app
                              :branch "main"
+                             :deploy-to :clojars
                              :jar-path "target/prod/automaton-build-app.jar"
                              :major-version "0.0.%d"
                              :pom-path "target/prod/class/META-INF/maven/org.clojars.hephaistox/automaton-build-app/pom.xml"

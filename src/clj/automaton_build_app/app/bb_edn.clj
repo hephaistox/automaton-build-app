@@ -29,7 +29,7 @@
   (if-let [bb-edn (->> (build-deps-edn/get-bb-deps (:deps-edn app))
                        (assoc (:bb-edn app) :deps))]
     (build-edn-utils/spit-edn (bb-edn-filename-fullpath app-dir) bb-edn ";;The file is updated automatically")
-    (build-log/error "Can't proceed with update of `bb.edn` update as `:bb-deps` in `deps.edn` is empty"))
+    (build-log/error "Can't proceed with update of `bb.edn` as `:bb-deps` in `deps.edn` is empty"))
   app)
 
 (defn tasks

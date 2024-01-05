@@ -20,11 +20,6 @@
                                    "caumond/feature/core-is-autonomous_2" "Manual test"
                                    "Manual test" "v-test-1.%s")
        (catch Exception e (println e)))
-  (try (sut/extract-app-from-repo "git@github.com:hephaistox/monorepo.git"
-                                  "git@github.com:hephaistox/automaton-foobar.git" "caumond/feature/core-is-autonomous_2"
-                                  "clojure/automaton/automaton_core" "Manual test"
-                                  "Manual test" "0.0.0")
-       (catch Exception e (println e)))
   ;
 )
 

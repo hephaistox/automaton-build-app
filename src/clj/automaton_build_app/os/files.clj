@@ -153,7 +153,7 @@
                                      target-dir
                                      {:replace-existing true
                                       :copy-attributes true}))
-                   (do (build-log/trace-format "Copy files `%s` to `%s`" (absolutize file) (absolutize target-dir))
+                   (do (build-log/trace-format "Copy file `%s` to `%s`" (absolutize file) (absolutize target-dir))
                        (fs/copy file
                                 target-dir
                                 {:replace-existing true
